@@ -12,7 +12,7 @@ export const registerController = async(req, res) => {
         });
     } catch(e) {
         logger.error(`Registration error: ${e.message}`);
-        return responseError(res, 400, e.message);
+        return responseError(res, 400, e.message, "error", e.message);
     }
 }
 
@@ -24,6 +24,6 @@ export const loginController = async(req, res) => {
         return responseSuccess(res, 200, "Login successful", "data", { user });
     } catch(e) {
         logger.error(`Login error: ${e.message}`);
-        return responseError(res, 400, e.message);
+        return responseError(res, 400, e.message, "error", e.message);
     }
 }

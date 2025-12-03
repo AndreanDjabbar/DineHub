@@ -13,7 +13,7 @@ const connectToRedis = async() => {
             connectTimeout: 10000,
         })
         redisClient.on("connect", () => {
-            logger.info("Redis connected");
+            logger.info("Redis connected on PORT: " + REDIS_PORT);
         })
         redisClient.on("error", (err) => {
             logger.error(`Redis connection error: ${err.message}`);

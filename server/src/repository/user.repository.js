@@ -1,4 +1,4 @@
-import postgreSQL from "../database/postgre.database.js";
+import postgreSQL from "../config/postgres.config.js";
 
 class UserRepository {
     static async getByEmail(email) {

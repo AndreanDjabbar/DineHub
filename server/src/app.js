@@ -2,6 +2,7 @@ import express from "express";
 import morgan from "morgan";
 import logger from "../logs/logger.js";
 import prisma from "./config/postgres.config.js";
+import { getRedisClient } from "./config/redis.config.js";
 import { NODE_ENV } from "./util/env.util.js";
 import authRoutes from "./router/auth.router.js";
 
