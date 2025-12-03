@@ -16,6 +16,26 @@ class UserRepository {
         `;
         return newUser;
     }
+
+    static async updateUser(id, updateFields) {
+        if (Object.keys(updateFields).length === 0) {
+            throw new Error("No fields to update");
+        }
+        
+        const keys = Object.keys(updateFields);
+        const values = Object.values(updateFields);
+        
+        const setClause = keys.map((key, i) => `"${key}" = $${i + 2}`).join(', ');
+        
+        const [updatedUser] = await postgreSQL.unsafe(`
+            UPDATE public."User"
+            SET ${setClause}, "updated_at" = NOW()
+            WHERE "id" = $1
+            RETURNING id, name, email, created_at, updated_at, is_verified
+        `, [id, ...values]);
+        
+        return updatedUser;
+    }
 }
 
 

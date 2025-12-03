@@ -7,7 +7,7 @@ export const registerController = async(req, res) => {
     const { name, email, password } = req.body;
     try {
         const newUser = await AuthService.register(name, email, password);
-        return responseSuccess(res, 201, "Registration successful", "data", { 
+        return responseSuccess(res, 201, "Registration successful.. Please check email for otp verification.", "data", { 
             user: newUser 
         });
     } catch(e) {
@@ -24,6 +24,90 @@ export const loginController = async(req, res) => {
         return responseSuccess(res, 200, "Login successful", "data", { user });
     } catch(e) {
         logger.error(`Login error: ${e.message}`);
+        return responseError(res, 400, e.message, "error", e.message);
+    }
+}
+
+export const verifyRegisterTokenController = async (req, res) => {
+    logger.info("VERIFY REGISTER TOKEN CONTROLLER");
+    const { 
+        token, 
+        email
+    } = req.query;
+    try {
+        if (!token || !email) {
+            throw new Error("Token and email are required");
+        }
+        
+        const result = await AuthService.verifyRegisterToken(token, email);
+        return responseSuccess(res, 200, "Email verification successful", "data", {
+            name: result.name,
+            email: result.email,
+        });
+    } catch(e) {
+        logger.error(`Verify register token error: ${e.message}`);
+        return responseError(res, 400, e.message, "error", e.message);
+    }
+}
+
+export const verifyRegisterOtpController = async (req, res) => {
+    logger.info("VERIFY REGISTER OTP CONTROLLER");
+    const { 
+        otpCode
+    } = req.body;
+    const { email, token } = req.query;
+    try {
+        const result = await AuthService.verifyRegisterOtp(token, email, otpCode);
+        return responseSuccess(res, 200, `OTP verification successful..Welcome to DineHub, ${result.name}`, "data", {
+            name: result.name,
+        });
+    } catch(e) {
+        logger.error(`Verify register OTP error: ${e.message}`);
+        return responseError(res, 400, e.message, "error", e.message);
+    }
+}
+
+export const forgotPasswordEmailVerificationController = async (req, res) => {
+    logger.info("FORGOT PASSWORD EMAIL VERIFICATION CONTROLLER");
+
+    const { email } = req.body;
+    try {
+        const result = await AuthService.forgotPasswordEmailVerification(email);
+        return responseSuccess(res, 200, "Forgot password email verification sent", "data", result);
+    } catch(e) {
+        logger.error(`Forgot password email verification error: ${e.message}`);
+        return responseError(res, 400, e.message, "error", e.message);
+    }
+}
+
+export const forgotPasswordLinkVerificationController = async (req, res) => {
+    logger.info("FORGOT PASSWORD LINK VERIFICATION CONTROLLER");
+
+    const { token, email } = req.query;
+    try {
+        const result = await AuthService.forgotPasswordLinkVerification(token, email);
+        return responseSuccess(res, 200, "Forgot password link verification successful", "data", result);
+    } catch(e) {
+        logger.error(`Forgot password link verification error: ${e.message}`);
+        return responseError(res, 400, e.message, "error", e.message);
+    }
+}
+
+export const ForgotPasswordResetController = async (req, res) => {
+    logger.info("FORGOT PASSWORD RESET CONTROLLER");
+
+    const { token, email } = req.query;
+    const { newPassword } = req.body;
+
+    try {
+        if (!token || !email) {
+            throw new Error("Token and email are required");
+        }
+
+        const result = await AuthService.forgotPasswordReset(token, email, newPassword);
+        return responseSuccess(res, 200, "Reset password successful", "data", result);
+    } catch(e) {
+        logger.error(`Forgot password reset error: ${e.message}`);
         return responseError(res, 400, e.message, "error", e.message);
     }
 }
