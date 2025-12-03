@@ -1,0 +1,35 @@
+services:
+  dinehub-redis:
+    image: redis:latest
+    container_name: dinehub_redis
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - dinehub_redis_data:/data
+    networks:
+      - dinehub_network
+
+  pingspot-postgres:
+    image: postgres:latest
+    container_name: dinehub_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRE_DB}
+      POSTGRES_USER: ${POSTGRE_USER}
+      POSTGRES_PASSWORD: ${POSTGRE_PASSWORD}
+    ports:
+      - "${POSTGRE_PORT}:5432"
+    env_file:
+      - .env
+    volumes:
+      - dinehub_postgre_data:/var/lib/postgresql/data
+    networks:
+      - dinehub_network
+
+networks:
+  dinehub_network:
+
+volumes:
+  dinehub_redis_data:
+  dinehub_postgre_data:

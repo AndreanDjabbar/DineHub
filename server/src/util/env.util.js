@@ -1,0 +1,12 @@
+export const GITHUB_REPO_URL = process.env.GITHUB_REPO_URL || "";
+export const LOGGER_LEVEL = process.env.LOGGER_LEVEL || 'info';
+export const PORT = Number(process.env.PORT) || 3000;
+export const HOST = process.env.HOST || "0.0.0.0";
+export const NODE_ENV = process.env.NODE_ENV || "development";
+export const JWT_SECRET = process.env.JWT_SECRET || "default_secret_key";
+export const REDIS_HOST = process.env.REDIS_HOST || "localhost";
+export const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
+export const REDIS_PASSWORD = process.env.REDIS_PASSWORD || "";
+export const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
+export const EMAIL = process.env.EMAIL_EMAIL || "";
+export const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || "";
