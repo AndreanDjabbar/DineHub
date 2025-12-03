@@ -13,3 +13,144 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Table {
+  id        String    @id @default(cuid())
+  name      String
+  qrcode    String    @unique // Link identifier
+  sessions  Session[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Session {
+  id        String        @id @default(cuid())
+  table     Table         @relation(fields: [tableId], references: [id])
+  tableId   String
+  status    SessionStatus @default(ACTIVE)
+  users     SessionUser[]
+  cartItems CartItem[]
+  orders    Order[]
+  createdAt DateTime      @default(now())
+  endedAt   DateTime?
+}
+
+enum SessionStatus {
+  ACTIVE
+  CLOSED
+}
+
+model SessionUser {
+  id        String     @id @default(cuid())
+  session   Session    @relation(fields: [sessionId], references: [id])
+  sessionId String
+  uuidToken String     @unique
+  name      String?
+  orders    Order[]
+  cartItems CartItem[]
+  createdAt DateTime   @default(now())
+}
+
+model MenuCategory {
+  id        String     @id @default(cuid())
+  name      String
+  items     MenuItem[]
+  createdAt DateTime   @default(now())
+}
+
+model MenuItem {
+  id          String       @id @default(cuid())
+  name        String
+  price       Int
+  image       String?
+  category    MenuCategory @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  isAvailable Boolean      @default(true)
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  createdAt   DateTime     @default(now())
+}
+
+model CartItem {
+  id         String       @id @default(cuid())
+  session    Session      @relation(fields: [sessionId], references: [id])
+  sessionId  String
+  user       SessionUser? @relation(fields: [userId], references: [id])
+  userId     String?
+  menuItem   MenuItem     @relation(fields: [menuItemId], references: [id])
+  menuItemId String
+  quantity   Int          @default(1)
+  isShared   Boolean      @default(true)
+  createdAt  DateTime     @default(now())
+}
+
+model Order {
+  id         String       @id @default(cuid())
+  session    Session      @relation(fields: [sessionId], references: [id])
+  sessionId  String
+  user       SessionUser? @relation(fields: [userId], references: [id])
+  userId     String?
+  items      OrderItem[]
+  payments   Payment[]
+  status     OrderStatus  @default(PENDING)
+  totalPrice Int          @default(0)
+  isShared   Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+  paidAt     DateTime?
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  menuItemId String
+  price      Int
+  quantity   Int      @default(1)
+}
+
+model Payment {
+  id        String        @id @default(cuid())
+  order     Order         @relation(fields: [orderId], references: [id])
+  orderId   String
+  amount    Int
+  method    PaymentMethod
+  status    PaymentStatus @default(PENDING)
+  createdAt DateTime      @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum Role {
+  Developer
+  ADMIN
+  CASHIER
+  USER
+  KITCHEN
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  READY
+  SERVED
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}

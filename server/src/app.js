@@ -10,7 +10,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/pingspot/api/auth", authRoutes);
+app.use("/dinehub/api/auth", authRoutes);
 
 const morganFormat = (tokens, req, res) => {
     try {

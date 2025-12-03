@@ -8,5 +8,6 @@ export const REDIS_HOST = process.env.REDIS_HOST || "localhost";
 export const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 export const REDIS_PASSWORD = process.env.REDIS_PASSWORD || "";
 export const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
+export const DATABASE_URL = process.env.DATABASE_URL || "postgresql://user:password@localhost:5432/dbname";
 export const EMAIL = process.env.EMAIL_EMAIL || "";
 export const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || "";
