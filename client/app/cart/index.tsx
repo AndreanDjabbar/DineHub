@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { FiX, FiMapPin, FiMinus, FiPlus } from "react-icons/fi";
-import { RiMastercardFill } from "react-icons/ri";
+import BackButton from "~/components/BackButton";
 
 interface CartItem {
   id: number;
@@ -65,12 +65,7 @@ const CartPage: React.FC = () => {
     <div className="min-h-screen bg-white font-sans text-gray-900 pb-32">
       {/* --- Header --- */}
       <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center justify-between border-b border-gray-50">
-        <button
-          onClick={() => navigate(-1)}
-          className="p-2 -ml-2 text-gray-800 hover:bg-gray-100 rounded-full"
-        >
-          <FiX className="w-6 h-6" />
-        </button>
+        <BackButton />
         <h1 className="text-lg font-bold">Cart</h1>
         <div className="w-8" />
       </div>

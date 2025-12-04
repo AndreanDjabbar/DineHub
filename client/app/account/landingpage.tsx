@@ -8,44 +8,17 @@ const LandingPage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden flex flex-col font-sans text-gray-900">
-      {/* Top Left Plate */}
-      <div className="absolute -top-16 -left-16 w-48 h-48 rounded-full overflow-hidden shadow-lg border-4 border-white opacity-90">
-        <img
-          src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80"
-          className="w-full h-full object-cover"
-          alt="Food"
-        />
-      </div>
-
-      {/* Top Right Plate */}
-      <div className="absolute top-12 -right-20 w-56 h-56 rounded-full overflow-hidden shadow-lg border-4 border-white opacity-90">
-        <img
-          src="https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80"
-          className="w-full h-full object-cover"
-          alt="Food"
-        />
-      </div>
-
-      {/* Middle Right Plate */}
-      <div className="absolute top-1/3 -right-16 w-40 h-40 rounded-full overflow-hidden shadow-lg border-4 border-white opacity-90">
-        <img
-          src="https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80"
-          className="w-full h-full object-cover"
-          alt="Food"
-        />
-      </div>
-
+    <div className="min-h-screen relative overflow-hidden flex flex-col font-sans text-gray-900 bg-[linear-gradient(to_bottom,transparent,rgba(0,0,0,1)),url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center">
       {/* --- Main Content --- */}
-      <div className="grow flex flex-col items-center justify-center px-6 z-10 mt-20">
+      <div className="grow flex flex-col items-center justify-center px-6 z-10">
         {/* Logo Area */}
         <div className="flex flex-col items-center mb-8">
           <div className="relative">
-            <div className="bg-red-600 w-20 h-20 rounded-2xl flex items-center justify-center shadow-red-200 shadow-lg mb-4">
+            <div className="bg-red-600 w-20 h-20 rounded-2xl flex items-center justify-center shadow-red-700 shadow-sm mb-4">
               <img src="DineHub.webp" alt="" />
             </div>
           </div>
-          <p className="text-gray-500 font-sm text-center leading-relaxed">
+          <p className="text-white font-sm text-center leading-relaxed">
             Log In to receive exclusive rewards!
             <br />
           </p>
@@ -53,11 +26,17 @@ const LandingPage: React.FC = () => {
 
         {/* Buttons Area */}
         <div className="w-full max-w-xs flex flex-col gap-3">
-          <button className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-md shadow-red-100 active:scale-[0.98]">
+          <button
+            onClick={() => navigate("/login")}
+            className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-sm shadow-red-600 active:scale-[0.98]"
+          >
             Log In
           </button>
 
-          <button className="hover:cursor-pointer w-full bg-white border border-red-100 text-red-600 font-bold py-4 rounded-2xl hover:bg-red-50 transition active:scale-[0.98]">
+          <button
+            onClick={() => navigate("/signup")}
+            className="hover:cursor-pointer w-full bg-white border border-red-100 text-red-600 font-bold py-4 rounded-2xl shadow-sm shadow-white hover:bg-red-50 transition active:scale-[0.98]"
+          >
             Sign Up
           </button>
         </div>

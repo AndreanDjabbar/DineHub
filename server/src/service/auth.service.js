@@ -29,7 +29,10 @@ class AuthService {
             await redisClient.expire(redisKey, 15 * 60);
             sendVerificationEmail(email, emailVerificationToken, otpCode);
 
-            throw new Error("Email not verified. Please check your email for OTP verification.");
+            const error = new Error("Email not verified. Please check your email for OTP verification.");
+
+            error.token = emailVerificationToken;
+            throw error;
         }
 
         return user;
@@ -59,8 +62,10 @@ class AuthService {
         await redisClient.expire(redisKey, 15 * 60);
 
         sendVerificationEmail(email, emailVerificationToken, otpCode);
-
-        return newUser;
+        return {
+            user: newUser,
+            token: emailVerificationToken
+        };
     }
 
     static async verifyRegisterToken(token, email) {
@@ -83,13 +88,18 @@ class AuthService {
         }
         const redisKey = `emailVerification:${user.id}`;
         const redisClient = await getRedisClient();
-        const storedToken = await redisClient.hget(redisKey, "emailVerificationToken");
-        const storedOtpCode = await redisClient.hget(redisKey, "otpCode");
-        if (token !== storedToken) {
-            throw new Error("Invalid or expired token");
+        const cachedData = await redisClient.hgetall(redisKey);
+
+        if(!cachedData || Object.keys(cachedData).length === 0) {
+            throw new Error("OTP has expired or is invalid");
         }
-        if (otpCode !== storedOtpCode) {
+
+        if(cachedData.otpCode !== otpCode) {
             throw new Error("Invalid OTP code");
+        }
+
+        if (token !== cachedData.emailVerificationToken) {
+            throw new Error("Invalid or expired token");
         }
 
         await UserRepository.updateUser(user.id, { is_verified: true });
