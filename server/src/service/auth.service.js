@@ -113,12 +113,7 @@ class AuthService {
             throw new Error("User not found");
         }
 
-        if (!user.is_verified) {
-            throw new Error("Email not verified. Please login and verify your email first.");
-        }
-
         const redisClient = await getRedisClient();
-
         const resetToken = generateRandomToken(100);
         const redisKey = `forgotPassword:${user.id}`;
         await redisClient.hset(redisKey, {
@@ -133,10 +128,6 @@ class AuthService {
         const user = await UserRepository.getByEmail(email);
         if (!user) {
             throw new Error("User not found");
-        }
-
-        if (!user.is_verified) {
-            throw new Error("Email not verified. Please login and verify your email first.");
         }
 
         const redisKey = `forgotPassword:${user.id}`;

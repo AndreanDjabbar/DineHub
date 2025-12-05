@@ -61,7 +61,7 @@ const VerifyOtp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
+    setIsLoading(true); 
 
     const otpCode = otp.join("");
     console.log("Sending to backend : ", { email, otp: otpCode });
@@ -89,6 +89,12 @@ const VerifyOtp: React.FC = () => {
         navigate("/login");
       } else {
         setError(data.message || "Invalid OTP code");
+        const msg = data.message.toLowerCase();
+
+        alert("This code has expired. Please login again.");
+        if(msg.includes("expired") || msg.includes("invalid")) {
+          navigate("/login");
+        }
       }
     } catch (err) {
       setError("Network error. Please try again.");
@@ -131,7 +137,7 @@ const VerifyOtp: React.FC = () => {
               className="w-16 h-18 border border-gray-200 rounded-xl text-center text-2xl font-bold focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition bg-gray-50"
             />
           ))}
-        </div>
+        </div>  
 
         {error && (
           <div className="bg-red-50 text-red-600 text-sm p-3 rounded-xl text-center font-medium">

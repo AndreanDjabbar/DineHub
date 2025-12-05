@@ -131,7 +131,10 @@ const Login: React.FC = () => {
 
         {/* Forgot Password Link */}
         <div className="flex justify-end">
-          <button className="text-sm font-bold text-gray-900 hover:text-red-600 transition">
+          <button 
+          onClick={() => navigate("/forgot-password")}
+          type="button"
+          className="hover:cursor-pointer text-sm font-bold text-gray-900 hover:text-red-600 transition">
             Forgot Password?
           </button>
         </div>

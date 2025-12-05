@@ -7,4 +7,6 @@ export default [
   route("login", "account/login.tsx"),
   route("signup", "account/signup.tsx"),
   route("verify-otp", "account/verifyotp.tsx"),
+  route("forgot-password", "forgot-password/index.tsx"),
+  route("reset-password", "reset-password/index.tsx"),
 ] satisfies RouteConfig;

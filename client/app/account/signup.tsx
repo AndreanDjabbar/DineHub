@@ -23,7 +23,7 @@ const Signup: React.FC = () => {
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const [showPass, setShowPass] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,7 +137,7 @@ const Signup: React.FC = () => {
               <FiLock className="w-5 h-5" />
             </div>
             <input
-              type={showPass ? "text" : "password"}
+              type={showPassword ? "text" : "password"}
               name="password"
               value={formData.password}
               onChange={handleChange}
@@ -147,10 +147,10 @@ const Signup: React.FC = () => {
             />
             <button
               type="button"
-              onClick={() => setShowPass(!showPass)}
+              onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
             >
-              {showPass ? (
+              {showPassword ? (
                 <FiEyeOff className="w-5 h-5" />
               ) : (
                 <FiEye className="w-5 h-5" />
