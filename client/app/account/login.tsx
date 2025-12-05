@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router";
 import { FiArrowLeft, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import BackButton from "../components/BackButton";
+import CustomerNavbar from "../components/CustomerNavbar";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -62,11 +62,8 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 px-6 py-6 flex flex-col">
-      {/* --- Header: Back Button --- */}
-      <BackButton />
-
       {/* --- Title Section --- */}
-      <div className="mt-5 mb-8">
+      <div className="mb-8">
         <h1 className="text-3xl font-extrabold mb-2 text-gray-900">
           Let's Sign You In
         </h1>
@@ -149,7 +146,7 @@ const Login: React.FC = () => {
       </form>
 
       {/* --- Footer: Sign Up Link --- */}
-      <div className="grow flex items-end justify-center pb-4">
+      <div className="grow flex justify-center pb-4 mt-6">
         <p className="text-sm font-medium text-gray-500">
           Don't have an account?{" "}
           <NavLink
@@ -160,6 +157,8 @@ const Login: React.FC = () => {
           </NavLink>
         </p>
       </div>
+
+      <CustomerNavbar/>
     </div>
   );
 };

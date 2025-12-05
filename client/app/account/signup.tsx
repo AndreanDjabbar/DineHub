@@ -8,7 +8,7 @@ import {
   FiEyeOff,
   FiUser,
 } from "react-icons/fi";
-import BackButton from "~/components/BackButton";
+import CustomerNavbar from "../components/CustomerNavbar";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -77,9 +77,8 @@ const Signup: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 px-6 py-6 flex flex-col">
-      <BackButton />
 
-      <div className="mt-5 mb-8">
+      <div className="mb-8">
         <h1 className="text-3xl font-extrabold mb-2 text-gray-900">
           Create Account
         </h1>
@@ -201,7 +200,7 @@ const Signup: React.FC = () => {
       </form>
 
       {/* --- Footer: Login Link --- */}
-      <div className="grow flex items-end justify-center pb-4 mt-6">
+      <div className="grow flex justify-center pb-4 mt-6">
         <p className="text-sm font-medium text-gray-500">
           Already have an account?{" "}
           <NavLink
@@ -212,6 +211,7 @@ const Signup: React.FC = () => {
           </NavLink>
         </p>
       </div>
+      <CustomerNavbar/>
     </div>
   );
 };
