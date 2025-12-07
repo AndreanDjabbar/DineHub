@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { FiX, FiMapPin, FiMinus, FiPlus } from "react-icons/fi";
-import BackButton from "~/components/BackButton";
+import BackButton from "../components/BackButton";
 
 interface CartItem {
   id: number;

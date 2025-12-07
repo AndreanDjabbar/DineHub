@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router";
 import { FiArrowLeft, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import CustomerNavbar from "../components/CustomerNavbar";
+import BottomNavigation from "../components/CustomerNavbar";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -158,7 +158,7 @@ const Login: React.FC = () => {
         </p>
       </div>
 
-      <CustomerNavbar/>
+      <BottomNavigation/>
     </div>
   );
 };
