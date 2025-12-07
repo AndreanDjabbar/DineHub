@@ -7,9 +7,7 @@ import {
     forgotPasswordEmailVerificationController,
     forgotPasswordLinkVerificationController,
     ForgotPasswordResetController,
-    refreshTokenController,
     logoutController,
-    logoutAllDevicesController
 } from "../controller/auth.controller.js";
 
 import { 
@@ -34,8 +32,6 @@ router.post("/forgot-password/email-verification", validate(forgotPasswordEmailS
 router.post("/forgot-password/link-verification", forgotPasswordLinkVerificationController);
 router.post("/forgot-password/reset-password", validate(forgotPasswordResetSchema), ForgotPasswordResetController);
 
-router.post("/refresh-token", refreshTokenController);
 router.post("/logout", logoutController);
-router.post("/logout-all", validateToken, logoutAllDevicesController);
 
 export default router;

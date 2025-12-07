@@ -126,18 +126,8 @@ model User {
   password      String
   role          Role           @default(USER)
   is_verified   Boolean        @default(false)
-  refreshTokens RefreshToken[]
   created_at    DateTime       @default(now())
   updated_at    DateTime       @updatedAt
-}
-
-model RefreshToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  user_id    String
-  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  expires_at DateTime
-  created_at DateTime @default(now())
 }
 
 enum Role {

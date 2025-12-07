@@ -1,9 +1,8 @@
 import bcrypt from "bcrypt";
 import UserRepository from "../repository/user.repository.js";
-import RefreshTokenRepository from "../repository/refresh-token.repository.js";
 import { generateOTPNumber, generateRandomToken, sendResetPasswordEmail, sendVerificationEmail } from "../util/main.util.js";
 import { getRedisClient } from "../config/redis.config.js";
-import { generateAccessToken, generateRefreshToken, verifyToken } from "../util/jwt.util.js";
+import { generateJWTToken, verifyToken } from "../util/jwt.util.js";
 
 class AuthService {
     static async login(email, password) {
@@ -37,24 +36,14 @@ class AuthService {
             throw error;
         }
 
-        const accessToken = generateAccessToken({
+        const tokenJWT = generateJWTToken({
             userID: user.id,
             email: user.email,
             role: user.role
         });
 
-        const refreshToken = generateRefreshToken({
-            userID: user.id
-        });
-
         const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7);
-
-        await RefreshTokenRepository.create({
-            token: refreshToken,
-            userID: user.id,
-            expiresAt: expiresAt
-        });
+        expiresAt.setHours(expiresAt.getHours() + 24);
 
         return {
             user: {
@@ -63,8 +52,7 @@ class AuthService {
                 email: user.email,
                 role: user.role
             },
-            accessToken,
-            refreshToken
+            token: tokenJWT,
         };
     }
 
@@ -189,65 +177,10 @@ class AuthService {
         await redisClient.del(redisKey);
     }
 
-    static async refreshAccessToken(refreshToken) {
-        const decoded = verifyToken(refreshToken);
-
-        if (decoded.type !== 'refresh') {
-            throw new Error("Invalid token type");
+    static async logout(token) {
+        if (!token) {
+            throw new Error("Token is required");
         }
-
-        const storedToken = await RefreshTokenRepository.findByToken(refreshToken);
-        if (!storedToken) {
-            throw new Error("Invalid refresh token");
-        }
-
-        if (new Date() > storedToken.expiresAt) {
-            await RefreshTokenRepository.delete(refreshToken);
-            throw new Error("Refresh token has expired");
-        }
-
-        const user = storedToken.user;
-
-        const newAccessToken = generateAccessToken({
-            userID: user.id,
-            email: user.email,
-            role: user.role
-        });
-
-        const newRefreshToken = generateRefreshToken(user.id);
-
-        await RefreshTokenRepository.delete(refreshToken);
-
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 7);
-
-        await RefreshTokenRepository.create({
-            token: newRefreshToken,
-            userID: user.id,
-            expiresAt: expiresAt
-        });
-
-        return {
-            accessToken: newAccessToken,
-            refreshToken: newRefreshToken
-        };
-    }
-
-    static async logout(refreshToken) {
-        if (!refreshToken) {
-            throw new Error("Refresh token is required");
-        }
-
-        const storedToken = await RefreshTokenRepository.findByToken(refreshToken);
-        if (!storedToken) {
-            throw new Error("Invalid refresh token");
-        }
-
-        await RefreshTokenRepository.delete(refreshToken);
-    }
-
-    static async logoutAllDevices(userID) {
-        await RefreshTokenRepository.deleteAllByUserID(userID);
     }
 }
 

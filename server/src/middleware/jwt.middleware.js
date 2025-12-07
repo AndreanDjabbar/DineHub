@@ -14,11 +14,6 @@ export const validateToken = (req, res, next) => {
     try {
         const decoded = verifyToken(token);
 
-        if (decoded.type !== 'access') {
-            logger.warn("Invalid token type provided");
-            return responseError(res, 401, "Invalid token type", "error", "INVALID_TOKEN_TYPE");
-        }
-
         req.user = {
             userId: decoded.userId,
             email: decoded.email,
@@ -63,14 +58,11 @@ export const optionalAuth = (req, res, next) => {
 
     try {
         const decoded = verifyToken(token);
-        
-        if (decoded.type === 'access') {
-            req.user = {
-                userId: decoded.userId,
-                email: decoded.email,
-                role: decoded.role
-            };
-        }
+        req.user = {
+            userId: decoded.userId,
+            email: decoded.email,
+            role: decoded.role
+        };
     } catch (error) {
         logger.warn(`Optional auth token verification failed: ${error.message}`);
     }

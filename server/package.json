@@ -10,8 +10,7 @@
     "up-dev": "docker-compose --env-file .env.dev up -d",
     "reset:dev": "dotenv -e .env.dev -- npx prisma migrate reset --force",
     "generate:dev": "dotenv -e .env.dev -- npx prisma generate",
-    "pull:dev": "dotenv -e .env.dev -- npx prisma db pull",
-    "generate:keys": "node scripts/keys.js"
+    "pull:dev": "dotenv -e .env.dev -- npx prisma db pull"
   },
   "author": "",
   "license": "ISC",
