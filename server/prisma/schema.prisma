@@ -120,14 +120,24 @@ model Payment {
 }
 
 model User {
+  id            String         @id @default(cuid())
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(USER)
+  is_verified   Boolean        @default(false)
+  refreshTokens RefreshToken[]
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+}
+
+model RefreshToken {
   id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
-  is_verified Boolean @default(false)
+  token     String   @unique
+  user_id    String
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  expires_at DateTime
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
 }
 
 enum Role {
