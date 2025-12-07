@@ -10,7 +10,8 @@
     "up-dev": "docker-compose --env-file .env.dev up -d",
     "reset:dev": "dotenv -e .env.dev -- npx prisma migrate reset --force",
     "generate:dev": "dotenv -e .env.dev -- npx prisma generate",
-    "pull:dev": "dotenv -e .env.dev -- npx prisma db pull"
+    "pull:dev": "dotenv -e .env.dev -- npx prisma db pull",
+    "generate:keys": "node scripts/keys.js"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +26,7 @@
     "express": "^5.1.0",
     "ioredis": "^5.8.0",
     "joi": "^18.0.1",
+    "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.11",
     "postgres": "^3.4.7",
