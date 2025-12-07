@@ -6,9 +6,12 @@ import {
     verifyRegisterOtpController,
     forgotPasswordEmailVerificationController,
     forgotPasswordLinkVerificationController,
-    ForgotPasswordResetController
-
+    ForgotPasswordResetController,
+    refreshTokenController,
+    logoutController,
+    logoutAllDevicesController
 } from "../controller/auth.controller.js";
+
 import { 
     registerSchema,
     loginSchema,
@@ -16,6 +19,9 @@ import {
     registerOTPCodeSchema,
     forgotPasswordResetSchema
 } from "../validation/auth.validation.js";
+
+import { validateToken } from "../middleware/jwt.middleware.js";
+
 import validate from "../middleware/validate.middleware.js";
 
 const router = express.Router();
@@ -27,8 +33,9 @@ router.post("/verify/register-otp", validate(registerOTPCodeSchema), verifyRegis
 router.post("/forgot-password/email-verification", validate(forgotPasswordEmailSchema), forgotPasswordEmailVerificationController)
 router.post("/forgot-password/link-verification", forgotPasswordLinkVerificationController);
 router.post("/forgot-password/reset-password", validate(forgotPasswordResetSchema), ForgotPasswordResetController);
-// router.post("/logout", (req, res) => authController.logout(req, res));
-// router.get("/google")
-// router.get("/google/callback")
+
+router.post("/refresh-token", refreshTokenController);
+router.post("/logout", logoutController);
+router.post("/logout-all", validateToken, logoutAllDevicesController);
 
 export default router;

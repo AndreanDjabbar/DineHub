@@ -152,3 +152,70 @@ export const ForgotPasswordResetController = async (req, res) => {
     return responseError(res, 400, e.message, "error", e.message);
   }
 };
+
+export const refreshTokenController = async (req, res) => {
+  logger.info("REFRESH TOKEN CONTROLLER");
+  
+  const { refreshToken } = req.body;
+  
+  try {
+    if (!refreshToken) {
+      throw new Error("Refresh token is required");
+    }
+
+    const result = await AuthService.refreshAccessToken(refreshToken);
+    return responseSuccess(
+      res,
+      200,
+      "Token refreshed successfully",
+      "data",
+      result
+    );
+  } catch (e) {
+    logger.error(`Refresh token error: ${e.message}`);
+    return responseError(res, 401, e.message, "error", e.message);
+  }
+};
+
+export const logoutController = async (req, res) => {
+  logger.info("LOGOUT CONTROLLER");
+  
+  const { refreshToken } = req.body;
+  
+  try {
+    await AuthService.logout(refreshToken);
+    return responseSuccess(
+      res,
+      200,
+      "Logout successful",
+      "data",
+      null
+    );
+  } catch (e) {
+    logger.error(`Logout error: ${e.message}`);
+    return responseError(res, 400, e.message, "error", e.message);
+  }
+};
+
+export const logoutAllDevicesController = async (req, res) => {
+  logger.info("LOGOUT ALL DEVICES CONTROLLER");
+  
+  try {
+    if (!req.user || !req.user.userId) {
+      throw new Error("User not authenticated");
+    }
+
+    await AuthService.logoutAllDevices(req.user.userId);
+    return responseSuccess(
+      res,
+      200,
+      "Logged out from all devices successfully",
+      "data",
+      null
+    );
+  } catch (e) {
+    logger.error(`Logout all devices error: ${e.message}`);
+    return responseError(res, 400, e.message, "error", e.message);
+  }
+};
+
