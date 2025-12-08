@@ -1,5 +1,6 @@
-import React from "react";
-import { useState } from "react";
+import React, { use } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router";
 // Import icons
 import {
   FiSettings,
@@ -8,20 +9,78 @@ import {
   FiChevronRight,
   FiUser,
 } from "react-icons/fi";
-import { MdReceipt } from "react-icons/md";
 import CustomerNavbar from "../components/CustomerNavbar";
 import LandingPage from "./landingpage";
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
 const ProfilePage: React.FC = () => {
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  // Mock User Data
-  const user = {
-    name: "Alex Johnson",
-    email: "alex.johnson@example.com",
-    avatar: "",
+  const [user, setUser] = useState<User>({ id: "", name: "", email: "" });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const token = localStorage.getItem("token");
+      if(!token) {
+        setIsLoggedIn(false);
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:4000/dinehub/api/auth/profile", {
+          method: "GET",  
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          console.log("User Profile Data: ", data);
+          setUser({ id: data.data.id, name: data.data.name, email: data.data.email });
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+        setIsLoggedIn(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+    if(token){
+      try{
+        await fetch("http://localhost:4000/dinehub/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      } catch (error) {
+        console.error("Failed to logout:", error);
+      }
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setIsLoggedIn(false);
+      navigate("/login");
+    }
   };
 
-  if (!isLoggedIn) {
+  if(!isLoggedIn) {
     return <LandingPage />;
   }
 
@@ -52,20 +111,22 @@ const ProfilePage: React.FC = () => {
             label="My Orders"
             to="/orders" 
           /> */}
-          <ProfileOption
+          <button
+            onClick={() => navigate("/settings")}
+          >
+            <ProfileOption
             icon={<FiSettings className="w-5 h-5" />}
             label="Settings"
           />
+          </button>
+          
         </div>
 
         <h3 className="font-bold text-lg mb-4 mt-8">Other</h3>
         <div className="flex flex-col divide-y divide-gray-100 border-t border-b border-gray-100">
-          <ProfileOption
-            icon={<FiHelpCircle className="w-5 h-5" />}
-            label="Help & Support"
-          />
           {/* Log Out Button (Styled differently) */}
-          <button className="hover:cursor-pointer hover:bg-gray-50 transition flex items-center justify-between py-4 w-full group">
+          <button 
+            onClick={handleLogout} className="hover:cursor-pointer hover:bg-gray-50 transition flex items-center justify-between py-4 w-full group">
             <div className="flex items-center gap-4">
               <div className="text-red-600 bg-red-50 p-2 rounded-full group-hover:bg-red-100 transition">
                 <FiLogOut className="w-5 h-5" />

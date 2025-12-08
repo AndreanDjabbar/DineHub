@@ -25,7 +25,7 @@ export const validateToken = async(req, res, next) => {
         const decoded = verifyToken(token);
 
         req.user = {
-            userId: decoded.userId,
+            userID: decoded.userID,
             email: decoded.email,
             role: decoded.role
         };
@@ -50,7 +50,7 @@ export const validateRoles = (...allowedRoles) => {
         }
 
         if (!allowedRoles.includes(req.user.role)) {
-            logger.warn(`User ${req.user.userId} with role ${req.user.role} attempted to access restricted resource`);
+            logger.warn(`User ${req.user.userID} with role ${req.user.role} attempted to access restricted resource`);
             return responseError(res, 403, "You do not have permission to access this resource", "error", "FORBIDDEN");
         }
 
@@ -69,7 +69,7 @@ export const optionalAuth = (req, res, next) => {
     try {
         const decoded = verifyToken(token);
         req.user = {
-            userId: decoded.userId,
+            userID: decoded.userID,
             email: decoded.email,
             role: decoded.role
         };

@@ -10,4 +10,5 @@ export default [
   route("verify-otp", "./pages/account/verifyotp.tsx"),
   route("forgot-password", "./pages/forgot-password/index.tsx"),
   route("reset-password", "./pages/reset-password/index.tsx"),
+  route("settings", "./pages/settings/index.tsx"),
 ] satisfies RouteConfig;

@@ -8,6 +8,7 @@ import {
     forgotPasswordLinkVerificationController,
     ForgotPasswordResetController,
     logoutController,
+    getProfileController
 } from "../controller/auth.controller.js";
 
 import { 
@@ -34,5 +35,6 @@ router.post("/forgot-password/reset-password", validate(forgotPasswordResetSchem
 
 router.post("/logout", validateToken, logoutController);
 router.get("/verify-jwt-token", validateToken, (req, res) => {return res.status(200).json({status: "success", message: "Token is valid"});});
+router.get("/profile", validateToken, getProfileController);
 
 export default router;

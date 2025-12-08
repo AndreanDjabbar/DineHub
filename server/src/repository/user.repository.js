@@ -8,6 +8,13 @@ class UserRepository {
         return user;
     }
 
+    static async getById(id) {
+        const [user] = await postgreSQL`
+            SELECT * FROM public."User" WHERE id = ${id}
+        `;
+        return user;
+    }
+
     static async create({ name, email, password }) {
         const [newUser] = await postgreSQL`
             INSERT INTO public."User" (id, name, email, password, updated_at)

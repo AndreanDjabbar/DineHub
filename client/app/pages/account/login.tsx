@@ -40,14 +40,15 @@ const Login: React.FC = () => {
 
       const data = await response.json();
       if (response.ok) {
-        localStorage.setItem("token", data.token);
+        console.log("Login successful!, Data: ", data);
+        localStorage.setItem("token", data.data.token);
         navigate("/menu");
       } else {
         console.log("Response Data: ", data);
         if(data.message.includes("Email not verified")) {
           alert("Please verify your email before logging in.");
           navigate("/verify-otp", {
-            state: { email: formData.email, token: data.token },
+            state: { email: formData.email, token: data.data.token },
           });
         }else{
           setError(data.message);

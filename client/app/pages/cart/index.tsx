@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { FiX, FiMapPin, FiMinus, FiPlus } from "react-icons/fi";
 import BackButton from "../components/BackButton";
+import CustomerNavbar from "../components/CustomerNavbar";
 
 interface CartItem {
   id: number;
@@ -129,7 +130,7 @@ const CartPage: React.FC = () => {
       </div>
 
       {/* --- Sticky Bottom Checkout --- */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-safe">
+      <div className="fixed bottom-15 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-safe">
         <div className="flex items-center justify-between mb-4">
           <span className="text-gray-500 font-medium">Total</span>
           <span className="text-xl font-bold">{formatRupiah(total)}</span>
@@ -138,6 +139,7 @@ const CartPage: React.FC = () => {
           Checkout
         </button>
       </div>
+      <CustomerNavbar />
     </div>
   );
 };

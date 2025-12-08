@@ -174,3 +174,23 @@ export const logoutController = async (req, res) => {
   }
 };
 
+export const getProfileController = async (req, res) => {
+  logger.info("GET PROFILE CONTROLLER");  
+  try {
+    const userID = req.user.userID; 
+    if(!userID){
+      throw new Error("User ID not found in token");
+    }
+    const result = await AuthService.getProfile(userID);
+    return responseSuccess(
+      res,
+      200,
+      "Profile retrieved successfully",
+      "data",
+      result
+    );
+  } catch (e) {
+    logger.error(`Get profile error: ${e.message}`);
+    return responseError(res, 400, e.message, "error", e.message);
+  }
+};
