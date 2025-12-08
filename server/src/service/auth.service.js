@@ -181,6 +181,13 @@ class AuthService {
         if (!token) {
             throw new Error("Token is required");
         }
+        const redisClient = await getRedisClient();
+        const blacklistKey = `blacklistToken:${token}`;
+        await redisClient.set(blacklistKey, "blacklisted");
+        const decoded = verifyToken(token);
+        const expiresAt = new Date(decoded.exp * 1000);
+        const ttl = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
+        await redisClient.expire(blacklistKey, ttl);
     }
 }
 

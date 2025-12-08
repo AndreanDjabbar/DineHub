@@ -32,6 +32,7 @@ router.post("/forgot-password/email-verification", validate(forgotPasswordEmailS
 router.post("/forgot-password/link-verification", forgotPasswordLinkVerificationController);
 router.post("/forgot-password/reset-password", validate(forgotPasswordResetSchema), ForgotPasswordResetController);
 
-router.post("/logout", logoutController);
+router.post("/logout", validateToken, logoutController);
+router.get("/verify-jwt-token", validateToken, (req, res) => {return res.status(200).json({status: "success", message: "Token is valid"});});
 
 export default router;

@@ -1,14 +1,24 @@
 import { verifyToken } from "../util/jwt.util.js";
 import { responseError } from "../util/response.util.js";
 import logger from "../../logs/logger.js";
+import { getRedisClient } from "../config/redis.config.js";
 
-export const validateToken = (req, res, next) => {
+export const validateToken = async(req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
         logger.warn("No token provided in request");
         return responseError(res, 401, "Access token is required", "error", "UNAUTHORIZED");
+    }
+
+    const redisClient = await getRedisClient();
+    const blacklistKey = `blacklistToken:${token}`;
+    const isBlacklisted = await redisClient.get(blacklistKey);
+
+    if (isBlacklisted && isBlacklisted === "blacklisted") {
+        logger.warn("Blacklisted token attempt detected");
+        return responseError(res, 401, "Token has been revoked", "error", "TOKEN_REVOKED");
     }
 
     try {

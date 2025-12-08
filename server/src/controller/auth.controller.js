@@ -155,8 +155,9 @@ export const ForgotPasswordResetController = async (req, res) => {
 
 export const logoutController = async (req, res) => {
   logger.info("LOGOUT CONTROLLER");
-  
-  const { token } = req.body;
+
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
   
   try {
     await AuthService.logout(token);
