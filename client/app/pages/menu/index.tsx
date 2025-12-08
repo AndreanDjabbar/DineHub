@@ -1,7 +1,8 @@
 import React from "react";
-import { FiSearch, FiPlus, FiUser } from "react-icons/fi";
+import { FiSearch, FiPlus, FiUser, FiShoppingBag, FiChevronRight } from "react-icons/fi";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import CustomerNavbar from "../components/CustomerNavbar";
+import { useNavigate } from "react-router";
 
 interface Product {
   id: number;
@@ -17,8 +18,10 @@ interface Category {
   image: string;
 }
 
-interface Table {
+interface Restaurant {
   id: number;
+  name: string;
+  location: string;
 }
 
 const formatRupiah = (price: number) => {
@@ -29,8 +32,6 @@ const formatRupiah = (price: number) => {
     maximumFractionDigits: 0,
   }).format(price);
 };
-
-const table: Table = { id: 67 };
 
 const categories: Category[] = [
   {
@@ -117,19 +118,29 @@ const products: Product[] = [
 ];
 
 const Menu: React.FC = () => {
+  const navigate = useNavigate();
+  const restaurant: Restaurant = {
+    id: 1,
+    name: "Fried Chicken Restaurant",
+    location: "123 Main St, Cityville",
+  };
+  const [cart, setCart ] = React.useState<Product[]>([]);
+  const handleAddToCart = (product: Product) => {
+    setCart([...cart, product]);
+  }
+
+  const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+
   return (
     <div className="min-h-screen bg-white pb-24 font-sans text-gray-900">
       {/* --- Header Section --- */}
       <div className="sticky top-0 z-10 bg-white px-4 pt-4 pb-2">
         {/* Top Bar: Location & Bag */}
-        <div className="mb-2">
-          <span className="font-semibold text-2xl">Table {table.id}</span>
-        </div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-1 cursor-pointer">
-            <FaMapMarkerAlt className="w-3 h-3 text-red-600 fill-red-600" />
-            <span className="font-semibold text-sm">
-              Fried Chicken Restaurant
+            <FaMapMarkerAlt className="w-4 h-4 text-red-600 fill-red-600" />
+            <span className="font-semibold text-2xl">
+              {restaurant.name}
             </span>
           </div>
         </div>
@@ -182,7 +193,9 @@ const Menu: React.FC = () => {
                 />
 
                 {/* Add Button Overlay */}
-                <button className="absolute bottom-2 right-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition active:scale-80">
+                <button 
+                className="absolute bottom-2 right-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition active:scale-80"
+                onClick={() => handleAddToCart(product)}>
                   <div className="w-6 h-6 rounded-full border border-red-500 flex items-center justify-center">
                     <FiPlus className="w-4 h-4 text-red-600" strokeWidth={3} />
                   </div>
@@ -194,7 +207,7 @@ const Menu: React.FC = () => {
                 <h3 className="font-bold text-gray-900 leading-tight mb-1 text-[15px]">
                   {product.name}
                 </h3>
-                <span className="text-emerald-500 font-bold text-[15px]">
+                <span className="font-bold text-[15px]">
                   {formatRupiah(product.price)}
                 </span>
               </div>
@@ -202,6 +215,39 @@ const Menu: React.FC = () => {
           ))}
         </div>
       </main>
+      {/* --- Floating Cart Pop-up --- */}
+      {cart.length > 0 && (
+        <div className="fixed bottom-[85px] left-4 right-4 z-20 animate-slide-up">
+          <button
+            className="w-full bg-white text-gray-900 rounded-2xl shadow-xl shadow-black/5 flex items-stretch overflow-hidden hover:bg-gray-50 transition active:scale-[0.98]"
+            onClick={() => navigate('/cart')}
+          >
+            {/* Left: Red Square (1:1 Ratio) */}
+            <div className="bg-red-600 w-[70px] aspect-square flex items-center justify-center shrink-0">
+              <FiShoppingBag className="w-6 h-6 text-white" />
+            </div>
+
+            {/* Right: Content Info */}
+            <div className="grow flex items-center justify-between px-4 py-3">
+              <div className="flex flex-col items-start">
+                <span className="font-bold text-base">
+                  {cart.length} Items
+                </span>
+                <span className="text-xs text-gray-500 font-medium truncate max-w-[120px]">
+                  {restaurant.name}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-lg text-red-600">
+                  {formatRupiah(totalAmount)}
+                </span>
+                <FiChevronRight className="w-5 h-5 text-gray-400" />
+              </div>
+            </div>
+          </button>
+        </div>
+      )}
       <CustomerNavbar />{" "}
     </div>
   );

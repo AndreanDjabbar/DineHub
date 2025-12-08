@@ -10,6 +10,8 @@ interface CartItem {
   price: number;
   quantity: number;
   image: string;
+  options: string[];
+  notes?: string;
 }
 
 const formatRupiah = (price: number) => {
@@ -25,19 +27,28 @@ const CartPage: React.FC = () => {
   const [items, setItems] = useState<CartItem[]>([
     {
       id: 1,
-      name: "Spicy noodle chicken",
-      price: 50000,
+      name: "A'la Carte Ayam",
+      price: 24091, 
       quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=200&q=80",
+      image: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=200&q=80",
+      options: ["Paha Ayam", "Tanpa Sambal + Lalapan"],
+      notes: "Make it extra crispy please"
     },
     {
       id: 2,
-      name: "Chicken Wrap",
-      price: 30000,
+      name: "Spicy Noodle Chicken",
+      price: 50000,
       quantity: 2,
-      image:
-        "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=200&q=80",
+      image: "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=200&q=80",
+      options: ["Level 3 Spicy", "Extra Egg (+5.000)"],
+    },
+    {
+      id: 3,
+      name: "Chicken Wrap",
+      price: 35000,
+      quantity: 1,
+      image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=200&q=80",
+      options: ["No Onions", "Extra Cheese (+5.000)"],
     },
   ]);
 
@@ -85,9 +96,18 @@ const CartPage: React.FC = () => {
             </div>
 
             {/* Details */}
-            <div className="grow">
+            <div className="grow">  
               <h3 className="font-bold text-sm text-gray-900">{item.name}</h3>
-              <p className="text-emerald-500 font-bold text-sm mt-1">
+              {item.options && item.options.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {item.options.map((option, index) => (
+                    <span key={index} className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
+                      {option}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className=" font-bold text-sm mt-1">
                 {formatRupiah(item.price)}
               </p>
             </div>
@@ -115,22 +135,31 @@ const CartPage: React.FC = () => {
       </div>
 
       {/* --- Summary Section --- */}
-      <div className="px-4 mt-8 space-y-3">
-        <h3 className="font-bold text-lg mb-4">Summary</h3>
+      <div className="px-8 mt-8 space-y-3 border border-gray-300 py-4 rounded-2xl mb-10 mx-4">
+        <h3 className="font-bold text-lg mb-4 text-center">Summary</h3>
 
         <div className="flex justify-between text-sm">
           <span className="text-gray-500">Subtotal</span>
           <span className="font-semibold">{formatRupiah(subtotal)}</span>
         </div>
 
+        <hr className="border-t border-gray-300 my-4" />
+
         <div className="flex justify-between text-sm">
           <span className="text-gray-500">Tax (11%)</span>
           <span className="font-semibold">{formatRupiah(tax)}</span>
         </div>
+
+        <hr className="border-t border-gray-300 my-4" />
+
+        <div className="flex justify-between text-sm">
+          <span className="font-bold">Total</span>
+          <span className="font-semibold">{formatRupiah(total)}</span>
+        </div>
       </div>
 
       {/* --- Sticky Bottom Checkout --- */}
-      <div className="fixed bottom-15 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-safe">
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 pb-safe">
         <div className="flex items-center justify-between mb-4">
           <span className="text-gray-500 font-medium">Total</span>
           <span className="text-xl font-bold">{formatRupiah(total)}</span>
@@ -139,7 +168,6 @@ const CartPage: React.FC = () => {
           Checkout
         </button>
       </div>
-      <CustomerNavbar />
     </div>
   );
 };
