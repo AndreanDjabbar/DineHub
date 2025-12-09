@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router";
-import { FiArrowLeft, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import BottomNavigation from "../components/CustomerNavbar";
+import { BiLoader } from "react-icons/bi";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -51,11 +52,13 @@ const Login: React.FC = () => {
             state: { email: formData.email, token: data.data.token },
           });
         }else{
+          alert(data.message);
           setError(data.message);
         }
       }
     } catch (error) {
       console.error("Login failed:", error);
+      setError(error instanceof Error ? error.message : "An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -137,12 +140,22 @@ const Login: React.FC = () => {
           </button>
         </div>
 
+        {error ? (
+          <div className="text-red-600 text-sm font-medium">{error}</div>
+        ) : null}
+
         {/* Submit Button */}
         <button
           type="submit"
+          disabled={isLoading}
           className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98] mt-4"
         >
-          Sign In
+          {isLoading ? (
+            <div className="text-bold flex items-center justify-center gap-2">
+              <BiLoader size={30} className="animate-spin"/>
+              Signing In...
+            </div>            
+          ) : "Sign In"}
         </button>
       </form>
 
