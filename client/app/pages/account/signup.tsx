@@ -62,9 +62,7 @@ const Signup: React.FC = () => {
         console.log("Response Data: ", data);
         const token = data.data?.token;
         setIsLoading(false);
-        navigate("/verify-otp", {
-          state: { email: formData.email, token: token },
-        });
+        navigate(`/verify-otp?email=${formData.email}&token=${token}`);
       } else {
         setError(data.message || "Signup failed");
       }
