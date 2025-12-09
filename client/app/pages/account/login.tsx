@@ -42,7 +42,19 @@ const Login: React.FC = () => {
       if (response.ok) {
         console.log("Login successful!, Data: ", data);
         localStorage.setItem("token", data.data.token);
-        navigate("/menu");
+        localStorage.setItem("user", JSON.stringify(data.data.user));
+        const role = data.data.user.role;
+        if(role === "ADMIN") {
+          navigate("/admin/dashboard");
+          return;
+        }else if(role === "CASHIER") {
+          navigate("/cashier");
+          return;
+        }else if(role === "KITCHEN") {
+          navigate("/kitchen");
+        }else{
+          navigate("/menu");
+        }
       } else {
         console.log("Response Data: ", data);
         if(data.message.includes("Email not verified")) {

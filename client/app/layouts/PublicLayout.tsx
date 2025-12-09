@@ -13,9 +13,27 @@ export default function PublicLayout() {
   }
 
   const token = localStorage.getItem("token");
+  const userString = localStorage.getItem("user");
 
   if (token) {
-    return <Navigate to="/menu" replace />;
+    let redirectPath = "/menu";
+
+    if(userString) {
+      try{
+        const user = JSON.parse(userString);
+        const role = user.role;
+        if(role === "ADMIN") {
+          redirectPath = "/admin/dashboard";
+        }else if(role === "CASHIER") {
+          redirectPath = "/cashier";
+        }else if(role === "KITCHEN") {
+          redirectPath = "/kitchen";
+        }
+      } catch (error) {
+        console.error("Error parsing user from localStorage:", error);
+      }
+    }
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <Outlet />;
