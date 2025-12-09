@@ -77,7 +77,7 @@ class AuthService {
             otpCode,
             emailVerificationToken
         });
-        await redisClient.expire(redisKey, 15 * 60);
+        await redisClient.expire(redisKey, 5 * 60);
 
         sendVerificationEmail(email, emailVerificationToken, otpCode);
         return {
@@ -97,6 +97,7 @@ class AuthService {
         if (token !== storedToken) {
             throw new Error("Invalid or expired token");
         }
+        return user;
     }
 
     static async verifyRegisterOtp(token, email, otpCode) {
