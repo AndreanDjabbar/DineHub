@@ -5,14 +5,14 @@ import BackButton from "../components/BackButton";
 const VerifyOtp: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const email = location.state?.email || "";
-  const token = location.state?.token || "";
+  const queryParams = new URLSearchParams(location.search);
+  const email = queryParams.get("email") || (location.state as any)?.email || "";
+  const token = queryParams.get("token") || (location.state as any)?.token || "";
 
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [timer, setTimer] = useState(30); // 30s countdown for resend
+  const [timer, setTimer] = useState(30);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -84,16 +84,17 @@ const VerifyOtp: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Success! Go to login
         alert("Email verified successfully!");
         navigate("/login");
       } else {
         setError(data.message || "Invalid OTP code");
         const msg = data.message.toLowerCase();
-
-        alert("This code has expired. Please login again.");
-        if(msg.includes("expired") || msg.includes("invalid")) {
-          navigate("/login");
+        if (msg.includes("expired")) {
+          alert("Your OTP has expired. Please sign up again.");
+          navigate("/signup");
+        } else {
+          setError(data.message || "OTP verification failed");
+          alert(data.message || "OTP verification failed");
         }
       }
     } catch (err) {
@@ -102,6 +103,34 @@ const VerifyOtp: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const verifyRegisterToken = async () => {
+      if (!email || !token) {
+        alert("Missing email or token. Please sign up again.");
+        navigate("/signup");
+        return;
+      }
+      try {
+        const response = await fetch(
+          `http://localhost:4000/dinehub/api/auth/verify/register-token?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        if (!response.ok) {
+          alert("Invalid or expired token. Please sign up again.");
+          navigate("/signup");
+        }
+      } catch (error) {
+        console.error("Token verification failed:", error);
+        alert("Token verification failed. Please sign up again.");
+        navigate("/signup");
+      }
+    }
+    verifyRegisterToken();
+  }, []);
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 px-6 py-6 flex flex-col">
