@@ -53,6 +53,10 @@ const Login: React.FC = () => {
           return;
         }else if(role === "KITCHEN") {
           navigate("/kitchen");
+          return;
+        }else if(role === "Developer") {
+          navigate("/developer");
+          return;
         }else{
           navigate("/menu");
         }

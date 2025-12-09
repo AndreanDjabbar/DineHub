@@ -22,7 +22,7 @@ model Table {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   restaurantId String     @map("restaurant_id")
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurant   Restaurant @relation("RestaurantTables", fields: [restaurantId], references: [id], onDelete: Cascade)
 }
 
 model Session {
@@ -59,7 +59,7 @@ model MenuCategory {
   items        MenuItem[]
   createdAt    DateTime   @default(now())
   restaurantId String     @map("restaurant_id")
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+  restaurant   Restaurant @relation("RestaurantCategories", fields: [restaurantId], references: [id], onDelete: Cascade)
 }
 
 model MenuItem {
@@ -132,9 +132,9 @@ model Restaurant {
   created_at      DateTime       @default(now())
   updated_at      DateTime       @updatedAt
 
-  users           User[]
-  tables          Table[]
-  menuCategories  MenuCategory[]
+  users           User[]         @relation("RestaurantUsers")
+  tables          Table[]        @relation("RestaurantTables")
+  menuCategories  MenuCategory[] @relation("RestaurantCategories")
 }
 
 model User {
@@ -148,7 +148,7 @@ model User {
   updated_at    DateTime       @updatedAt
 
   restaurantId  String?        @map("restaurant_id")
-  restaurant    Restaurant?    @relation(fields: [restaurantId], references: [id])
+  restaurant    Restaurant?    @relation("RestaurantUsers", fields: [restaurantId], references: [id], onDelete: Cascade)
 }
 
 enum Role {

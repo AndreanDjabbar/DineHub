@@ -4,6 +4,9 @@ export default [
   layout("./layouts/ProtectedLayout.tsx", [
     route("account", "./pages/account/index.tsx"),
     route("settings", "./pages/settings/index.tsx"),
+    layout("./layouts/DeveloperLayout.tsx", [
+      route("developer", "./pages/developer/index.tsx"),
+    ]),
     layout("./layouts/AdminLayout.tsx", [
       route("admin/dashboard", "./pages/admin/dashboard.tsx"), 
     ]),

@@ -28,6 +28,8 @@ export default function PublicLayout() {
           redirectPath = "/cashier";
         }else if(role === "KITCHEN") {
           redirectPath = "/kitchen";
+        }else if(role === "Developer") {
+          redirectPath = "/developer";
         }
       } catch (error) {
         console.error("Error parsing user from localStorage:", error);

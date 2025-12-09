@@ -49,10 +49,24 @@ const KitchenDashboard: React.FC = () => {
     setOrders(orders.filter(o => o.id !== id));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    navigate("/login");
+  const handleLogout = async () => {
+    const token = localStorage.getItem("token");
+    if(token){
+      try{
+        await fetch("http://localhost:4000/dinehub/api/auth/logout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      } catch (error) {
+        console.error("Failed to logout:", error);
+      }
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
+    }
   };
 
   return (
