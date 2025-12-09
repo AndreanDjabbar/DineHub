@@ -10,7 +10,6 @@ import {
   FiUser,
 } from "react-icons/fi";
 import CustomerNavbar from "../components/CustomerNavbar";
-import LandingPage from "./landingpage";
 
 interface User {
   id: string;
@@ -79,10 +78,6 @@ const ProfilePage: React.FC = () => {
       navigate("/login");
     }
   };
-
-  if(!isLoggedIn) {
-    return <LandingPage />;
-  }
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-900 pb-24">
