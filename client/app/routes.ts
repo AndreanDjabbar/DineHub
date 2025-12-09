@@ -4,6 +4,15 @@ export default [
   layout("./layouts/ProtectedLayout.tsx", [
     route("account", "./pages/account/index.tsx"),
     route("settings", "./pages/settings/index.tsx"),
+    layout("./layouts/AdminLayout.tsx", [
+      route("admin/dashboard", "./pages/admin/dashboard.tsx"), 
+    ]),
+    layout("./layouts/KitchenLayout.tsx", [
+      route("kitchen", "./pages/kitchen/index.tsx"),
+    ]),
+    layout("./layouts/CashierLayout.tsx", [
+      route("cashier", "./pages/cashier/index.tsx"),
+    ]),
   ]),
 
   layout("./layouts/PublicLayout.tsx", [
