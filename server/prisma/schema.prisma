@@ -151,6 +151,39 @@ model User {
   restaurant    Restaurant?    @relation("RestaurantUsers", fields: [restaurantId], references: [id], onDelete: Cascade)
 }
 
+model Subscription {
+  id           String                      @id @default(cuid())
+  brand_name   String
+  url_slug     String                      @unique
+  email        String                      @unique
+  password     String
+  address      String
+  status       SubscriptionStatus          @default(PENDING)
+  created_at   DateTime                    @default(now())
+  updated_at   DateTime                    @updatedAt
+  transactions Subscription_Transaction[]
+}
+
+model Subscription_Transaction {
+  id                 String        @id @default(cuid())
+  subscription_id    String
+  subscription       Subscription  @relation(fields: [subscription_id], references: [id], onDelete: Cascade)
+  order_id           String        @unique            
+  transaction_id     String?       @unique            
+  gross_amount       Int
+  payment_method     String
+  bank_name          String?
+  payment_type       String?       
+  transaction_status String?
+  fraud_status       String?
+  status_code        String?
+  payment_url        String?
+  expiry_time        DateTime?
+  created_at         DateTime      @default(now())
+  updated_at         DateTime      @updatedAt
+}
+
+
 enum Role {
   Developer
   ADMIN
@@ -175,4 +208,12 @@ enum PaymentStatus {
   PENDING
   PAID
   FAILED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+  CANCELLED
 }
