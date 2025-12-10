@@ -6,6 +6,7 @@ import { getRedisClient } from "./config/redis.config.js";
 import { NODE_ENV } from "./util/env.util.js";
 import authRoutes from "./router/auth.router.js";
 import restaurantRoutes from "./router/restaurant.router.js";
+import subscriptionRoutes from "./router/subscription.router.js";
 import userRoutes from "./router/user.router.js";
 import cors from "cors";
 
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/dinehub/api/auth", authRoutes);
 app.use("/dinehub/api/restaurant", restaurantRoutes);
 app.use("/dinehub/api/user", userRoutes);
+app.use("/dinehub/api/subscription", subscriptionRoutes);
 
 const morganFormat = (tokens, req, res) => {
   try {
