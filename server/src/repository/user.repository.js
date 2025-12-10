@@ -15,6 +15,14 @@ class UserRepository {
     return user;
   }
 
+  static async getAdminByRestaurantId(restaurantId) {
+    const [admin] = await postgreSQL`
+            SELECT * FROM public."User" 
+            WHERE restaurant_id = ${restaurantId} AND role = 'ADMIN'
+        `;
+    return admin;
+  }
+
   static async create({
     name,
     email,

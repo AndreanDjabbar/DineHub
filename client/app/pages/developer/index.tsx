@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { FiEdit2, FiEye, FiEyeOff } from "react-icons/fi";
 import {
   FiServer,
   FiPlus,
@@ -15,7 +16,9 @@ interface Restaurant {
   name: string;
   slug: string;
   address: string;
+  adminName: string;
   adminEmail: string;
+  adminPassword?: string;
 }
 
 const DeveloperDashboard: React.FC = () => {
@@ -23,6 +26,8 @@ const DeveloperDashboard: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -33,6 +38,19 @@ const DeveloperDashboard: React.FC = () => {
     adminEmail: "",
     adminPassword: "",
   });
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      slug: "",
+      address: "",
+      adminName: "",
+      adminEmail: "",
+      adminPassword: "",
+    });
+    setIsEditing(false);
+    setEditId(null);
+  };
 
   // Mock Data
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -65,10 +83,41 @@ const DeveloperDashboard: React.FC = () => {
     fetchRestaurants();
   }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Creating Tenant:", formData);
+  const openCreateModal = () => {
+    resetForm();
+    setShowModal(true);
+  };
 
+  const handleEditClick = (restaurant: Restaurant) => {
+    console.log("Editing Restaurant:", restaurant);
+    setIsEditing(true);
+    setEditId(restaurant.id);
+
+    const dataToLoad = {
+      name: restaurant.name,
+      slug: restaurant.slug,
+      address: restaurant.address,
+      adminName: restaurant.adminName,
+      adminEmail: restaurant.adminEmail,
+      adminPassword: restaurant.adminPassword || "",
+    };
+
+    console.log("Loading Data into Form:", dataToLoad);
+    console.groupEnd();
+
+    setFormData({
+      name: restaurant.name,
+      slug: restaurant.slug,
+      address: restaurant.address,
+      adminName: restaurant.adminName,
+      adminEmail: restaurant.adminEmail,
+      adminPassword: restaurant.adminPassword || "",
+    });
+
+    setShowModal(true);
+  };
+
+  const handleCreate = async () => {
     try {
       const response = await fetch(
         "http://localhost:4000/dinehub/api/restaurant/onboard",
@@ -78,32 +127,62 @@ const DeveloperDashboard: React.FC = () => {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            name: formData.name,
-            slug: formData.slug,
-            address: formData.address,
-            adminName: formData.adminName,
-            adminEmail: formData.adminEmail,
-            adminPassword: formData.adminPassword,
-          }),
+          body: JSON.stringify(formData),
         }
       );
-      const data = await response.json();
-
       if (response.ok) {
         await fetchRestaurants();
-        setFormData({
-          name: "",
-          slug: "",
-          address: "",
-          adminName: "",
-          adminEmail: "",
-          adminPassword: "",
-        });
         setShowModal(false);
+        resetForm();
       }
     } catch (err: any) {
       console.error("Failed to create tenant:", err);
+    }
+  };
+
+  const handleUpdate = async (id: string) => {
+    try {
+      const updateBody: any = {
+        name: formData.name,
+        slug: formData.slug,
+        address: formData.address,
+        adminName: formData.adminName,
+        adminEmail: formData.adminEmail,
+      };
+
+      if (formData.adminPassword) {
+        updateBody.adminPassword = formData.adminPassword;
+      }
+
+      const response = await fetch(
+        `http://localhost:4000/dinehub/api/restaurant/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updateBody),
+        }
+      );
+      console.log("Update Response:", response);
+      if (response.ok) {
+        await fetchRestaurants();
+        setShowModal(false);
+        resetForm();
+      }
+    } catch (err: any) {
+      console.error("Failed to update tenant:", err);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isEditing && editId) {
+      console.log("Editing Tenant:", formData);
+      await handleUpdate(editId);
+    } else {
+      await handleCreate();
     }
   };
 
@@ -163,7 +242,7 @@ const DeveloperDashboard: React.FC = () => {
             </p>
           </div>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={openCreateModal}
             className="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl font-bold flex items-center gap-2 transition shadow-lg shadow-red-100 active:scale-[0.98]"
           >
             <FiPlus className="w-5 h-5" /> Onboard Restaurant
@@ -179,13 +258,13 @@ const DeveloperDashboard: React.FC = () => {
             >
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-bold text-gray-900">{repo.name}</h3>
-                <a
-                  href={`/${repo.slug}`}
-                  target="_blank"
+                <button
+                  onClick={() => handleEditClick(repo)}
                   className="text-gray-400 hover:text-red-600 transition p-1 bg-gray-50 rounded-lg"
+                  title="Edit Restaurant"
                 >
-                  <FiExternalLink />
-                </a>
+                  <FiEdit2 />
+                </button>
               </div>
 
               <div className="space-y-3">
@@ -222,10 +301,12 @@ const DeveloperDashboard: React.FC = () => {
             <div className="px-8 py-6 flex justify-between items-center border-b border-gray-50">
               <div>
                 <h3 className="font-extrabold text-xl text-gray-900">
-                  Onboard New Restaurant
+                  {isEditing ? "Edit Tenant" : "Onboard New Tenant"}
                 </h3>
                 <p className="text-sm text-gray-500">
-                  Create a new tenant and assign an admin.
+                  {isEditing
+                    ? "Update restaurant and admin details"
+                    : "Create a new restaurant instance"}
                 </p>
               </div>
               <button
@@ -236,7 +317,7 @@ const DeveloperDashboard: React.FC = () => {
               </button>
             </div>
 
-            <form onSubmit={handleCreate} className="p-8 space-y-8">
+            <form onSubmit={handleSubmit} className="p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 {/* Left: Restaurant Info */}
                 <div className="space-y-4">
@@ -251,6 +332,7 @@ const DeveloperDashboard: React.FC = () => {
                     <input
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
                       placeholder="e.g. Burger King"
+                      value={formData.name}
                       required
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
@@ -264,6 +346,7 @@ const DeveloperDashboard: React.FC = () => {
                     <input
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
                       placeholder="e.g. burger-king-jkt"
+                      value={formData.slug}
                       required
                       onChange={(e) =>
                         setFormData({ ...formData, slug: e.target.value })
@@ -277,6 +360,7 @@ const DeveloperDashboard: React.FC = () => {
                     <textarea
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400 resize-none"
                       placeholder="Full Address..."
+                      value={formData.address}
                       rows={2}
                       required
                       onChange={(e) =>
@@ -299,6 +383,7 @@ const DeveloperDashboard: React.FC = () => {
                     <input
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
                       placeholder="Full Name"
+                      value={formData.adminName}
                       required
                       onChange={(e) =>
                         setFormData({ ...formData, adminName: e.target.value })
@@ -312,6 +397,7 @@ const DeveloperDashboard: React.FC = () => {
                     <input
                       className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
                       placeholder="admin@brand.com"
+                      value={formData.adminEmail}
                       type="email"
                       required
                       onChange={(e) =>
@@ -323,18 +409,32 @@ const DeveloperDashboard: React.FC = () => {
                     <label className="text-sm font-bold text-gray-700">
                       Password
                     </label>
-                    <input
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
-                      placeholder="••••••••"
-                      type="password"
-                      required
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          adminPassword: e.target.value,
-                        })
-                      }
-                    />
+                    <div className="relative">
+                      <input
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                        placeholder="••••••••"
+                        value={formData.adminPassword}
+                        type={showPassword ? "text" : "password"}
+                        required={!isEditing}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            adminPassword: e.target.value,
+                          })
+                        }
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                      >
+                        {showPassword ? (
+                          <FiEyeOff className="w-5 h-5" />
+                        ) : (
+                          <FiEye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -351,7 +451,7 @@ const DeveloperDashboard: React.FC = () => {
                   type="submit"
                   className="px-8 py-3 rounded-2xl font-bold bg-red-600 text-white hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98]"
                 >
-                  Create Tenant
+                  {isEditing ? "Update Tenant" : "Create Tenant"}
                 </button>
               </div>
             </form>
