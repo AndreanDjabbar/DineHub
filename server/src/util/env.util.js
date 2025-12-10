@@ -13,3 +13,5 @@ export const POSTGRE_PORT = Number(process.env.POSTGRE_PORT) || 5432;
 export const DATABASE_URL = process.env.DATABASE_URL || "postgresql://user:password@localhost:5432/dbname";
 export const EMAIL = process.env.EMAIL_EMAIL || "";
 export const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD || "";
+export const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || "";
+export const MIDTRANS_CLIENT_KEY = process.env.MIDTRANS_CLIENT_KEY || "";
