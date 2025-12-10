@@ -54,7 +54,8 @@ class RestaurantRepository {
             u.name as "adminName",  
             u.email as "adminEmail"
         FROM public."Restaurant" r
-        LEFT JOIN public."User" u ON u.restaurant_id = r.id  -- ⚠️ Check your specific Foreign Key here!
+        LEFT JOIN public."User" u ON u.restaurant_id = r.id 
+        WHERE u.role = 'ADMIN'
         ORDER BY r.created_at DESC
     `;
   }
