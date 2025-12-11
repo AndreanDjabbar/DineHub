@@ -52,6 +52,28 @@ class SubscriptionRepository {
         `;
         return subscription;
     }
+
+    static async createTransaction(data) {
+        const [transaction] = await postgreSQL`
+            INSERT INTO public."Subscription_Transaction" (
+                id, subscription_id, order_id, gross_amount, payment_type, payment_method, transaction_status, va_number, created_at, updated_at
+            )
+            VALUES (
+                gen_random_uuid(),
+                ${data.subscription_id},
+                ${data.order_id},
+                ${data.amount},
+                ${data.payment_type},
+                ${data.payment_method},
+                ${data.transaction_status},
+                ${data.vaNumber},
+                NOW(),
+                NOW()
+            )
+            RETURNING *
+        `;
+        return transaction;
+    }
 }
 
 export default SubscriptionRepository;
