@@ -23,6 +23,24 @@ class UserRepository {
     return admin;
   }
 
+  static async getCashierByRestaurantId(restaurantId) {
+    const cashiers = await postgreSQL`
+            SELECT id, name, email, role
+            FROM public."User" 
+            WHERE restaurant_id = ${restaurantId} AND role = 'CASHIER'
+        `;
+    return cashiers;
+  }
+
+  static async getKitchenByRestaurantId(restaurantId) {
+    const kitchenStaff = await postgreSQL`
+            SELECT id, name, email, role
+            FROM public."User" 
+            WHERE restaurant_id = ${restaurantId} AND role = 'KITCHEN'
+        `;
+    return kitchenStaff;
+  }
+
   static async create({
     name,
     email,
@@ -49,6 +67,12 @@ class UserRepository {
             RETURNING id, name, email, role, restaurant_id, created_at
         `;
     return newUser;
+  }
+
+  static async delete(id) {
+    await postgreSQL`
+            DELETE FROM public."User" WHERE id = ${id}
+        `;
   }
 
   static async updateUser(id, updateFields) {

@@ -8,4 +8,10 @@ router.post(
   UserController.createTenantController
 );
 
+router.post("/create-staff", UserController.createStaffController);
+router.post("/delete-staff/:id", UserController.deleteStaffController);
+
+router.get("/cashier/:restaurantId", UserController.getCashierByRestaurantIdController);
+router.get("/kitchen/:restaurantId", UserController.getKitchenByRestaurantIdController);
+
 export default router;

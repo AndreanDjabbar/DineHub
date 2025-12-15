@@ -21,3 +21,46 @@ export const getAllRestaurantsController = async (req, res) => {
         return responseError(res, 500, error.message, "error", null);
     }
 }
+
+export const createStaffController = async (req, res) => {
+    try {
+        const { name, email, password, role, restaurantId } = req.body;
+        const result = await UserService.createStaff({ name, email, password, role, restaurantId });
+        return responseSuccess(res, 201, "User created successfully", "data", result);
+    } catch (error) {
+        if (error.code === '23505') {
+            return responseError(res, 400, "Email already exists", "error", error.detail);
+        }
+        return responseError(res, 500, error.message, "error", null);
+    }
+}
+
+export const deleteStaffController = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await UserService.deleteStaff(id);
+        return responseSuccess(res, 200, "User deleted successfully", "data", result);
+    } catch (error) {
+        return responseError(res, 500, error.message, "error", null);
+    }
+}
+
+export const getCashierByRestaurantIdController = async (req, res) => {
+    const { restaurantId } = req.params;
+    try {
+        const result = await UserService.getCashierByRestaurantId(restaurantId);
+        return responseSuccess(res, 200, "Cashier fetched", "data", result);
+    } catch (error) {
+        return responseError(res, 500, error.message, "error", null);
+    }
+}
+
+export const getKitchenByRestaurantIdController = async (req, res) => {
+    const { restaurantId } = req.params;
+    try {
+        const result = await UserService.getKitchenByRestaurantId(restaurantId);
+        return responseSuccess(res, 200, "Kitchen fetched", "data", result);
+    } catch (error) {
+        return responseError(res, 500, error.message, "error", null);
+    }
+}

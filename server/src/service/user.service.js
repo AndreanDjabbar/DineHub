@@ -26,6 +26,29 @@ class UserService {
 
         return { restaurant: newRestaurant, admin: newAdmin };
     }
+
+    static async createStaff({ name, email, password, role, restaurantId }) {
+        const existingUser = await UserRepository.getByEmail(email);
+        if (existingUser) {
+            throw new Error("Email already in use");
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await UserRepository.create({ name, email, password: hashedPassword, role, restaurantId });
+        return newUser;
+    }
+
+    static async deleteStaff(id) {
+        await UserRepository.delete(id);
+    }
+    
+    static async getCashierByRestaurantId(restaurantId) {
+        return await UserRepository.getCashierByRestaurantId(restaurantId);
+    }
+
+    static async getKitchenByRestaurantId(restaurantId) {
+        return await UserRepository.getKitchenByRestaurantId(restaurantId);
+    }
 }
 
 export default UserService;

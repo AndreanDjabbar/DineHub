@@ -1,4 +1,9 @@
-import { type RouteConfig, index, layout, route } from "@react-router/dev/routes";
+import {
+  type RouteConfig,
+  index,
+  layout,
+  route,
+} from "@react-router/dev/routes";
 
 export default [
   layout("./layouts/ProtectedLayout.tsx", [
@@ -8,7 +13,7 @@ export default [
       route("developer", "./pages/developer/index.tsx"),
     ]),
     layout("./layouts/AdminLayout.tsx", [
-      route("admin/dashboard", "./pages/admin/dashboard.tsx"), 
+      route("admin/dashboard", "./pages/admin/dashboard.tsx"),
     ]),
     layout("./layouts/KitchenLayout.tsx", [
       route("kitchen", "./pages/kitchen/index.tsx"),
@@ -32,4 +37,6 @@ export default [
   route("orders", "./pages/orders/index.tsx"),
   route("verify-otp", "./pages/account/verifyotp.tsx"),
 
+  route("register-tenant", "./pages/register-tenant/index.tsx"),
+  route("payment", "./pages/payment-page/index.tsx"),
 ] satisfies RouteConfig;
