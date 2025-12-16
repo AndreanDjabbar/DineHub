@@ -66,3 +66,43 @@ export const deleteRestaurantController = async (req, res) => {
     return responseError(res, 500, error.message, "error", null);
   }
 };
+
+export const createTableController = async (req, res) => {
+  try {
+    const { restaurantId, name, capacity } = req.body;
+    const result = await RestaurantService.createTable({ restaurantId, name, capacity });
+    return responseSuccess(res, 201, "Table created successfully", "data", result);
+  } catch (error) {
+    return responseError(res, 500, error.message, "error", null);
+  }
+};
+
+export const getTablesByRestaurantIdController = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const result = await RestaurantService.getTablesByRestaurantId(restaurantId);
+    return responseSuccess(res, 200, "Tables fetched", "data", result);
+  } catch (error) {
+    return responseError(res, 500, error.message, "error", null);
+  }
+};
+
+export const deleteTableController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await RestaurantService.deleteTable(id);
+    return responseSuccess(res, 200, "Table deleted successfully", "data", result);
+  } catch (error) {
+    return responseError(res, 500, error.message, "error", null);
+  }
+};
+
+export const updateTableController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await RestaurantService.updateTable(id, req.body);
+    return responseSuccess(res, 200, "Table updated successfully", "data", result);
+  } catch (error) {
+    return responseError(res, 500, error.message, "error", null);
+  }
+};

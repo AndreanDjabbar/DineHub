@@ -17,7 +17,8 @@ datasource db {
 model Table {
   id           String     @id @default(cuid())
   name         String
-  qrcode       String     @unique // Link identifier
+  capacity     Int        @default(2)
+  qrcode       String?    @unique 
   sessions     Session[]
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt

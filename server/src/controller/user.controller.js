@@ -35,6 +35,17 @@ export const createStaffController = async (req, res) => {
     }
 }
 
+export const updateStaffController = async (req, res) => {
+    const { id } = req.params;
+    const { name, email } = req.body;
+    try {
+        const result = await UserService.updateStaff(id, { name, email });
+        return responseSuccess(res, 200, "User updated successfully", "data", result);
+    } catch (error) {
+        return responseError(res, 500, error.message, "error", null);
+    }
+}
+
 export const deleteStaffController = async (req, res) => {
     const { id } = req.params;
     try {

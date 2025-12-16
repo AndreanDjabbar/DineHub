@@ -2,8 +2,8 @@ import React, { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { 
   FiTrendingUp, FiDollarSign, FiShoppingBag, FiUsers, FiLogOut, 
-  FiUserPlus, FiLayers, FiTrash2, FiMonitor 
-} from "react-icons/fi";
+  FiUserPlus, FiLayers, FiTrash2, FiMonitor, FiEdit, FiX
+} from "react-icons/fi";  
 
 // Types
 interface User {
@@ -34,6 +34,11 @@ const AdminDashboard: React.FC = () => {
   // --- FORM STATES ---
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'cashier' });
   const [newTable, setNewTable] = useState({ name: '', capacity: 2 });
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);  
+
+  const [editingTable, setEditingTable] = useState<Table | null>(null);
 
   if(!token || !userString){
     window.location.href = "/login";
@@ -76,6 +81,29 @@ const AdminDashboard: React.FC = () => {
       }
       };
       fetchStaff();
+  }, [restaurantId, token]);
+
+  useEffect(() => {
+    const fetchTables = async () => {
+      console.log("Fetching tables...");
+      try {
+        const response = await fetch(`http://localhost:4000/dinehub/api/restaurant/tables/${restaurantId}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        });
+        if(!response.ok){
+          console.error("Failed to fetch tables data");
+          return;
+        }
+        const data = await response.json();
+        const tables = data.data || [];
+        console.log("All Tables: ", tables); 
+        setTables(tables);
+      } catch (error) {
+        console.error("Error fetching tables data:", error);
+      }
+      };
+      fetchTables();
   }, [restaurantId, token]);
 
   // --- HANDLERS ---
@@ -139,6 +167,48 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleUserEditClick = (userToEdit: User) => {
+    setEditingUser(userToEdit);
+    setIsEditModalOpen(true);
+  };
+
+  const handleTableEditClick = (tableToEdit: Table) => {
+    setEditingTable(tableToEdit);
+    setIsEditModalOpen(true);
+  }
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if(!editingUser) return;
+
+    try{
+      const response = await fetch(`http://localhost:4000/dinehub/api/user/update-staff/${editingUser.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          name: editingUser.name,
+          email: editingUser.email,
+          role: editingUser.role,
+        }),
+      });
+
+      const data = await response.json();
+      if(!response.ok){
+        throw new Error(data.message || "Failed to update staff");
+      }
+
+      const updatedUser = data.data;
+
+      setUsers(users.map(u => u.id === updatedUser.id ? { ...u, ...updatedUser } : u));
+
+      setEditingUser(null);
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Error updating user:", error);
+    } 
+  };
+
   const handleDeleteUser = (id: string) => {
     setUsers(users.filter(u => u.id !== id));
     console.log("Deleting user with ID:", id);
@@ -153,16 +223,83 @@ const AdminDashboard: React.FC = () => {
     });
   };
 
-  const handleAddTable = (e: React.FormEvent) => {
+  const handleAddTable = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Add API Call to create table
-    const id = tables.length + 1;
-    setTables([...tables, { id, name: newTable.name, capacity: newTable.capacity }]);
-    setNewTable({ name: '', capacity: 2 });
+    try {
+      const response = await fetch("http://localhost:4000/dinehub/api/restaurant/tables ", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          name: newTable.name,
+          capacity: newTable.capacity,
+          restaurantId: restaurantId
+        }),
+      });
+
+      const data = await response.json();
+      console.log("Data:", data);
+      if(!response.ok){
+        throw new Error(data.message || "Failed to create table");
+      }
+      const createdTable = data.data;
+
+      setTables([
+        ...tables,
+        {
+          id: createdTable.id,
+          name: createdTable.name,
+          capacity: createdTable.capacity,
+        }
+      ]);
+      setNewTable({ name: '', capacity: 2 }); // Reset form
+      alert("Table added successfully");
+    } catch (error) {
+      console.error("Error adding table:", error);
+    }
+  };
+
+  const handleUpdateTable = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if(!editingTable) return;
+
+    try{
+      const response = await fetch(`http://localhost:4000/dinehub/api/restaurant/tables/${editingTable.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          name: editingTable.name,
+          capacity: editingTable.capacity,
+        }),
+      });
+
+      const data = await response.json();
+      if(!response.ok){
+        throw new Error(data.message || "Failed to update table");
+      }
+
+      const updatedTable = data.data;
+
+      setTables(tables.map(t => t.id === updatedTable.id ? { ...t, ...updatedTable } : t));
+
+      setEditingTable(null);
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Error updating table:", error);
+    } 
   };
 
   const handleDeleteTable = (id: number) => {
     setTables(tables.filter(t => t.id !== id));
+    console.log("Deleting table with ID:", id);
+
+    if(!restaurantId){
+      console.error("No restaurant ID found for user");
+      return;
+    }
+    fetch(`http://localhost:4000/dinehub/api/restaurant/tables/${id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    });
   };
 
   // Mock Stats (Calculated dynamically based on state for realism)
@@ -177,6 +314,7 @@ const AdminDashboard: React.FC = () => {
       {/* Header */}
       <header className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
         <h1 className="text-xl font-bold text-red-600">DineHub Admin</h1>
+        <span>{user.email}</span>
         <button onClick={handleLogout} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition">
           <FiLogOut /> Logout
         </button>
@@ -289,12 +427,20 @@ const AdminDashboard: React.FC = () => {
                             <p className="text-xs uppercase font-bold text-gray-400 tracking-wider">{user.role}</p>
                           </div>
                         </div>
-                        <button 
-                          onClick={() => handleDeleteUser(user.id)}
-                          className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition"
-                        >
-                          <FiTrash2 />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleUserEditClick(user)}
+                            className="text-blue-400 hover:text-blue-600 p-2 hover:bg-blue-50 rounded-lg transition"
+                          >
+                            <FiEdit/>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteUser(user.id)}
+                            className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition"
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
                       </div>
                     ))}
                     {users.length === 0 && <p className="text-gray-400 italic">No users found.</p>}
@@ -331,7 +477,7 @@ const AdminDashboard: React.FC = () => {
                         value={newTable.capacity}
                         onChange={(e) => setNewTable({...newTable, capacity: parseInt(e.target.value)})}
                       />
-                    </div>
+                    </div> 
                     <button type="submit" className="w-full bg-red-600 text-white py-2 rounded-lg font-bold hover:bg-red-700 transition">
                       Save Table
                     </button>
@@ -350,16 +496,140 @@ const AdminDashboard: React.FC = () => {
                         <h4 className="font-bold text-gray-900">{table.name}</h4>
                         <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">{table.capacity} Seats</span>
                         
-                        {/* Delete Button (visible on hover) */}
-                        <button 
-                          onClick={() => handleDeleteTable(table.id)}
-                          className="absolute top-2 right-2 text-gray-300 hover:text-red-600 opacity-0 group-hover:opacity-100 transition"
-                        >
-                          <FiTrash2 />
-                        </button>
+                        <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
+                          <button
+                            onClick={() => handleTableEditClick(table)}
+                            className="text-gray-300 hover:text-blue-600 transition"
+                          >
+                            <FiEdit/>
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteTable(table.id)}
+                            className="text-gray-300 hover:text-red-600 transition"
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {isEditModalOpen && editingUser && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                  {/* Modal Header */}
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 className="text-lg font-bold text-gray-900">Edit Staff Member</h3>
+                    <button 
+                      onClick={() => setIsEditModalOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 transition"
+                    >
+                      <FiX size={20} />
+                    </button>
+                  </div>
+
+                  {/* Modal Form */}
+                  <form onSubmit={handleUpdateUser} className="p-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                      <input 
+                        type="text" 
+                        required
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        value={editingUser.name}
+                        onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                      <input 
+                        type="email" 
+                        required
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        value={editingUser.email}
+                        onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+                      />
+                    </div>
+
+                    <div className="pt-4 flex gap-3">
+                      <button 
+                        type="button"
+                        onClick={() => setIsEditModalOpen(false)}
+                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit"
+                        className="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+
+            {isEditModalOpen && editingTable && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
+                  {/* Modal Header */}
+                  <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <h3 className="text-lg font-bold text-gray-900">Edit Table</h3>
+                    <button 
+                      onClick={() => setIsEditModalOpen(false)}
+                      className="text-gray-400 hover:text-gray-600 transition"
+                    >
+                      <FiX size={20} />
+                    </button>
+                  </div>
+
+                  {/* Modal Form */}
+                  <form onSubmit={handleUpdateTable} className="p-6 space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                      <input 
+                        type="text" 
+                        required
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        value={editingTable.name}
+                        onChange={(e) => setEditingTable({ ...editingTable, name: e.target.value })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+                     <input 
+                        type="number"
+                        required
+                        // These 3 classes at the end do the magic:
+                        className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        value={editingTable.capacity}
+                        onChange={(e) => setEditingTable({ ...editingTable, capacity: parseInt(e.target.value) })}
+                     />
+                    </div>
+
+                    <div className="pt-4 flex gap-3">
+                      <button 
+                        type="button"
+                        onClick={() => setIsEditModalOpen(false)}
+                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        type="submit"
+                        className="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}

@@ -38,6 +38,15 @@ class UserService {
         return newUser;
     }
 
+    static async updateStaff(id, { name, email }) {
+        const user = await UserRepository.getById(id);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        const updatedUser = await UserRepository.updateUser(id, { name, email });
+        return updatedUser;
+    }
+
     static async deleteStaff(id) {
         await UserRepository.delete(id);
     }

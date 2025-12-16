@@ -59,6 +59,46 @@ class RestaurantRepository {
         ORDER BY r.created_at DESC
     `;
   }
+
+  static async createTable(restaurantId, data) {
+    const [newTable] = await postgreSQL`
+            INSERT INTO public."Table" (id, restaurant_id, name, capacity, "createdAt", "updatedAt")
+            VALUES (
+              gen_random_uuid(), 
+              ${restaurantId}, 
+              ${data.name}, 
+              ${data.capacity}, 
+              NOW(), 
+              NOW()
+            )
+            RETURNING id, name, capacity
+        `;
+    return newTable;
+  }
+
+  static async getTablesByRestaurantId(restaurantId) {
+    return await postgreSQL`
+            SELECT id, name, capacity
+            FROM public."Table" 
+            WHERE restaurant_id = ${restaurantId}
+        `;
+  }
+
+  static async deleteTable(id) {  
+    await postgreSQL`
+            DELETE FROM public."Table" WHERE id = ${id}
+        `;
+  }
+
+  static async updateTable(id, data) {
+    const [updatedTable] = await postgreSQL`
+            UPDATE public."Table"
+            SET name = ${data.name}, capacity = ${data.capacity}, "updatedAt" = NOW()
+            WHERE id = ${id}
+            RETURNING id, name, capacity
+        `;
+    return updatedTable;
+  }
 }
 
 export default RestaurantRepository;

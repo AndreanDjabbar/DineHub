@@ -84,6 +84,27 @@ class RestaurantService {
   static async getAll() {
     return await RestaurantRepository.getAll();
   }
+
+  static async createTable({ restaurantId, name, capacity }) {
+    const table = await RestaurantRepository.createTable(
+      restaurantId,
+      { name, capacity }
+    );
+    return table;
+  }
+
+  static async deleteTable(id) {
+    await RestaurantRepository.deleteTable(id);
+  }
+
+  static async getTablesByRestaurantId(restaurantId) {
+    return await RestaurantRepository.getTablesByRestaurantId(restaurantId);
+  }
+
+  static async updateTable(id, data) {
+    const updatedTable = await RestaurantRepository.updateTable(id, data);
+    return updatedTable;
+  }
 }
 
 export default RestaurantService;
