@@ -81,6 +81,7 @@ class RestaurantRepository {
             SELECT id, name, capacity
             FROM public."Table" 
             WHERE restaurant_id = ${restaurantId}
+            ORDER BY "name" ASC
         `;
   }
 
