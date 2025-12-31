@@ -19,16 +19,16 @@ const SettingsPage: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 pb-10">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-10">
       {/* --- Header (Drill-down style) --- */}
-      <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center border-b border-gray-50">
+      <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center shadow-sm">
         <button
           onClick={() => navigate(-1)} // Go back to Profile
           className="p-2 -ml-2 text-gray-600 hover:bg-gray-50 rounded-full transition"
         >
           <FiArrowLeft className="w-6 h-6" />
         </button>
-        <h1 className="text-lg font-bold ml-2">Settings</h1>
+        <h1 className="text-xl font-bold ml-2 text-gray-900">Settings</h1>
       </div>
 
       <div className="px-4 mt-6 space-y-8">
@@ -37,7 +37,7 @@ const SettingsPage: React.FC = () => {
           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
             Account
           </h3>
-          <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 divide-y divide-gray-200">
+          <div className="bg-white rounded-xl overflow-hidden shadow-sm divide-y divide-gray-100">
             <SettingsItem
               icon={<FiLock />}
               label="Change Password"
@@ -52,7 +52,7 @@ const SettingsPage: React.FC = () => {
           <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 ml-1">
             Danger Zone
           </h3>
-          <div className="bg-red-50 rounded-2xl overflow-hidden border border-red-100">
+          <div className="bg-red-50 rounded-xl overflow-hidden shadow-sm">
             <button 
                 onClick={() => alert("Are you sure?")}
                 className="w-full flex items-center justify-between p-4 hover:bg-red-100 transition"

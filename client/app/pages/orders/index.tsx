@@ -67,7 +67,7 @@ const OrderPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-24">
       {/* --- Header --- */}
       <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center justify-between shadow-sm">
-        <h1 className="text-lg font-bold text-gray-800">Order Summary</h1>
+        <h1 className="text-xl font-bold text-gray-900">Order Summary</h1>
         <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition hover:rotate-180 duration-500">
           <FiRefreshCw className="w-5 h-5" />
         </button>
@@ -75,9 +75,9 @@ const OrderPage: React.FC = () => {
 
       <div className="p-4 space-y-4">
         {/* --- Info Card (Table & Pax) --- */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
+        <div className="bg-white rounded-xl p-4 shadow-sm">
           {/* Table Number Badge */}
-          <div className="bg-red-50 text-red-700 font-bold text-lg py-3 rounded-xl text-center mb-4 border border-orange-100">
+          <div className="bg-red-50 text-red-700 font-bold text-lg py-3 rounded-xl text-center mb-4">
             Table: {orderDetails.tableNumber}
           </div>
 
@@ -100,8 +100,8 @@ const OrderPage: React.FC = () => {
         </div>
 
         {/* --- Order List --- */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mb-16">
-          <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-16">
+          <div className="bg-gray-50 px-4 py-3">
             <h2 className="font-bold text-gray-700 text-sm">
               Order Items ({orderDetails.items.length})
             </h2>

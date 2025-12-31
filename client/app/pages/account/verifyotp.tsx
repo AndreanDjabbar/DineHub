@@ -133,7 +133,7 @@ const VerifyOtp: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 px-6 py-6 flex flex-col">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 px-6 py-6 flex flex-col">
       <BackButton />
 
       <div className="mt-8 mb-8 text-center">
@@ -199,7 +199,7 @@ const VerifyOtp: React.FC = () => {
         <button
           type="submit"
           disabled={isLoading}
-          className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98] mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isLoading ? "Verifying..." : "Verify"}
         </button>

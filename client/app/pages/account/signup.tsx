@@ -74,13 +74,13 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 px-6 py-6 flex flex-col">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 px-6 py-6 flex flex-col">
 
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold mb-2 text-gray-900">
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
           Create Account
         </h1>
-        <p className="text-gray-500 font-medium">Sign up to get started!</p>
+        <p className="text-gray-500">Sign up to get started!</p>
       </div>
 
       <form className="flex-col flex gap-5" onSubmit={handleSubmit}>
@@ -191,7 +191,7 @@ const Signup: React.FC = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98] mt-4"
+          className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg active:scale-[0.98] mt-4"
         >
           Sign Up
         </button>

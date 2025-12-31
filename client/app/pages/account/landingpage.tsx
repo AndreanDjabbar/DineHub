@@ -28,14 +28,14 @@ const LandingPage: React.FC = () => {
         <div className="w-full max-w-xs flex flex-col gap-3">
           <button
             onClick={() => navigate("/login")}
-            className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-sm shadow-red-600 active:scale-[0.98]"
+            className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg active:scale-[0.98]"
           >
             Log In
           </button>
 
           <button
             onClick={() => navigate("/signup")}
-            className="hover:cursor-pointer w-full bg-white border border-red-100 text-red-600 font-bold py-4 rounded-2xl shadow-sm shadow-white hover:bg-red-50 transition active:scale-[0.98]"
+            className="hover:cursor-pointer w-full bg-white border-2 border-white text-red-600 font-bold py-4 rounded-xl hover:bg-red-50 transition-colors shadow-md hover:shadow-lg active:scale-[0.98]"
           >
             Sign Up
           </button>

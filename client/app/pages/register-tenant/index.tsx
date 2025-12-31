@@ -50,9 +50,9 @@ const RegisterRestaurant = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 font-sans">
-      <div className="bg-white max-w-2xl w-full p-8 rounded-3xl shadow-xl">
+      <div className="bg-white max-w-2xl w-full p-8 rounded-xl shadow-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Join DineHub
           </h1>
           <p className="text-gray-500">
@@ -183,7 +183,7 @@ const RegisterRestaurant = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition shadow-lg shadow-red-100 mt-6 active:scale-[0.99]"
+            className="w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg mt-6 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Waiting..." : "Continue to Payment"}
           </button>

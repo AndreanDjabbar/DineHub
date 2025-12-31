@@ -74,9 +74,9 @@ const CashierDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+      <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-gray-800">Cashier Station</h1>
+            <h1 className="text-xl font-bold text-gray-900">Cashier Station</h1>
         </div>
         <button onClick={handleLogout} className="text-gray-500 hover:text-red-600 font-medium text-sm flex gap-2 items-center">
              <FiLogOut /> Logout
@@ -92,7 +92,7 @@ const CashierDashboard: React.FC = () => {
                     <button
                         key={table.id}
                         onClick={() => setSelectedTable(table)}
-                        className={`h-32 rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all active:scale-[0.98] ${
+                        className={`h-32 rounded-xl border-2 flex flex-col items-center justify-center relative transition-all active:scale-[0.98] shadow-sm ${
                             selectedTable === table ? 'ring-2 ring-red-600 ring-offset-2' : ''
                         } ${
                             table.status === 'available' ? 'bg-white border-gray-200 text-gray-400 hover:border-gray-300' :

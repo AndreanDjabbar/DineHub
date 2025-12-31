@@ -74,11 +74,11 @@ const CartPage: React.FC = () => {
   const total = subtotal + tax;
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 pb-32">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-32">
       {/* --- Header --- */}
-      <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center justify-between border-b border-gray-50">
+      <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center justify-between shadow-sm">
         <BackButton />
-        <h1 className="text-lg font-bold">Cart</h1>
+        <h1 className="text-xl font-bold text-gray-900">Cart</h1>
         <div className="w-8" />
       </div>
 
