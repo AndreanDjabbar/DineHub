@@ -9,6 +9,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 import CustomerNavbar from "../components/CustomerNavbar";
+import Button from "../components/Button";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -75,7 +76,6 @@ const Signup: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 px-6 py-6 flex flex-col">
-
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2 text-gray-900">
           Create Account
@@ -189,12 +189,7 @@ const Signup: React.FC = () => {
         </div>
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg active:scale-[0.98] mt-4"
-        >
-          Sign Up
-        </button>
+        <Button type="submit">Sign Up</Button>
       </form>
 
       {/* --- Footer: Login Link --- */}
@@ -209,7 +204,7 @@ const Signup: React.FC = () => {
           </NavLink>
         </p>
       </div>
-      <CustomerNavbar/>
+      <CustomerNavbar />
     </div>
   );
 };

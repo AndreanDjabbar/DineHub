@@ -3,6 +3,7 @@ import { useNavigate, NavLink } from "react-router";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import BottomNavigation from "../components/CustomerNavbar";
 import { BiLoader } from "react-icons/bi";
+import Button from "../components/Button";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -45,36 +46,38 @@ const Login: React.FC = () => {
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
         const role = data.data.user.role;
-        if(role === "ADMIN") {
+        if (role === "ADMIN") {
           navigate("/admin/dashboard");
           return;
-        }else if(role === "CASHIER") {
+        } else if (role === "CASHIER") {
           navigate("/cashier");
           return;
-        }else if(role === "KITCHEN") {
+        } else if (role === "KITCHEN") {
           navigate("/kitchen");
           return;
-        }else if(role === "Developer") {
+        } else if (role === "Developer") {
           navigate("/developer");
           return;
-        }else{
+        } else {
           navigate("/menu");
         }
       } else {
         console.log("Response Data: ", data);
-        if(data.message.includes("Email not verified")) {
+        if (data.message.includes("Email not verified")) {
           alert("Please verify your email before logging in.");
           navigate("/verify-otp", {
             state: { email: formData.email, token: data.data.token },
           });
-        }else{
+        } else {
           alert(data.message);
           setError(data.message);
         }
       }
     } catch (error) {
       console.error("Login failed:", error);
-      setError(error instanceof Error ? error.message : "An unexpected error occurred.");
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred."
+      );
     } finally {
       setIsLoading(false);
     }
@@ -87,9 +90,7 @@ const Login: React.FC = () => {
         <h1 className="text-3xl font-bold mb-2 text-gray-900">
           Let's Sign You In
         </h1>
-        <p className="text-gray-500">
-          Welcome back, you've been missed!
-        </p>
+        <p className="text-gray-500">Welcome back, you've been missed!</p>
       </div>
 
       {/* --- Form Section --- */}
@@ -148,10 +149,11 @@ const Login: React.FC = () => {
 
         {/* Forgot Password Link */}
         <div className="flex justify-end">
-          <button 
-          onClick={() => navigate("/forgot-password")}
-          type="button"
-          className="hover:cursor-pointer text-sm font-bold text-gray-900 hover:text-red-600 transition">
+          <button
+            onClick={() => navigate("/forgot-password")}
+            type="button"
+            className="hover:cursor-pointer text-sm font-bold text-gray-900 hover:text-red-600 transition"
+          >
             Forgot Password?
           </button>
         </div>
@@ -161,18 +163,16 @@ const Login: React.FC = () => {
         ) : null}
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg active:scale-[0.98] mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={isLoading}>
           {isLoading ? (
             <div className="text-bold flex items-center justify-center gap-2">
-              <BiLoader size={30} className="animate-spin"/>
+              <BiLoader size={30} className="animate-spin" />
               Signing In...
-            </div>            
-          ) : "Sign In"}
-        </button>
+            </div>
+          ) : (
+            "Sign In"
+          )}
+        </Button>
       </form>
 
       {/* --- Footer: Sign Up Link --- */}
@@ -188,7 +188,7 @@ const Login: React.FC = () => {
         </p>
       </div>
 
-      <BottomNavigation/>
+      <BottomNavigation />
     </div>
   );
 };

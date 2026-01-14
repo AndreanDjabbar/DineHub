@@ -5,9 +5,9 @@ import {
   FaExclamationCircle,
   FaSpinner,
   FaLock,
-  FaTimes,
+  FaArrowLeft,
 } from "react-icons/fa";
-import BackButton from "./BackButton";
+import Button from "../components/Button";
 
 // Midtrans Snap types
 declare global {
@@ -82,26 +82,7 @@ interface OrderData {
   };
 }
 
-interface MidtransTransactionResponse {
-  snap_token: string;
-  redirect_url?: string;
-}
-
-interface PaymentModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  totalAmount: number;
-}
-
-export default function PaymentModal({
-  isOpen,
-  onClose,
-  totalAmount,
-}: PaymentModalProps) {
-  console.log("Modal isOpen:", isOpen);
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethodId | null>(
-    null
-  );
+export default function PaymentPage() {
   const [customerData, setCustomerData] = useState<CustomerData>({
     name: "",
     email: "",
@@ -112,6 +93,8 @@ export default function PaymentModal({
   const [paymentDetails, setPaymentDetails] = useState<PaymentDetails | null>(
     null
   );
+
+  const amount = 500000;
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -146,28 +129,6 @@ export default function PaymentModal({
     };
   }, []);
 
-  // Reset form when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setSelectedMethod(null);
-      setCustomerData({ name: "", email: "", phone: "" });
-      setError("");
-      setPaymentDetails(null);
-    }
-  }, [isOpen]);
-
-  // Prevent body scroll when modal is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
     setCustomerData({ ...customerData, [name]: value });
@@ -175,10 +136,6 @@ export default function PaymentModal({
   };
 
   const validateForm = (): boolean => {
-    if (!selectedMethod) {
-      setError("Please select a payment method");
-      return false;
-    }
     if (!customerData.name.trim()) {
       setError("Please enter your name");
       return false;
@@ -205,65 +162,24 @@ export default function PaymentModal({
   const handlePayment = async (): Promise<void> => {
     setError("");
 
-    if (!validateForm() || !selectedMethod) return;
+    if (!validateForm()) return;
 
     setIsProcessing(true);
 
     try {
-      const orderData: OrderData = {
-        payment_type: selectedMethod,
-        transaction_details: {
-          order_id: "ORDER-" + Date.now(),
-          gross_amount: totalAmount,
-        },
-        customer_details: {
-          first_name: customerData.name.split(" ")[0],
-          last_name: customerData.name.split(" ").slice(1).join(" "),
-          email: customerData.email,
-          phone: customerData.phone,
-        },
-      };
+      const orderId = "ORDER-" + Date.now();
 
-      // Production
-      // const response = await fetch('/api/midtrans/create-transaction', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(orderData)
-      // });
-      // const data: MidtransTransactionResponse = await response.json();
-      //
-      // Midtrans Snap:
-      // window.snap.pay(data.snap_token, {
-      //   onSuccess: (result) => {
-      //     console.log('Payment success', result);
-      //     setPaymentDetails({ ... });
-      //   },
-      //   onPending: (result) => {
-      //     console.log('Payment pending', result);
-      //   },
-      //   onError: (result) => {
-      //     setError('Payment failed. Please try again.');
-      //   },
-      //   onClose: () => {
-      //     console.log('Payment popup closed');
-      //   }
-      // });
-
-      // Demo simulation
+      // Manual payment / offline / admin-verified flow
       setTimeout(() => {
-        const method = paymentMethods.find((m) => m.id === selectedMethod);
-        if (method) {
-          setPaymentDetails({
-            method: method.name,
-            vaNumber: selectedMethod.includes("va")
-              ? "8808" + Math.floor(Math.random() * 1000000000000).toString()
-              : null,
-            amount: formatRupiah(totalAmount),
-            orderId: orderData.transaction_details.order_id,
-          });
-        }
+        setPaymentDetails({
+          method: "Manual Payment",
+          vaNumber: null,
+          amount: formatRupiah(amount),
+          orderId,
+        });
+
         setIsProcessing(false);
-      }, 2000);
+      }, 1500);
     } catch (err) {
       setError("An error occurred. Please try again.");
       setIsProcessing(false);
@@ -272,31 +188,14 @@ export default function PaymentModal({
 
   const resetPayment = (): void => {
     setPaymentDetails(null);
-    setSelectedMethod(null);
     setCustomerData({ name: "", email: "", phone: "" });
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto scrollbar-hide">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-opacity-20 backdrop-blur-sm transition-all"
-        onClick={onClose}
-      />
-
-      {/* Modal Content */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto scrollbar-hide">
-          {/* Close Button */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 z-10"
-          >
-            <FaTimes className="w-6 h-6" />
-          </button>
-
+    <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {paymentDetails ? (
             // Payment Success/Pending Screen
             <div className="p-8">
@@ -358,12 +257,7 @@ export default function PaymentModal({
                 </div>
               )}
 
-              <button
-                onClick={resetPayment}
-                className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
-              >
-                Make Another Payment
-              </button>
+              <Button onClick={resetPayment}>Make Another Payment</Button>
             </div>
           ) : (
             // Payment Method Selection Screen
@@ -372,12 +266,10 @@ export default function PaymentModal({
                 <div className="bg-red-600 p-3 rounded-full inline-block mb-4">
                   <FaCreditCard className="w-8 h-8 text-white" />
                 </div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                <h2 className="text-3xl font-bold text-gray-800 mb-2">
                   Choose Payment Method
-                </h1>
-                <p className="text-gray-600">
-                  Total: {formatRupiah(totalAmount)}
-                </p>
+                </h2>
+                <p className="text-gray-600">Total: {formatRupiah(amount)}</p>
               </div>
 
               <div className="mb-8">
@@ -389,12 +281,7 @@ export default function PaymentModal({
                     return (
                       <button
                         key={method.id}
-                        onClick={() => setSelectedMethod(method.id)}
-                        className={`flex items-center justify-between p-4 rounded-xl border-2 transition-all ${
-                          selectedMethod === method.id
-                            ? "border-red-500 bg-red-50 shadow-md"
-                            : "border-gray-200 hover:border-red-300 hover:bg-gray-50"
-                        }`}
+                        className={`group flex items-center justify-between p-4 rounded-xl border-2 transition-all border-gray-200  hover:border-red-500 hover:bg-red-50`}
                       >
                         <div className="flex items-center gap-4">
                           <div className="rounded-lg flex items-center justify-center">
@@ -413,9 +300,7 @@ export default function PaymentModal({
                             </div>
                           </div>
                         </div>
-                        <FaChevronRight
-                          className={`w-5 h-5 ${selectedMethod === method.id ? "text-red-600" : "text-gray-400"}`}
-                        />
+                        <FaChevronRight className="w-5 h-5 text-gray-400 transition-colors group-hover:text-red-600" />
                       </button>
                     );
                   })}
@@ -477,11 +362,7 @@ export default function PaymentModal({
                 </div>
               )}
 
-              <button
-                onClick={handlePayment}
-                disabled={isProcessing}
-                className="w-full bg-red-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-red-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
+              <Button onClick={handlePayment} disabled={isProcessing}>
                 {isProcessing ? (
                   <>
                     <FaSpinner className="w-5 h-5 animate-spin" />
@@ -490,7 +371,7 @@ export default function PaymentModal({
                 ) : (
                   "Continue to Payment"
                 )}
-              </button>
+              </Button>
 
               <div className="flex items-center justify-center gap-2 text-sm text-gray-500 mt-4">
                 <FaLock className="w-4 h-4" />

@@ -38,5 +38,6 @@ export default [
   route("verify-otp", "./pages/account/verifyotp.tsx"),
 
   route("register-tenant", "./pages/register-tenant/index.tsx"),
-  route("payment", "./pages/payment-page/index.tsx"),
+  route("partner", "./pages/partner/index.tsx"),
+  route("partner-payment", "./pages/partner-payment/index.tsx"),
 ] satisfies RouteConfig;

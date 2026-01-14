@@ -1,6 +1,7 @@
-import React from 'react';
-import { FiX } from 'react-icons/fi';
-import type { Table } from './types';
+import React from "react";
+import { FiX } from "react-icons/fi";
+import type { Table } from "./types";
+import Button from "../../components/Button";
 
 interface EditTableModalProps {
   isOpen: boolean;
@@ -15,7 +16,7 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
   editingTable,
   setEditingTable,
   onClose,
-  onUpdate
+  onUpdate,
 }) => {
   if (!isOpen || !editingTable) return null;
 
@@ -25,7 +26,7 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
         {/* Modal Header */}
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
           <h3 className="text-lg font-bold text-gray-900">Edit Table</h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition"
           >
@@ -36,41 +37,32 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
         {/* Modal Form */}
         <form onSubmit={onUpdate} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-            <input 
-              type="text" 
-              required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              value={editingTable.name}
-              onChange={(e) => setEditingTable({ ...editingTable, name: e.target.value })}
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name
+            </label>
+            <span>{editingTable.name}</span>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
-            <input 
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Capacity
+            </label>
+            <input
               type="number"
               required
               className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               value={editingTable.capacity}
-              onChange={(e) => setEditingTable({ ...editingTable, capacity: parseInt(e.target.value) })}
+              onChange={(e) =>
+                setEditingTable({
+                  ...editingTable,
+                  capacity: parseInt(e.target.value),
+                })
+              }
             />
           </div>
 
           <div className="pt-4 flex gap-3">
-            <button 
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition"
-            >
-              Cancel
-            </button>
-            <button 
-              type="submit"
-              className="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200"
-            >
-              Save Changes
-            </button>
+            <Button type="submit">Save Changes</Button>
           </div>
         </form>
       </div>

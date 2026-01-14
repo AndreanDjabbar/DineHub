@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { FiX, FiMapPin, FiMinus, FiPlus } from "react-icons/fi";
 import BackButton from "../components/BackButton";
-import PaymentModal from "../components/PaymentModal";
+import Button from "../components/Button";
 
 interface CartItem {
   id: number;
@@ -171,18 +171,8 @@ const CartPage: React.FC = () => {
           <span className="text-gray-500 font-medium">Total</span>
           <span className="text-xl font-bold">{formatRupiah(total)}</span>
         </div>
-        <button
-          onClick={() => setIsPaymentModalOpen(true)}
-          className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition active:scale-[0.98]"
-        >
-          Checkout
-        </button>
+        <Button>Checkout</Button>
       </div>
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        totalAmount={total}
-      />
     </div>
   );
 };

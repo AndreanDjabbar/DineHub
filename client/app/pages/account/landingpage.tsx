@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { LuChefHat } from "react-icons/lu"; // Using ChefHat as a logo placeholder
 import { FaFire } from "react-icons/fa"; // Or a fire icon for the logo
 import BottomNavigation from "../components/CustomerNavbar";
+import Button from "../components/Button";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();
@@ -26,19 +27,7 @@ const LandingPage: React.FC = () => {
 
         {/* Buttons Area */}
         <div className="w-full max-w-xs flex flex-col gap-3">
-          <button
-            onClick={() => navigate("/login")}
-            className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg active:scale-[0.98]"
-          >
-            Log In
-          </button>
-
-          <button
-            onClick={() => navigate("/signup")}
-            className="hover:cursor-pointer w-full bg-white border-2 border-white text-red-600 font-bold py-4 rounded-xl hover:bg-red-50 transition-colors shadow-md hover:shadow-lg active:scale-[0.98]"
-          >
-            Sign Up
-          </button>
+          <Button onClick={() => navigate("/login")}>Log In</Button>
         </div>
       </div>
       <BottomNavigation />
