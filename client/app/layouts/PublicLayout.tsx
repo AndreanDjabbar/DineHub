@@ -18,17 +18,17 @@ export default function PublicLayout() {
   if (token) {
     let redirectPath = "/menu";
 
-    if(userString) {
-      try{
+    if (userString) {
+      try {
         const user = JSON.parse(userString);
         const role = user.role;
-        if(role === "ADMIN") {
-          redirectPath = "/admin/dashboard";
-        }else if(role === "CASHIER") {
+        if (role === "ADMIN") {
+          redirectPath = "/admin";
+        } else if (role === "CASHIER") {
           redirectPath = "/cashier";
-        }else if(role === "KITCHEN") {
+        } else if (role === "KITCHEN") {
           redirectPath = "/kitchen";
-        }else if(role === "Developer") {
+        } else if (role === "Developer") {
           redirectPath = "/developer";
         }
       } catch (error) {

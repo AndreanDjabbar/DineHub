@@ -13,7 +13,7 @@ export default [
       route("developer", "./pages/developer/index.tsx"),
     ]),
     layout("./layouts/AdminLayout.tsx", [
-      route("admin/dashboard", "./pages/admin/dashboard.tsx"),
+      route("admin", "./pages/admin/index.tsx"),
     ]),
     layout("./layouts/KitchenLayout.tsx", [
       route("kitchen", "./pages/kitchen/index.tsx"),

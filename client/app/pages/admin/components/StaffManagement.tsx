@@ -8,6 +8,7 @@ import {
 } from "react-icons/fi";
 import type { User } from "./types";
 import Button from "../../components/Button";
+import TextInput from "../../components/TextInput";
 
 interface StaffManagementProps {
   users: User[];
@@ -32,49 +33,32 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
       <div className="lg:col-span-1 border-r border-gray-100 pr-8">
         <h3 className="text-lg font-bold mb-4">Add New Account</h3>
         <form onSubmit={handleAddUser} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name
-            </label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="e.g. cashier_morning"
-              value={newUser.name}
-              onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="text"
-              required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="e.g. cashier@your-restaurant.com"
-              value={newUser.email}
-              onChange={(e) =>
-                setNewUser({ ...newUser, email: e.target.value })
-              }
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              placeholder="••••••••"
-              value={newUser.password}
-              onChange={(e) =>
-                setNewUser({ ...newUser, password: e.target.value })
-              }
-            />
-          </div>
+          <TextInput
+            label="Name"
+            type="text"
+            required
+            placeholder="e.g. cashier_morning"
+            value={newUser.name}
+            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+          />
+          <TextInput
+            label="Email"
+            type="email"
+            required
+            placeholder="e.g. cashier@your-restaurant.com"
+            value={newUser.email}
+            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+          />
+          <TextInput
+            label="Password"
+            type="password"
+            required
+            placeholder="••••••••"
+            value={newUser.password}
+            onChange={(e) =>
+              setNewUser({ ...newUser, password: e.target.value })
+            }
+          />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Role

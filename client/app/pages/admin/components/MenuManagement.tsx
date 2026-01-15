@@ -2,6 +2,8 @@ import React from "react";
 import { FiTrash2, FiX, FiBookOpen } from "react-icons/fi";
 import type { MenuCategory, AddOn, AddOnOption } from "./types";
 import Button from "../../components/Button";
+import TextInput from "~/pages/components/TextInput";
+import NumInput from "~/pages/components/NumInput";
 
 interface MenuManagementProps {
   categories: MenuCategory[];
@@ -50,10 +52,9 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category Name
               </label>
-              <input
+              <TextInput
                 type="text"
                 required
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                 placeholder="e.g. Main Course"
                 value={newCategory.name}
                 onChange={(e) =>
@@ -75,10 +76,9 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Item Name
               </label>
-              <input
+              <TextInput
                 type="text"
                 required
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                 placeholder="e.g. Fried Rice"
                 value={newMenuItem.name}
                 onChange={(e) =>
@@ -87,14 +87,10 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Price
-              </label>
-              <input
-                type="number"
+              <NumInput
+                label="Price"
                 required
                 min="0"
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                 value={newMenuItem.price}
                 onChange={(e) =>
                   setNewMenuItem({
@@ -189,10 +185,9 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                   New Add-on Group
                 </h5>
                 <div className="space-y-3">
-                  <input
+                  <TextInput
                     type="text"
                     placeholder="Group Name (e.g. Spiciness Level)"
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                     value={newAddOn.name}
                     onChange={(e) =>
                       setNewAddOn({ ...newAddOn, name: e.target.value })
@@ -200,13 +195,10 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                   />
                   <div className="flex gap-3">
                     <div className="flex-1">
-                      <label className="block text-xs text-gray-500 mb-1">
-                        Min Select
-                      </label>
-                      <input
-                        type="number"
+                      <NumInput
+                        label="Min Select"
                         min="0"
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="text-sm"
                         value={newAddOn.minSelect}
                         onChange={(e) =>
                           setNewAddOn({
@@ -217,13 +209,10 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="block text-xs text-gray-500 mb-1">
-                        Max Select
-                      </label>
-                      <input
-                        type="number"
+                      <NumInput
+                        label="Max Select"
                         min="1"
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="text-sm"
                         value={newAddOn.maxSelect || ""}
                         onChange={(e) =>
                           setNewAddOn({
@@ -273,10 +262,10 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                     )}
 
                     <div className="flex flex-wrap gap-2">
-                      <input
+                      <TextInput
                         type="text"
                         placeholder="Option Name (e.g. Mild)"
-                        className="flex-1 min-w-[120px] px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="flex-1 min-w-[120px]"
                         value={newAddOnOption.name}
                         onChange={(e) =>
                           setNewAddOnOption({
@@ -284,29 +273,23 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                             name: e.target.value,
                           })
                         }
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleAddOptionToAddOn();
-                          }
-                        }}
                       />
-                      <input
-                        type="text"
+                      <NumInput
                         placeholder="Price"
-                        className="w-24 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="w-24"
+                        min="0"
                         value={
                           newAddOnOption.price === 0 ? "" : newAddOnOption.price
                         }
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (/^\d*$/.test(val)) {
-                            setNewAddOnOption({
-                              ...newAddOnOption,
-                              price: val === "" ? 0 : parseInt(val),
-                            });
-                          }
-                        }}
+                        onChange={(e) =>
+                          setNewAddOnOption({
+                            ...newAddOnOption,
+                            price:
+                              e.target.value === ""
+                                ? 0
+                                : parseInt(e.target.value),
+                          })
+                        }
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -317,7 +300,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                       <button
                         type="button"
                         onClick={handleAddOptionToAddOn}
-                        className="px-3 py-2 bg-gray-800 text-white rounded-lg text-sm font-bold hover:bg-gray-900 transition"
+                        className="justify-center px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-gray-900 transition"
                       >
                         Add
                       </button>
