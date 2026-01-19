@@ -4,6 +4,7 @@ export const createCategory = async (data) => {
   return await prisma.menuCategory.create({
     data: {
       name: data.name,
+      image: data.image,
       restaurantId: data.restaurantId,
     },
   });

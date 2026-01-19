@@ -4,6 +4,7 @@ import BottomNavigation from "./BottomNavigation";
 import NumInput from "./NumInput";
 import TextInput from "./TextInput";
 import UserHeader from "./UserHeader";
+import UploadImage from "./UploadImage";
 
 export {
     BackButton,
@@ -11,5 +12,6 @@ export {
     BottomNavigation,
     NumInput,
     TextInput,
-    UserHeader
+    UserHeader,
+    UploadImage,
 }
