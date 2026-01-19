@@ -40,6 +40,7 @@ const AdminDashboard: React.FC = () => {
   // --- MOCK STATE (Replace with API data) ---
   const [users, setUsers] = useState<User[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
+  const [activeTable, setActiveTable] = useState<Table | null>(null);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
 
   // --- FORM STATES ---
@@ -383,6 +384,8 @@ const AdminDashboard: React.FC = () => {
         ])
       );
 
+      setActiveTable(createdTable);
+
       setNewTable({ capacity: 2 }); // Reset form
       alert("Table added successfully");
     } catch (error) {
@@ -644,6 +647,8 @@ const AdminDashboard: React.FC = () => {
                 handleAddTable={handleAddTable}
                 handleTableEditClick={handleTableEditClick}
                 handleDeleteTable={handleDeleteTable}
+                activeTable={activeTable}
+                onTableSelect={setActiveTable}
               />
             )}
 

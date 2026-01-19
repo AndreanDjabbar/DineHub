@@ -1,8 +1,9 @@
 import React from "react";
-import { FiLayers, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiLayers, FiEdit, FiTrash2, FiMousePointer } from "react-icons/fi";
 import type { Table } from "./types";
 import Button from "../../components/Button";
 import NumInput from "~/pages/components/NumInput";
+import TableQR from "./TableQr";
 
 interface TableManagementProps {
   tables: Table[];
@@ -11,6 +12,8 @@ interface TableManagementProps {
   handleAddTable: (e: React.FormEvent) => void;
   handleTableEditClick: (table: Table) => void;
   handleDeleteTable: (id: number) => void;
+  activeTable: Table | null;
+  onTableSelect: (table: Table) => void;
 }
 
 const TableManagement: React.FC<TableManagementProps> = ({
@@ -20,28 +23,56 @@ const TableManagement: React.FC<TableManagementProps> = ({
   handleAddTable,
   handleTableEditClick,
   handleDeleteTable,
+  activeTable,
+  onTableSelect,
 }) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Form Section */}
-      <div className="lg:col-span-1 border-r border-gray-100 pr-8">
-        <h3 className="text-lg font-bold mb-4">Add a Table</h3>
-        <form onSubmit={handleAddTable} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Capacity (Seats)
-            </label>
-            <NumInput
-              required
-              min="1"
-              value={newTable.capacity}
-              onChange={(e) =>
-                setNewTable({ ...newTable, capacity: parseInt(e.target.value) })
-              }
-            />
+      {/* --- Left Column: Form & QR Preview --- */}
+      <div className="lg:col-span-1 border-r border-gray-100 pr-0 lg:pr-8 flex flex-col gap-6 sticky top-24 h-fit">
+        {/* Section A: Add Form */}
+        <div>
+          <h3 className="text-lg font-bold mb-4">Add a Table</h3>
+          <form onSubmit={handleAddTable} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Capacity (Seats)
+              </label>
+              <NumInput
+                required
+                min="1"
+                value={newTable.capacity}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setNewTable({
+                    ...newTable,
+                    capacity: parseInt(e.target.value),
+                  })
+                }
+              />
+            </div>
+            <Button type="submit">Add Table</Button>
+          </form>
+        </div>
+
+        {/* Section B: QR Display (Dynamic) */}
+        {/* Shows QR for EITHER the newly created table OR the clicked table */}
+        {activeTable ? (
+          <TableQR
+            key={activeTable.id} // Key forces re-render when ID changes
+            tableId={activeTable.id}
+            tableName={activeTable.name}
+          />
+        ) : (
+          // Placeholder state if nothing is selected
+          <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400 flex flex-col items-center">
+            <FiMousePointer className="mb-2 text-2xl" />
+            <p className="text-sm">
+              Select a table from the list
+              <br />
+              to view its QR Code
+            </p>
           </div>
-          <Button type="submit">Add Table</Button>
-        </form>
+        )}
       </div>
 
       {/* List Section */}
@@ -59,26 +90,33 @@ const TableManagement: React.FC<TableManagementProps> = ({
             {tables.map((table) => (
               <div
                 key={table.id}
-                className="relative p-4 border border-gray-200 rounded-xl flex flex-col items-center justify-center gap-2 hover:border-red-200 transition group"
+                className={`relative p-4 border rounded-xl flex flex-col items-center justify-center gap-2 transition cursor-pointer group
+                  ${
+                    activeTable?.id === table.id
+                      ? "border-red-600 bg-red-50 ring-2 ring-red-100 shadow-sm" // <--- Active Style (Red Border)
+                      : "border-gray-200 hover:border-red-300 hover:shadow-md bg-white" // <--- Inactive Style
+                  }
+                `}
+                onClick={() => onTableSelect(table)}
               >
                 <div className="text-gray-300">
                   <FiLayers size={24} />
                 </div>
                 <h4 className="font-bold text-gray-900">{table.name}</h4>
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md">
+                <span className="text-xs bg-white text-gray-600 px-2 py-1 rounded-md border border-gray-100">
                   {table.capacity} Seats
                 </span>
 
                 <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
                   <button
                     onClick={() => handleTableEditClick(table)}
-                    className="text-gray-300 hover:text-blue-600 transition"
+                    className="text-gray-400 hover:text-blue-600 transition"
                   >
                     <FiEdit />
                   </button>
                   <button
                     onClick={() => handleDeleteTable(table.id)}
-                    className="text-gray-300 hover:text-red-600 transition"
+                    className="text-gray-400 hover:text-red-600 transition"
                   >
                     <FiTrash2 />
                   </button>
