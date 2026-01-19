@@ -1,16 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { FiX, FiMapPin, FiMinus, FiPlus } from "react-icons/fi";
-import { BackButton, Button } from "~/components";
+import { FiX, FiMapPin } from "react-icons/fi";
+import { BackButton, Button, QuantityPicker } from "~/components";
+
+interface MenuItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string | null;
+  categoryId: string;
+  isAvailable: boolean;
+}
 
 interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   quantity: number;
-  image: string;
-  options: string[];
-  notes?: string;
+  image: string | null;
 }
 
 const formatRupiah = (price: number) => {
@@ -24,40 +31,61 @@ const formatRupiah = (price: number) => {
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [items, setItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: "A'la Carte Ayam",
-      price: 24091,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=200&q=80",
-      options: ["Paha Ayam", "Tanpa Sambal + Lalapan"],
-      notes: "Make it extra crispy please",
-    },
-    {
-      id: 2,
-      name: "Spicy Noodle Chicken",
-      price: 50000,
-      quantity: 2,
-      image:
-        "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=200&q=80",
-      options: ["Level 3 Spicy", "Extra Egg (+5.000)"],
-    },
-    {
-      id: 3,
-      name: "Chicken Wrap",
-      price: 35000,
-      quantity: 1,
-      image:
-        "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=200&q=80",
-      options: ["No Onions", "Extra Cheese (+5.000)"],
-    },
-  ]);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [tableInfo, setTableInfo] = useState<any>(null);
 
-  const updateQuantity = (id: number, change: number) => {
-    setItems((prevItems) =>
-      prevItems
+  // Load cart data from localStorage
+  useEffect(() => {
+    const loadCartData = () => {
+      try {
+        // Get cart quantities
+        const savedCart = localStorage.getItem("dinehub-cart");
+        const cartData: { [itemId: string]: number } = savedCart
+          ? JSON.parse(savedCart)
+          : {};
+
+        // Get menu categories to get full item details
+        const savedCategories = localStorage.getItem("dinehub-menu-categories");
+        const categories = savedCategories ? JSON.parse(savedCategories) : [];
+
+        // Get table info
+        const savedTableInfo = localStorage.getItem("dinehub-table-info");
+        if (savedTableInfo) {
+          setTableInfo(JSON.parse(savedTableInfo));
+        }
+
+        // Build cart items array
+        const allMenuItems: MenuItem[] = categories.flatMap(
+          (cat: any) => cat.items
+        );
+        const cartItems: CartItem[] = Object.entries(cartData)
+          .map(([itemId, quantity]) => {
+            const menuItem = allMenuItems.find((item) => item.id === itemId);
+            if (menuItem) {
+              return {
+                id: menuItem.id,
+                name: menuItem.name,
+                price: menuItem.price,
+                quantity: quantity,
+                image: menuItem.image,
+              };
+            }
+            return null;
+          })
+          .filter((item): item is CartItem => item !== null);
+
+        setItems(cartItems);
+      } catch (error) {
+        console.error("Error loading cart data:", error);
+      }
+    };
+
+    loadCartData();
+  }, []);
+
+  const updateQuantity = (id: string, change: number) => {
+    setItems((prevItems) => {
+      const updatedItems = prevItems
         .map((item) => {
           if (item.id === id) {
             const newQuantity = Math.max(0, item.quantity + change);
@@ -65,8 +93,17 @@ const CartPage: React.FC = () => {
           }
           return item;
         })
-        .filter((item) => item.quantity > 0)
-    );
+        .filter((item) => item.quantity > 0);
+
+      // Update localStorage
+      const cartData: { [itemId: string]: number } = {};
+      updatedItems.forEach((item) => {
+        cartData[item.id] = item.quantity;
+      });
+      localStorage.setItem("dinehub-cart", JSON.stringify(cartData));
+
+      return updatedItems;
+    });
   };
 
   const subtotal = items.reduce(
@@ -87,57 +124,53 @@ const CartPage: React.FC = () => {
 
       {/* --- Cart Items --- */}
       <div className="px-4 mt-6 flex flex-col gap-6">
-        {items.map((item) => (
-          <div key={item.id} className="flex gap-4 items-center">
-            {/* Image */}
-            <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden shrink-0">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-full h-full object-cover"
+        {items.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">Your cart is empty</p>
+            <button
+              onClick={() => navigate(-1)}
+              className="mt-4 text-red-600 font-semibold"
+            >
+              Continue Shopping
+            </button>
+          </div>
+        ) : (
+          items.map((item) => (
+            <div key={item.id} className="flex gap-4 items-center">
+              {/* Image */}
+              <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden shrink-0">
+                {item.image ? (
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                    <span className="text-gray-400 text-xl font-bold">
+                      {item.name.charAt(0)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Details */}
+              <div className="grow">
+                <h3 className="font-bold text-sm text-gray-900">{item.name}</h3>
+                <p className=" font-bold text-sm mt-1">
+                  {formatRupiah(item.price)}
+                </p>
+              </div>
+
+              {/* Quantity Stepper */}
+              <QuantityPicker
+                quantity={item.quantity}
+                onIncrement={() => updateQuantity(item.id, 1)}
+                onDecrement={() => updateQuantity(item.id, -1)}
               />
             </div>
-
-            {/* Details */}
-            <div className="grow">
-              <h3 className="font-bold text-sm text-gray-900">{item.name}</h3>
-              {item.options && item.options.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1.5">
-                  {item.options.map((option, index) => (
-                    <span
-                      key={index}
-                      className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100"
-                    >
-                      {option}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <p className=" font-bold text-sm mt-1">
-                {formatRupiah(item.price)}
-              </p>
-            </div>
-
-            {/* Quantity Stepper */}
-            <div className="flex items-center gap-3 border border-gray-200 rounded-full px-2 py-1">
-              <button
-                onClick={() => updateQuantity(item.id, -1)}
-                className="hover:cursor-pointer w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-600"
-              >
-                <FiMinus className="w-4 h-4" />
-              </button>
-              <span className="text-sm font-semibold w-2 text-center">
-                {item.quantity}
-              </span>
-              <button
-                onClick={() => updateQuantity(item.id, 1)}
-                className="hover:cursor-pointer w-6 h-6 flex items-center justify-center text-gray-500 hover:text-red-600"
-              >
-                <FiPlus className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* --- Summary Section --- */}

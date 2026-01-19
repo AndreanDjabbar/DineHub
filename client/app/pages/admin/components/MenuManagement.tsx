@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { FiTrash2, FiX, FiBookOpen, FiAlertCircle } from "react-icons/fi";
 import type { MenuCategory, AddOn, AddOnOption } from "./types";
-import { TextInput, NumInput, Button } from "~/components";
-import UploadImage from "~/components/UploadImage";
+import { TextInput, NumInput, Button, UploadImage } from "~/components";
 
 interface MenuManagementProps {
   categories: MenuCategory[];
