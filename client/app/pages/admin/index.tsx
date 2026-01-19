@@ -42,6 +42,7 @@ const AdminDashboard: React.FC = () => {
   const [tables, setTables] = useState<Table[]>([]);
   const [activeTable, setActiveTable] = useState<Table | null>(null);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [restaurantName, setRestaurantName] = useState<string>("");
 
   // --- FORM STATES ---
   const [newUser, setNewUser] = useState({
@@ -78,6 +79,32 @@ const AdminDashboard: React.FC = () => {
   if (!token || !userString) {
     window.location.href = "/login";
   }
+
+  useEffect(() => {
+    const fetchRestaurantDetails = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:4000/dinehub/api/restaurant/${restaurantId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setRestaurantName(data.data.name);
+        } else {
+          console.error("Failed to fetch restaurant details");
+        }
+      } catch (error) {
+        console.error("Failed to fetch restaurant details:", error);
+      }
+    };
+    fetchRestaurantDetails();
+  });
 
   useEffect(() => {
     const fetchStaff = async () => {
@@ -585,12 +612,14 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-red-600">DineHub Admin</h1>
-        <span>{user.email}</span>
+      <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center top-0 z-10 sticky">
+        <h1 className="text-xl font-bold text-red-600">{restaurantName}</h1>
+
+        <span className="absolute left-1/2 -translate-x-1/2">{user.email}</span>
+
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition"
+          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition ml-auto"
         >
           <FiLogOut /> Logout
         </button>
