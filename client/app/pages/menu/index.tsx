@@ -285,7 +285,7 @@ const Menu: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6 mb-20">
             {filteredItems.map((item) => (
               <div key={item.id} className="group flex flex-col">
                 {/* Product Image Container */}

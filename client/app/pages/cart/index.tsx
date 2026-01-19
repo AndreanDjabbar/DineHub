@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { FiX, FiMapPin } from "react-icons/fi";
 import { BackButton, Button, QuantityPicker } from "~/components";
+import PaymentModal from "./components/PaymentModal";
 
 interface MenuItem {
   id: string;
@@ -203,8 +204,15 @@ const CartPage: React.FC = () => {
           <span className="text-gray-500 font-medium">Total</span>
           <span className="text-xl font-bold">{formatRupiah(total)}</span>
         </div>
-        <Button>Checkout</Button>
+        <Button onClick={() => setIsPaymentModalOpen(true)}>Checkout</Button>
       </div>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        amount={total}
+      />
     </div>
   );
 };

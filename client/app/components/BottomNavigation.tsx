@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router"; // Import NavLink
+import { NavLink, useSearchParams } from "react-router";
 import { FiUser } from "react-icons/fi";
 import { MdReceipt } from "react-icons/md";
 import { LuChefHat, LuHandshake } from "react-icons/lu";
@@ -7,6 +7,8 @@ import { useNavigate } from "react-router";
 
 const BottomNavigation = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const tableId = searchParams.get("table");
 
   const handleAccountClick = (e: React.MouseEvent) => {
     const token = localStorage.getItem("token");
@@ -17,17 +19,21 @@ const BottomNavigation = () => {
     }
   };
 
+  // Build URLs with table ID if it exists
+  const menuUrl = tableId ? `/menu?table=${tableId}` : "/menu";
+  const ordersUrl = tableId ? `/orders?table=${tableId}` : "/orders";
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50">
       <div className="flex justify-between items-center max-w-lg mx-auto">
         <NavItem
-          to="/menu"
+          to={menuUrl}
           icon={<LuChefHat className="w-6 h-6" />}
           label="Menus"
         />
 
         <NavItem
-          to="/orders"
+          to={ordersUrl}
           icon={<MdReceipt className="w-6 h-6" />}
           label="Orders"
         />
