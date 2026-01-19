@@ -1,7 +1,8 @@
-import React from "react";
-import { FiTrash2, FiX, FiBookOpen } from "react-icons/fi";
+import React, { useState } from "react";
+import { FiTrash2, FiX, FiBookOpen, FiAlertCircle } from "react-icons/fi";
 import type { MenuCategory, AddOn, AddOnOption } from "./types";
 import { TextInput, NumInput, Button } from "~/components";
+import UploadImage from "~/components/UploadImage";
 
 interface MenuManagementProps {
   categories: MenuCategory[];
@@ -38,6 +39,38 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
   handleDeleteCategory,
   handleDeleteMenuItem,
 }) => {
+  const [errors, setErrors] = useState<{
+    name?: string;
+    price?: string;
+    category?: string;
+    image?: string;
+  }>({});
+
+  const validateAndSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: typeof errors = {};
+
+    if (!newMenuItem.name.trim()) {
+      newErrors.name = "Item name is required";
+    }
+    if (!newMenuItem.price || newMenuItem.price <= 0) {
+      newErrors.price = "Price must be greater than 0";
+    }
+    if (!newMenuItem.categoryId) {
+      newErrors.category = "Please select a category";
+    }
+    if (!newMenuItem.image) {
+      newErrors.image = "Image is required";
+    }
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0) {
+      handleAddMenuItem(e);
+      setErrors({});
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Form Section */}
@@ -69,46 +102,62 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
         {/* Add Menu Item Form */}
         <div>
           <h3 className="text-lg font-bold mb-4">Add Menu Item</h3>
-          <form onSubmit={handleAddMenuItem} className="space-y-4">
+          <form onSubmit={validateAndSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Item Name
               </label>
               <TextInput
                 type="text"
-                required
                 placeholder="e.g. Fried Rice"
                 value={newMenuItem.name}
-                onChange={(e) =>
-                  setNewMenuItem({ ...newMenuItem, name: e.target.value })
-                }
+                onChange={(e) => {
+                  setNewMenuItem({ ...newMenuItem, name: e.target.value });
+                  if (errors.name) setErrors({ ...errors, name: undefined });
+                }}
               />
+              {errors.name && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <FiAlertCircle size={14} />
+                  <span>{errors.name}</span>
+                </div>
+              )}
             </div>
             <div>
               <NumInput
                 label="Price"
-                required
                 min="0"
                 value={newMenuItem.price}
-                onChange={(e) =>
+                onChange={(e) => {
                   setNewMenuItem({
                     ...newMenuItem,
                     price: parseInt(e.target.value),
-                  })
-                }
+                  });
+                  if (errors.price) setErrors({ ...errors, price: undefined });
+                }}
               />
+              {errors.price && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <FiAlertCircle size={14} />
+                  <span>{errors.price}</span>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category
               </label>
               <select
-                required
                 className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
                 value={newMenuItem.categoryId}
-                onChange={(e) =>
-                  setNewMenuItem({ ...newMenuItem, categoryId: e.target.value })
-                }
+                onChange={(e) => {
+                  setNewMenuItem({
+                    ...newMenuItem,
+                    categoryId: e.target.value,
+                  });
+                  if (errors.category)
+                    setErrors({ ...errors, category: undefined });
+                }}
               >
                 <option value="">Select Category</option>
                 {categories.map((cat) => (
@@ -117,6 +166,30 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                   </option>
                 ))}
               </select>
+              {errors.category && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <FiAlertCircle size={14} />
+                  <span>{errors.category}</span>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <UploadImage
+                label="Item Image"
+                required
+                value={newMenuItem.image || null}
+                onChange={(imageUrl) => {
+                  setNewMenuItem({ ...newMenuItem, image: imageUrl });
+                  if (errors.image) setErrors({ ...errors, image: undefined });
+                }}
+              />
+              {errors.image && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <FiAlertCircle size={14} />
+                  <span>{errors.image}</span>
+                </div>
+              )}
             </div>
 
             {/* Add-ons Section */}
@@ -353,7 +426,14 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                         key={item.id}
                         className="flex justify-between items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition"
                       >
-                        <div>
+                        {item.image && (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-16 h-16 object-cover rounded-lg border border-gray-200 mr-4"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
                           <p className="font-bold text-gray-800">{item.name}</p>
                           <p className="text-sm text-gray-500">
                             Rp {item.price.toLocaleString()}

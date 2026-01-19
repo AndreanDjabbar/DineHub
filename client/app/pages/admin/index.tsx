@@ -57,8 +57,9 @@ const AdminDashboard: React.FC = () => {
     name: string;
     price: number;
     categoryId: string;
+    image: string | null;
     addOns: AddOn[];
-  }>({ name: "", price: 0, categoryId: "", addOns: [] });
+  }>({ name: "", price: 0, categoryId: "", image: null, addOns: [] });
 
   const [newAddOn, setNewAddOn] = useState<AddOn>({
     name: "",
@@ -525,6 +526,7 @@ const AdminDashboard: React.FC = () => {
             name: newMenuItem.name,
             price: newMenuItem.price,
             categoryId: newMenuItem.categoryId,
+            image: newMenuItem.image,
             addOns: newMenuItem.addOns,
           }),
         }
@@ -544,7 +546,7 @@ const AdminDashboard: React.FC = () => {
         )
       );
 
-      setNewMenuItem({ name: "", price: 0, categoryId: "", addOns: [] });
+      setNewMenuItem({ name: "", price: 0, categoryId: "", image: null, addOns: [] });
       setNewAddOn({ name: "", minSelect: 0, maxSelect: 1, options: [] });
       alert("Menu item added successfully");
     } catch (error) {
