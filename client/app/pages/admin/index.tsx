@@ -3,12 +3,14 @@ import { useNavigate } from "react-router";
 import { FiLogOut, FiUserPlus, FiLayers, FiBookOpen } from "react-icons/fi";
 
 // Import Components
-import StatsGrid from "./components/StatsGrid";
-import StaffManagement from "./components/StaffManagement";
-import TableManagement from "./components/TableManagement";
-import MenuManagement from "./components/MenuManagement";
-import EditUserModal from "./components/EditUserModal";
-import EditTableModal from "./components/EditTableModal";
+import { 
+  StatsGrid,
+  StaffManagement,
+  TableManagement,
+  MenuManagement,
+  EditUserModal,
+  EditTableModal 
+} from "./components";
 
 // Import Types
 import type {
@@ -633,24 +635,24 @@ const AdminDashboard: React.FC = () => {
 
         {/* Management Area - Tabbed Interface */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="flex border-b border-gray-100">
+          <div className="flex border-b border-gray-100 justify-between">
             <button
               onClick={() => setActiveTab("staff")}
-              className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition ${activeTab === "staff" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
+              className={`py-4 px-2 flex-1 text-sm font-bold flex flex-col items-center justify-center gap-2 transition ${activeTab === "staff" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
-              <FiUserPlus /> Staff Management
+              <FiUserPlus size={25} /> Staff Management
             </button>
             <button
               onClick={() => setActiveTab("tables")}
-              className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition ${activeTab === "tables" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
+              className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition ${activeTab === "tables" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
-              <FiLayers /> Table Management
+              <FiLayers size={25}/> Table Management
             </button>
             <button
               onClick={() => setActiveTab("menu")}
-              className={`flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition ${activeTab === "menu" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
+              className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition ${activeTab === "menu" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
-              <FiBookOpen /> Menu Management
+              <FiBookOpen size={25}/> Menu Management
             </button>
           </div>
 
