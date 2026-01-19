@@ -8,6 +8,9 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { Button } from "~/components";
+import BCAImage from "~/assets/image/bca.png";
+import GoPayImage from "~/assets/image/gopay.png";
+import QRISImage from "~/assets/image/qris.png";
 
 // Midtrans Snap types
 declare global {
@@ -94,19 +97,19 @@ export default function PaymentModal({
     {
       id: "bca_va",
       name: "BCA Virtual Account",
-      iconPath: "/bca.png",
+      iconPath: BCAImage,
       description: "Transfer via BCA Virtual Account",
     },
     {
       id: "gopay",
       name: "GoPay",
-      iconPath: "/gopay.png",
+      iconPath: GoPayImage,
       description: "Pay with GoPay e-wallet",
     },
     {
       id: "qris",
       name: "QRIS",
-      iconPath: "/qris.png",
+      iconPath: QRISImage,
       description: "Scan QR code to pay",
     },
   ];
@@ -200,7 +203,7 @@ export default function PaymentModal({
             </h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-2 hover:bg-gray-100 rounded-full transition-colors hover:cursor-pointer"
             >
               <FaTimes className="w-5 h-5 text-gray-600" />
             </button>
@@ -291,7 +294,7 @@ export default function PaymentModal({
                     return (
                       <button
                         key={method.id}
-                        className={`group flex items-center justify-between p-4 rounded-xl border-2 transition-all border-gray-200  hover:border-red-500 hover:bg-red-50`}
+                        className={`group flex items-center justify-between p-4 rounded-xl border-2 transition-all border-gray-200  hover:border-red-500 hover:bg-red-50 hover:cursor-pointer`}
                       >
                         <div className="flex items-center gap-4">
                           <div className="rounded-lg flex items-center justify-center">
