@@ -52,7 +52,12 @@ const AdminDashboard: React.FC = () => {
     role: "cashier",
   });
   const [newTable, setNewTable] = useState({ capacity: 2 });
-  const [newCategory, setNewCategory] = useState({ name: "" });
+  const [newCategory, setNewCategory] = useState<
+    Omit<MenuCategory, "id" | "items">
+  >({
+    name: "",
+    image: "",
+  });
   const [newMenuItem, setNewMenuItem] = useState<{
     name: string;
     price: number;
@@ -493,6 +498,7 @@ const AdminDashboard: React.FC = () => {
           },
           body: JSON.stringify({
             name: newCategory.name,
+            image: newCategory.image,
             restaurantId: restaurantId,
           }),
         }
@@ -504,7 +510,7 @@ const AdminDashboard: React.FC = () => {
       }
       const createdCategory = data.data;
       setCategories([...categories, { ...createdCategory, items: [] }]);
-      setNewCategory({ name: "" });
+      setNewCategory({ name: "", image: "" });
       alert("Category added successfully");
     } catch (error) {
       console.error("Error adding category:", error);
@@ -546,7 +552,13 @@ const AdminDashboard: React.FC = () => {
         )
       );
 
-      setNewMenuItem({ name: "", price: 0, categoryId: "", image: null, addOns: [] });
+      setNewMenuItem({
+        name: "",
+        price: 0,
+        categoryId: "",
+        image: null,
+        addOns: [],
+      });
       setNewAddOn({ name: "", minSelect: 0, maxSelect: 1, options: [] });
       alert("Menu item added successfully");
     } catch (error) {

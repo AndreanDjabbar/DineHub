@@ -93,6 +93,16 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 }
               />
             </div>
+
+            <UploadImage
+              label="Category Image"
+              required
+              value={newCategory.image || null}
+              onChange={(imageUrl) => {
+                setNewCategory({ ...newCategory, image: imageUrl });
+                if (errors.image) setErrors({ ...errors, image: undefined });
+              }}
+            />
             <Button type="submit">Add Category</Button>
           </form>
         </div>
@@ -409,6 +419,13 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               className="bg-white border border-gray-200 rounded-xl overflow-hidden"
             >
               <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                {category.image && (
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-14 h-14 object-cover rounded-full border border-gray-200 mr-4"
+                  />
+                )}
                 <h4 className="font-bold text-gray-800">{category.name}</h4>
                 <button
                   onClick={() => handleDeleteCategory(category.id)}

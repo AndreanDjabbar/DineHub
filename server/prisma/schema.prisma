@@ -57,6 +57,7 @@ model SessionUser {
 model MenuCategory {
   id           String     @id @default(cuid())
   name         String
+  image        String? 
   items        MenuItem[]
   createdAt    DateTime   @default(now())
   restaurantId String     @map("restaurant_id")
