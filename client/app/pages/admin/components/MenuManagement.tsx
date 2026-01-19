@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { FiTrash2, FiX, FiBookOpen, FiAlertCircle } from "react-icons/fi";
 import type { MenuCategory, AddOn, AddOnOption } from "./types";
-import { TextInput, NumInput, Button, UploadImage } from "~/components";
+import { TextInput, NumInput, Button, ImageInput } from "~/components";
 
 interface MenuManagementProps {
   categories: MenuCategory[];
-  newCategory: any;
-  setNewCategory: (category: any) => void;
+  newCategory: MenuCategory;
+  setNewCategory: (category: MenuCategory) => void;
   handleAddCategory: (e: React.FormEvent) => void;
   newMenuItem: any;
   setNewMenuItem: (item: any) => void;
@@ -93,12 +93,12 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               />
             </div>
 
-            <UploadImage
+            <ImageInput
               label="Category Image"
               required
               value={newCategory.image || null}
               onChange={(imageUrl) => {
-                setNewCategory({ ...newCategory, image: imageUrl });
+                setNewCategory({ ...newCategory, image: (imageUrl || "") });
                 if (errors.image) setErrors({ ...errors, image: undefined });
               }}
             />
@@ -184,7 +184,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
             </div>
 
             <div>
-              <UploadImage
+              <ImageInput
                 label="Item Image"
                 required
                 value={newMenuItem.image || null}
@@ -427,7 +427,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 )}
                 <h4 className="font-bold text-gray-800">{category.name}</h4>
                 <button
-                  onClick={() => handleDeleteCategory(category.id)}
+                  onClick={() => handleDeleteCategory(category?.id || "")}
                   className="text-red-500 hover:text-red-700 p-1 hover:cursor-pointer"
                   title="Delete Category"
                 >
@@ -435,9 +435,9 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 </button>
               </div>
               <div className="p-4">
-                {category.items.length > 0 ? (
+                {(category?.items?.length || 0) > 0 ? (
                   <div className="grid gap-3">
-                    {category.items.map((item) => (
+                    {category?.items?.map((item) => (
                       <div
                         key={item.id}
                         className="flex justify-between items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition"
@@ -477,7 +477,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                         <div className="flex gap-2">
                           <button
                             onClick={() =>
-                              handleDeleteMenuItem(item.id, category.id)
+                              handleDeleteMenuItem(item.id, category?.id || "")
                             }
                             className="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition hover:cursor-pointer"
                           >

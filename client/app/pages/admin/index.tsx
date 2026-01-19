@@ -53,9 +53,7 @@ const AdminDashboard: React.FC = () => {
     role: "cashier",
   });
   const [newTable, setNewTable] = useState({ capacity: 2 });
-  const [newCategory, setNewCategory] = useState<
-    Omit<MenuCategory, "id" | "items">
-  >({
+  const [newCategory, setNewCategory] = useState<MenuCategory>({
     name: "",
     image: "",
   });
@@ -527,7 +525,7 @@ const AdminDashboard: React.FC = () => {
       setCategories(
         categories.map((cat) =>
           cat.id === createdItem.categoryId
-            ? { ...cat, items: [...cat.items, createdItem] }
+            ? { ...cat, items: [...(cat?.items || []), createdItem] }
             : cat
         )
       );
@@ -594,7 +592,7 @@ const AdminDashboard: React.FC = () => {
       setCategories(
         categories.map((cat) =>
           cat.id === categoryId
-            ? { ...cat, items: cat.items.filter((i) => i.id !== id) }
+            ? { ...cat, items: cat?.items?.filter((i) => i.id !== id) }
             : cat
         )
       );
