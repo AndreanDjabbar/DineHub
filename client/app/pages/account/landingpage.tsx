@@ -2,8 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import { LuChefHat } from "react-icons/lu"; // Using ChefHat as a logo placeholder
 import { FaFire } from "react-icons/fa"; // Or a fire icon for the logo
-import BottomNavigation from "../components/CustomerNavbar";
-import Button from "../components/Button";
+import { BottomNavigation, Button } from "~/components";
 
 const LandingPage: React.FC = () => {
   const navigate = useNavigate();

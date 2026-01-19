@@ -7,8 +7,7 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import type { User } from "./types";
-import Button from "../../components/Button";
-import TextInput from "../../components/TextInput";
+import { TextInput, Button } from "~/components";
 
 interface StaffManagementProps {
   users: User[];

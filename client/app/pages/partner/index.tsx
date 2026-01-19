@@ -11,7 +11,7 @@ import {
   FiPhone,
   FiMapPin,
 } from "react-icons/fi";
-import Button from "../components/Button";
+import { Button } from "~/components";
 
 const PartnerPage: React.FC = () => {
   const navigate = useNavigate();

@@ -1,8 +1,7 @@
 import React from "react";
 import { FiLayers, FiEdit, FiTrash2, FiMousePointer } from "react-icons/fi";
 import type { Table } from "./types";
-import Button from "../../components/Button";
-import NumInput from "~/pages/components/NumInput";
+import { NumInput, Button } from "~/components";
 import TableQR from "./TableQr";
 
 interface TableManagementProps {

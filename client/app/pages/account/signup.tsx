@@ -8,9 +8,7 @@ import {
   FiEyeOff,
   FiUser,
 } from "react-icons/fi";
-import CustomerNavbar from "../components/CustomerNavbar";
-import Button from "../components/Button";
-import TextInput from "../components/TextInput";
+import { BottomNavigation, TextInput, BackButton, Button } from "~/components";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -193,7 +191,7 @@ const Signup: React.FC = () => {
           </NavLink>
         </p>
       </div>
-      <CustomerNavbar />
+      <BottomNavigation />
     </div>
   );
 };

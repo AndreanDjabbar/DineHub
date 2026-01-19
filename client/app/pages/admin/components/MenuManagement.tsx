@@ -1,9 +1,7 @@
 import React from "react";
 import { FiTrash2, FiX, FiBookOpen } from "react-icons/fi";
 import type { MenuCategory, AddOn, AddOnOption } from "./types";
-import Button from "../../components/Button";
-import TextInput from "~/pages/components/TextInput";
-import NumInput from "~/pages/components/NumInput";
+import { TextInput, NumInput, Button } from "~/components";
 
 interface MenuManagementProps {
   categories: MenuCategory[];

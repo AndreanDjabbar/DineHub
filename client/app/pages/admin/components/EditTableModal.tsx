@@ -1,7 +1,7 @@
 import React from "react";
 import { FiX } from "react-icons/fi";
 import type { Table } from "./types";
-import Button from "../../components/Button";
+import { Button } from "~/components";
 
 interface EditTableModalProps {
   isOpen: boolean;

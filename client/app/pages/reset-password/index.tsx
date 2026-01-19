@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink, useSearchParams } from "react-router";
 import { FiArrowLeft, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
-import BackButton from "../components/BackButton";
-import Button from "../components/Button";
+import { BackButton, Button } from "~/components";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();

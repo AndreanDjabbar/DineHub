@@ -1,7 +1,7 @@
 import React from "react";
 import { FiSearch, FiPlus, FiUser, FiShoppingBag, FiChevronRight } from "react-icons/fi";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import CustomerNavbar from "../components/CustomerNavbar";
+import { BottomNavigation } from "~/components";
 import { useNavigate } from "react-router";
 
 interface Product {
@@ -248,7 +248,7 @@ const Menu: React.FC = () => {
           </button>
         </div>
       )}
-      <CustomerNavbar />{" "}
+      <BottomNavigation />{" "}
     </div>
   );
 };

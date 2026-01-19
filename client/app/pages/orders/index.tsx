@@ -1,6 +1,6 @@
 import React from "react";
 import { FiRefreshCw, FiHash, FiUsers, FiClock } from "react-icons/fi";
-import CustomerNavbar from "../components/CustomerNavbar";
+import { BottomNavigation } from "~/components";
 
 const OrderPage: React.FC = () => {
   // Mock Data (Replace with API fetch later)
@@ -169,7 +169,7 @@ const OrderPage: React.FC = () => {
         </div>
       </div>
 
-      <CustomerNavbar />
+      <BottomNavigation />
     </div>
   );
 };

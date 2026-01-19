@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { FiArrowLeft, FiMinus, FiPlus} from "react-icons/fi";
-import BackButton from "../components/BackButton";
+import { BackButton } from "~/components";
 
 // --- Types for your future API ---
 interface OptionItem {

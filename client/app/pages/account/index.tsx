@@ -9,7 +9,7 @@ import {
   FiChevronRight,
   FiUser,
 } from "react-icons/fi";
-import CustomerNavbar from "../components/CustomerNavbar";
+import { BottomNavigation } from "~/components";
 
 interface User {
   id: string;
@@ -133,7 +133,7 @@ const ProfilePage: React.FC = () => {
       </div>
 
       {/* --- Bottom Navigation --- */}
-      <CustomerNavbar />
+      <BottomNavigation />
     </div>
   );
 };

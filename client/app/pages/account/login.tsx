@@ -1,10 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router";
 import { FiMail, FiLock } from "react-icons/fi";
-import BottomNavigation from "../components/CustomerNavbar";
 import { BiLoader } from "react-icons/bi";
-import Button from "../components/Button";
-import TextInput from "../components/TextInput";
+import { BottomNavigation, TextInput, Button } from "~/components";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();

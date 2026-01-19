@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
-import BackButton from "../components/BackButton";
+import { BackButton } from "~/components";
 
 const VerifyOtp: React.FC = () => {
   const navigate = useNavigate();

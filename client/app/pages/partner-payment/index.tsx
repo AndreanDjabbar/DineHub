@@ -7,7 +7,7 @@ import {
   FaLock,
   FaArrowLeft,
 } from "react-icons/fa";
-import Button from "../components/Button";
+import { Button } from "~/components";
 
 // Midtrans Snap types
 declare global {
