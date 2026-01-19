@@ -149,6 +149,7 @@ const Menu: React.FC = () => {
           </h2>
           <p className="text-gray-600">{error || "Table not found"}</p>
         </div>
+        <BottomNavigation />
       </div>
     );
   }
@@ -305,7 +306,7 @@ const Menu: React.FC = () => {
           </button>
         </div>
       )}
-      <BottomNavigation />{" "}
+      <BottomNavigation />
     </div>
   );
 };
