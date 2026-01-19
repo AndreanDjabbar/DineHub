@@ -20,6 +20,7 @@ import type {
   AddOn,
   AddOnOption,
 } from "./components/types";
+import { UserHeader } from "~/components";
 
 const sortTablesByNumber = (tables: Table[]): Table[] => {
   return [...tables].sort((a, b) => {
@@ -32,7 +33,6 @@ const sortTablesByNumber = (tables: Table[]): Table[] => {
 const AdminDashboard: React.FC = () => {
   const token = localStorage.getItem("token");
   const userString = localStorage.getItem("user");
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"staff" | "tables" | "menu">(
     "staff"
   );
@@ -44,7 +44,6 @@ const AdminDashboard: React.FC = () => {
   const [tables, setTables] = useState<Table[]>([]);
   const [activeTable, setActiveTable] = useState<Table | null>(null);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
-  const [restaurantName, setRestaurantName] = useState<string>("");
 
   // --- FORM STATES ---
   const [newUser, setNewUser] = useState({
@@ -97,7 +96,6 @@ const AdminDashboard: React.FC = () => {
         );
         if (response.ok) {
           const data = await response.json();
-          setRestaurantName(data.data.name);
         } else {
           console.error("Failed to fetch restaurant details");
         }
@@ -217,26 +215,6 @@ const AdminDashboard: React.FC = () => {
   }, [restaurantId, token, activeTab]);
 
   // --- HANDLERS ---
-  const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        await fetch("http://localhost:4000/dinehub/api/auth/logout", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      } catch (error) {
-        console.error("Logout error:", error);
-      }
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      navigate("/login");
-    }
-  };
-
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!restaurantId) {
@@ -614,18 +592,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-8 py-4 flex items-center top-0 z-10 sticky">
-        <h1 className="text-xl font-bold text-red-600">{restaurantName}</h1>
-
-        <span className="absolute left-1/2 -translate-x-1/2">{user.email}</span>
-
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition ml-auto"
-        >
-          <FiLogOut /> Logout
-        </button>
-      </header>
+      <UserHeader />
 
       <main className="p-8 max-w-7xl mx-auto">
         <h2 className="text-2xl font-bold mb-6">Dashboard Overview</h2>
