@@ -55,7 +55,7 @@ const TextInput: React.FC<TextInputProps> = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:cursor-pointer hover:text-gray-600 p-1"
           >
             {showPassword ? (
               <FiEyeOff className="w-5 h-5" />

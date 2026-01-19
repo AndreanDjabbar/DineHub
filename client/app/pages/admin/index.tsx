@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { FiLogOut, FiUserPlus, FiLayers, FiBookOpen } from "react-icons/fi";
+import { FiLogOut, FiUserPlus, FiLayers, FiBookOpen, FiUser } from "react-icons/fi";
 
 // Import Components
 import { 
@@ -619,7 +619,7 @@ const AdminDashboard: React.FC = () => {
           <div className="flex border-b border-gray-100 justify-between">
             <button
               onClick={() => setActiveTab("staff")}
-              className={`py-4 px-2 flex-1 text-sm font-bold flex flex-col items-center justify-center gap-2 transition hover:cursor-pointer ${activeTab === "staff" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
+              className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition hover:cursor-pointer ${activeTab === "staff" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
               <FiUserPlus size={25} /> Staff Management
             </button>
