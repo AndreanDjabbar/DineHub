@@ -5,6 +5,7 @@ import NumInput from "./NumInput";
 import TextInput from "./TextInput";
 import UserHeader from "./UserHeader";
 import UploadImage from "./UploadImage";
+import QuantityPicker from "./QuantityPicker";
 import ProfileBadge from "./ProfileBadge";
 
 export {
@@ -15,5 +16,6 @@ export {
     TextInput,
     UserHeader,
     UploadImage,
-    ProfileBadge
+    ProfileBadge,
+    QuantityPicker,
 }

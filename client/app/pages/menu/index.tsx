@@ -7,7 +7,7 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import { BottomNavigation } from "~/components";
+import { BottomNavigation, QuantityPicker } from "~/components";
 import { useNavigate, useSearchParams } from "react-router";
 
 interface MenuItem {
@@ -22,6 +22,7 @@ interface MenuItem {
 interface MenuCategory {
   id: string;
   name: string;
+  image: string;
   items: MenuItem[];
 }
 
@@ -53,8 +54,18 @@ const Menu: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tableInfo, setTableInfo] = useState<TableInfo | null>(null);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
-  const [cart, setCart] = useState<MenuItem[]>([]);
+  const [cart, setCart] = useState<{ [itemId: string]: number }>(() => {
+    // Load cart from localStorage on mount (only in browser)
+    if (typeof window !== "undefined") {
+      const savedCart = localStorage.getItem("dinehub-cart");
+      return savedCart ? JSON.parse(savedCart) : {};
+    }
+    return {};
+  });
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null
+  );
 
   // Fetch table and restaurant info
   useEffect(() => {
@@ -110,21 +121,66 @@ const Menu: React.FC = () => {
     fetchMenu();
   }, [tableInfo?.restaurantId]);
 
-  const handleAddToCart = (item: MenuItem) => {
-    setCart([...cart, item]);
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("dinehub-cart", JSON.stringify(cart));
+    // Also save table info for cart page
+    if (tableInfo) {
+      localStorage.setItem("dinehub-table-info", JSON.stringify(tableInfo));
+    }
+  }, [cart, tableInfo]);
+
+  const handleAddToCart = (itemId: string) => {
+    setCart((prevCart) => {
+      const newCart = {
+        ...prevCart,
+        [itemId]: (prevCart[itemId] || 0) + 1,
+      };
+      return newCart;
+    });
   };
 
-  const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+  const handleRemoveFromCart = (itemId: string) => {
+    setCart((prevCart) => {
+      const newCart = { ...prevCart };
+      if (newCart[itemId] > 1) {
+        newCart[itemId] -= 1;
+      } else {
+        delete newCart[itemId];
+      }
+      return newCart;
+    });
+  };
 
-  // Get all unique menu items across all categories
+  const handleCategoryClick = (categoryId: string) => {
+    // Toggle category selection - click again to deselect
+    setSelectedCategoryId(
+      selectedCategoryId === categoryId ? null : categoryId
+    );
+    // Clear search when selecting a category
+    setSearchQuery("");
+  };
+
+  // Calculate cart totals
   const allMenuItems = categories.flatMap((cat) => cat.items);
+  const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+  const totalAmount = Object.entries(cart).reduce((sum, [itemId, qty]) => {
+    const item = allMenuItems.find((i) => i.id === itemId);
+    return sum + (item?.price || 0) * qty;
+  }, 0);
 
   // Filter items based on search query
-  const filteredItems = searchQuery
-    ? allMenuItems.filter((item) =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : allMenuItems;
+  const filteredItems = allMenuItems.filter((item) => {
+    const matchesSearch = searchQuery
+      ? item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+
+    const matchesCategory = selectedCategoryId
+      ? item.categoryId === selectedCategoryId
+      : true;
+
+    return matchesSearch && matchesCategory;
+  });
 
   if (loading) {
     return (
@@ -183,31 +239,41 @@ const Menu: React.FC = () => {
           />
         </div>
       </div>
-
       {/* --- Categories Section --- */}
-      {categories.length > 0 && !searchQuery && (
+      {categories.length > 0 && (
         <div className="px-4 mt-4">
           <div className="flex justify-start gap-4 overflow-x-auto pb-2 scrollbar-hide">
             {categories.map((cat) => (
               <div
                 key={cat.id}
+                onClick={() => handleCategoryClick(cat.id)}
                 className="flex flex-col items-center gap-2 min-w-[70px] cursor-pointer hover:opacity-80 transition"
               >
                 {/* Category Circle */}
-                <div className="w-16 h-16 rounded-full overflow-hidden bg-linear-to-br from-red-500 to-red-600 shadow-sm flex items-center justify-center">
+                <div className="w-14 h-14 rounded-full overflow-hidden shadow-sm flex items-center justify-center">
                   <span className="text-white font-bold text-lg">
-                    {cat.name.charAt(0).toUpperCase()}
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="w-14 h-14 object-cover rounded-full border border-gray-200 mr-4"
+                    />
                   </span>
                 </div>
                 <span className="text-xs font-medium text-gray-700 text-center">
                   {cat.name}
                 </span>
+                <div
+                  className={`h-0.5 w-8 rounded-full transition-colors ${
+                    selectedCategoryId === cat.id
+                      ? "bg-red-600"
+                      : "bg-transparent"
+                  }`}
+                />
               </div>
             ))}
           </div>
         </div>
       )}
-
       {/* --- Products Grid --- */}
       <main className="px-4 mt-6">
         {filteredItems.length === 0 ? (
@@ -238,19 +304,29 @@ const Menu: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Add Button Overlay */}
+                  {/* Add Button / Counter Overlay */}
                   {item.isAvailable ? (
-                    <button
-                      className="absolute bottom-2 right-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition active:scale-80"
-                      onClick={() => handleAddToCart(item)}
-                    >
-                      <div className="w-6 h-6 rounded-full border border-red-500 flex items-center justify-center">
-                        <FiPlus
-                          className="w-4 h-4 text-red-600"
-                          strokeWidth={3}
+                    cart[item.id] ? (
+                      <div className="absolute bottom-2 right-2">
+                        <QuantityPicker
+                          quantity={cart[item.id]}
+                          onIncrement={() => handleAddToCart(item.id)}
+                          onDecrement={() => handleRemoveFromCart(item.id)}
                         />
                       </div>
-                    </button>
+                    ) : (
+                      <button
+                        className="absolute bottom-2 right-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition active:scale-80"
+                        onClick={() => handleAddToCart(item.id)}
+                      >
+                        <div className="w-8 h-8 rounded-full border border-red-500 flex items-center justify-center">
+                          <FiPlus
+                            className="w-4 h-4 text-red-600"
+                            strokeWidth={3}
+                          />
+                        </div>
+                      </button>
+                    )
                   ) : (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                       <span className="text-white font-bold text-sm">
@@ -274,13 +350,19 @@ const Menu: React.FC = () => {
           </div>
         )}
       </main>
-
       {/* --- Floating Cart Pop-up --- */}
-      {cart.length > 0 && (
+      {totalItems > 0 && (
         <div className="fixed bottom-[85px] left-4 right-4 z-20 animate-slide-up">
           <button
             className="w-full bg-white text-gray-900 rounded-2xl shadow-xl shadow-black/5 flex items-stretch overflow-hidden hover:bg-gray-50 transition active:scale-[0.98]"
-            onClick={() => navigate("/cart")}
+            onClick={() => {
+              // Save categories to localStorage so cart page can access menu items
+              localStorage.setItem(
+                "dinehub-menu-categories",
+                JSON.stringify(categories)
+              );
+              navigate("/cart");
+            }}
           >
             {/* Left: Red Square (1:1 Ratio) */}
             <div className="bg-red-600 w-[70px] aspect-square flex items-center justify-center shrink-0">
@@ -290,7 +372,7 @@ const Menu: React.FC = () => {
             {/* Right: Content Info */}
             <div className="grow flex items-center justify-between px-4 py-3">
               <div className="flex flex-col items-start">
-                <span className="font-bold text-base">{cart.length} Items</span>
+                <span className="font-bold text-base">{totalItems} Items</span>
                 <span className="text-xs text-gray-500 font-medium truncate max-w-[120px]">
                   {tableInfo.restaurantName}
                 </span>
