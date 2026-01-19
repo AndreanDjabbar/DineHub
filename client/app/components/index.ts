@@ -5,6 +5,7 @@ import NumInput from "./NumInput";
 import TextInput from "./TextInput";
 import UserHeader from "./UserHeader";
 import UploadImage from "./UploadImage";
+import ProfileBadge from "./ProfileBadge";
 
 export {
     BackButton,
@@ -14,4 +15,5 @@ export {
     TextInput,
     UserHeader,
     UploadImage,
+    ProfileBadge
 }
