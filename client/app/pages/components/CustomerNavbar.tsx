@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router"; // Import NavLink
 import { FiUser } from "react-icons/fi";
 import { MdReceipt } from "react-icons/md";
-import { LuChefHat } from "react-icons/lu";
+import { LuChefHat, LuHandshake } from "react-icons/lu";
 import { useNavigate } from "react-router";
 
 const BottomNavigation = () => {
@@ -11,7 +11,7 @@ const BottomNavigation = () => {
   const handleAccountClick = (e: React.MouseEvent) => {
     const token = localStorage.getItem("token");
 
-    if(!token) {
+    if (!token) {
       e.preventDefault();
       navigate("/");
     }
@@ -38,6 +38,12 @@ const BottomNavigation = () => {
           label="Account"
           onClick={handleAccountClick}
         />
+
+        <NavItem
+          to="/partner"
+          icon={<LuHandshake className="w-6 h-6" />}
+          label="Partner with Us"
+        />
       </div>
     </div>
   );
@@ -51,19 +57,19 @@ interface NavItemProps {
 }
 
 const NavItem: React.FC<NavItemProps> = ({ icon, label, to, onClick }) => {
-  return(
+  return (
     <NavLink
-    to={to}
-    onClick={onClick}
-    className={({ isActive }) =>
-      `hover:cursor-pointer flex flex-col items-center gap-1 transition-colors duration-200 ${
-        isActive ? "text-red-600" : "text-gray-400 hover:text-gray-600"
-      }`
-    }
-  >
-    {icon}
-    <span className="text-xs font-medium">{label}</span>
-  </NavLink>
+      to={to}
+      onClick={onClick}
+      className={({ isActive }) =>
+        `hover:cursor-pointer flex flex-col items-center gap-1 transition-colors duration-200 ${
+          isActive ? "text-red-600" : "text-gray-400 hover:text-gray-600"
+        }`
+      }
+    >
+      {icon}
+      <span className="text-xs font-medium">{label}</span>
+    </NavLink>
   );
 };
 

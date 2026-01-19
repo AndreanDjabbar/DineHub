@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router";
-import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiMail, FiLock } from "react-icons/fi";
 import BottomNavigation from "../components/CustomerNavbar";
 import { BiLoader } from "react-icons/bi";
+import Button from "../components/Button";
+import TextInput from "../components/TextInput";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,113 +46,83 @@ const Login: React.FC = () => {
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
         const role = data.data.user.role;
-        if(role === "ADMIN") {
-          navigate("/admin/dashboard");
+        if (role === "ADMIN") {
+          navigate("/admin");
           return;
-        }else if(role === "CASHIER") {
+        } else if (role === "CASHIER") {
           navigate("/cashier");
           return;
-        }else if(role === "KITCHEN") {
+        } else if (role === "KITCHEN") {
           navigate("/kitchen");
           return;
-        }else if(role === "Developer") {
+        } else if (role === "Developer") {
           navigate("/developer");
           return;
-        }else{
+        } else {
           navigate("/menu");
         }
       } else {
         console.log("Response Data: ", data);
-        if(data.message.includes("Email not verified")) {
+        if (data.message.includes("Email not verified")) {
           alert("Please verify your email before logging in.");
           navigate("/verify-otp", {
             state: { email: formData.email, token: data.data.token },
           });
-        }else{
+        } else {
           alert(data.message);
           setError(data.message);
         }
       }
     } catch (error) {
       console.error("Login failed:", error);
-      setError(error instanceof Error ? error.message : "An unexpected error occurred.");
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred."
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 px-6 py-6 flex flex-col">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 px-6 py-6 flex flex-col">
       {/* --- Title Section --- */}
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold mb-2 text-gray-900">
+        <h1 className="text-3xl font-bold mb-2 text-gray-900">
           Let's Sign You In
         </h1>
-        <p className="text-gray-500 font-medium">
-          Welcome back, you've been missed!
-        </p>
+        <p className="text-gray-500">Welcome back, you've been missed!</p>
       </div>
 
       {/* --- Form Section --- */}
       <form className="flex-col flex gap-5" onSubmit={handleSubmit}>
-        {/* Email Field */}
-        <div className="space-y-2">
-          <label className="text-sm font-bold text-gray-700 ml-1">Email</label>
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              <FiMail className="w-5 h-5" />
-            </div>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="user@example.com"
-              required
-              className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 pl-12 pr-4 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition"
-            />
-          </div>
-        </div>
-
-        {/* Password Field */}
-        <div className="space-y-2">
-          <label className="text-sm font-bold text-gray-700 ml-1">
-            Password
-          </label>
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-              <FiLock className="w-5 h-5" />
-            </div>
-            <input
-              type={showPassword ? "text" : "password"}
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-              className="w-full bg-gray-50 border border-gray-100 rounded-xl py-4 pl-12 pr-12 text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition"
-            />
-            {/* Eye Toggle Button */}
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-            >
-              {showPassword ? (
-                <FiEyeOff className="w-5 h-5" />
-              ) : (
-                <FiEye className="w-5 h-5" />
-              )}
-            </button>
-          </div>
-        </div>
+        <TextInput
+          label="Email"
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="user@example.com"
+          required
+          icon={FiMail}
+        />
+        <TextInput
+          label="Password"
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="••••••••"
+          required
+          icon={FiLock}
+        />
 
         {/* Forgot Password Link */}
         <div className="flex justify-end">
-          <button 
-          onClick={() => navigate("/forgot-password")}
-          type="button"
-          className="hover:cursor-pointer text-sm font-bold text-gray-900 hover:text-red-600 transition">
+          <button
+            onClick={() => navigate("/forgot-password")}
+            type="button"
+            className="hover:cursor-pointer text-sm font-bold text-gray-900 hover:text-red-600 transition"
+          >
             Forgot Password?
           </button>
         </div>
@@ -161,18 +132,16 @@ const Login: React.FC = () => {
         ) : null}
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98] mt-4"
-        >
+        <Button type="submit" disabled={isLoading}>
           {isLoading ? (
             <div className="text-bold flex items-center justify-center gap-2">
-              <BiLoader size={30} className="animate-spin"/>
+              <BiLoader size={30} className="animate-spin" />
               Signing In...
-            </div>            
-          ) : "Sign In"}
-        </button>
+            </div>
+          ) : (
+            "Sign In"
+          )}
+        </Button>
       </form>
 
       {/* --- Footer: Sign Up Link --- */}
@@ -188,7 +157,7 @@ const Login: React.FC = () => {
         </p>
       </div>
 
-      <BottomNavigation/>
+      <BottomNavigation />
     </div>
   );
 };

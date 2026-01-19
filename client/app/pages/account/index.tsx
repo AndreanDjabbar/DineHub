@@ -80,15 +80,15 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 pb-24">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-24">
       {/* --- Header --- */}
-      <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center justify-center border-b border-gray-50">
-        <h1 className="text-lg font-bold">Account</h1>
+      <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center justify-center shadow-sm">
+        <h1 className="text-xl font-bold text-gray-900">Account</h1>
       </div>
 
       {/* --- Profile Info Card --- */}
       <div className="px-4 mt-6">
-        <div className="flex flex-col items-center bg-gray-50 rounded-2xl p-6">
+        <div className="flex flex-col items-center bg-gray-50 rounded-xl p-6 shadow-sm">
           <FiUser className="w-16 h-16" />
 
           {/* Name & Email */}

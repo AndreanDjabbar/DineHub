@@ -1,19 +1,55 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { FiGrid, FiLogOut, FiCreditCard, FiPrinter } from "react-icons/fi";
 
-const CashierDashboard: React.FC = () => {
-  const navigate = useNavigate();
-  const [selectedTable, setSelectedTable] = useState<number | null>(null);
+interface User {
+  id: number;
+  name: string;
+  role: string;
+  restaurantId: number;
+}
 
-  // Mock Table Data
-  // Status: available, occupied, unpaid, paid
-  const tables = Array.from({ length: 12 }, (_, i) => ({
-    id: i + 1,
-    status: i === 4 || i === 7 ? "unpaid" : i === 2 ? "occupied" : "available",
-    billAmount: i === 4 ? 294000 : i === 7 ? 150000 : 0,
-    time: i === 4 ? "45m" : i === 7 ? "1h 10m" : "",
-  }));
+interface Table {
+  id: number;
+  name: string;
+  status: 'available' | 'occupied' | 'unpaid';
+  capacity: number;
+}
+
+const CashierDashboard: React.FC = () => {
+  const token = localStorage.getItem("token");
+  const userString = localStorage.getItem("user");  
+  const navigate = useNavigate();
+  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+  const user = userString ? JSON.parse(userString) : null;
+  const restaurantId = user?.restaurantId;
+  const [tables, setTables] = useState<Table[]>([])
+
+  useEffect(() => {
+    fetchTables();
+  }, []);
+
+  const fetchTables = async () => {
+    console.log("Fetching tables...");
+
+    try{
+        const response = await fetch(`http://localhost:4000/dinehub/api/restaurant/tables/${restaurantId}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        });
+        if(!response.ok){
+          console.error("Failed to fetch tables data");
+          return;
+        }
+        const data = await response.json();
+        const tables = data.data || [];
+        console.log("All Tables: ", tables); 
+        setTables(tables);
+    }
+    catch(error){
+      console.error("Error fetching tables:", error);
+    }
+};
 
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
@@ -38,9 +74,9 @@ const CashierDashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+      <header className="bg-white shadow-sm px-6 py-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-gray-800">Cashier Station</h1>
+            <h1 className="text-xl font-bold text-gray-900">Cashier Station</h1>
         </div>
         <button onClick={handleLogout} className="text-gray-500 hover:text-red-600 font-medium text-sm flex gap-2 items-center">
              <FiLogOut /> Logout
@@ -55,23 +91,21 @@ const CashierDashboard: React.FC = () => {
                 {tables.map((table) => (
                     <button
                         key={table.id}
-                        onClick={() => setSelectedTable(table.id)}
-                        className={`h-32 rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all active:scale-[0.98] ${
-                            selectedTable === table.id ? 'ring-2 ring-red-600 ring-offset-2' : ''
+                        onClick={() => setSelectedTable(table)}
+                        className={`h-32 rounded-xl border-2 flex flex-col items-center justify-center relative transition-all active:scale-[0.98] shadow-sm ${
+                            selectedTable === table ? 'ring-2 ring-red-600 ring-offset-2' : ''
                         } ${
                             table.status === 'available' ? 'bg-white border-gray-200 text-gray-400 hover:border-gray-300' :
                             table.status === 'occupied' ? 'bg-blue-50 border-blue-200 text-blue-600' :
-                            'bg-orange-50 border-orange-200 text-orange-600' // Unpaid
+                            'bg-red-50 border-red-200 text-red-600' // Unpaid
                         }`}
                     >
-                        <span className="text-2xl font-bold">T-{table.id}</span>
+                        <span className="text-2xl font-bold">{table.name}</span>
                         <span className="text-xs uppercase font-bold mt-1 tracking-wider">{table.status}</span>
                         
-                        {table.billAmount > 0 && (
                             <div className="absolute bottom-2 bg-white px-2 py-1 rounded-md text-xs font-bold shadow-sm border border-gray-100 text-gray-900">
-                                Rp {table.billAmount.toLocaleString('id-ID')}
+                                Rp 100.000
                             </div>
-                        )}
                     </button>
                 ))}
             </div>
@@ -82,7 +116,7 @@ const CashierDashboard: React.FC = () => {
             {selectedTable ? (
                 <>
                     <div className="p-6 border-b border-gray-100">
-                        <h2 className="text-2xl font-bold">Table {selectedTable}</h2>
+                        <h2 className="text-2xl font-bold">{selectedTable.name}</h2>
                         <span className="text-sm text-gray-400">Transaction #SSBIG176502</span>
                     </div>
                     

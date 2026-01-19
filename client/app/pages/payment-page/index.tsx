@@ -119,10 +119,10 @@ const PaymentPage = () => {
             </p>
           </div>
 
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+          <div className="bg-white p-6 rounded-xl shadow-sm">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Order Summary</h3>
             
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-gray-50">
+            <div className="flex justify-between items-center mb-4 pb-4 border-b">
               <div>
                 {/* 1. Dynamic Plan Name */}
                 <p className="font-bold text-gray-900 text-lg">{order.planName}</p>
@@ -147,7 +147,7 @@ const PaymentPage = () => {
         </div>
 
         {/* Right: Custom Card Form */}
-        <div className="bg-white p-8 rounded-3xl shadow-xl relative overflow-hidden">
+        <div className="bg-white p-8 rounded-xl shadow-md relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -mr-8 -mt-8 z-0"></div>
 
           <h2 className="text-xl font-bold text-gray-900 mb-6 relative z-10">Payment Details</h2>

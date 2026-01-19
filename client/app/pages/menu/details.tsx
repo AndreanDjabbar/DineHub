@@ -127,9 +127,9 @@ const MenuDetailsPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-32">
       {/* --- Header --- */}
-      <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md px-4 py-4 flex items-center shadow-sm">
+      <div className="sticky top-0 z-20 bg-white px-4 py-4 flex items-center shadow-sm">
         <BackButton />
-        <h1 className="text-lg text-center font-bold px-4 grow">{menuItem.name}</h1>
+        <h1 className="text-xl text-center font-bold text-gray-900 px-4 grow">{menuItem.name}</h1>
       </div>
 
       {/* --- Hero Image --- */}
@@ -267,7 +267,7 @@ const MenuDetailsPage: React.FC = () => {
         </div>
 
         <button 
-            className="w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98] flex justify-between px-6"
+            className="w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg active:scale-[0.98] flex justify-between px-6"
             onClick={() => console.log("Add to cart", { menuItemId: menuItem.id, selections, note, quantity })}
         >
           <span>Add Order</span>

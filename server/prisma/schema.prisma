@@ -71,22 +71,56 @@ model MenuItem {
   category    MenuCategory @relation(fields: [categoryId], references: [id])
   categoryId  String
   isAvailable Boolean      @default(true)
+  addOns      AddOn[]
   cartItems   CartItem[]
   orderItems  OrderItem[]
   createdAt   DateTime     @default(now())
 }
 
+model AddOn {
+  id           String        @id @default(cuid())
+  name         String
+  minSelect    Int           @default(0)
+  maxSelect    Int?          
+  menuItem     MenuItem      @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  menuItemId   String
+  options      AddOnOption[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model AddOnOption {
+  id             String           @id @default(cuid())
+  name           String
+  price          Int              @default(0)
+  addOn          AddOn            @relation(fields: [addOnId], references: [id], onDelete: Cascade)
+  addOnId        String
+  cartItems      CartItemAddOn[]
+  orderItems     OrderItemAddOn[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
 model CartItem {
-  id         String       @id @default(cuid())
-  session    Session      @relation(fields: [sessionId], references: [id])
-  sessionId  String
-  user       SessionUser? @relation(fields: [userId], references: [id])
-  userId     String?
-  menuItem   MenuItem     @relation(fields: [menuItemId], references: [id])
-  menuItemId String
-  quantity   Int          @default(1)
-  isShared   Boolean      @default(true)
-  createdAt  DateTime     @default(now())
+  id             String          @id @default(cuid())
+  session        Session         @relation(fields: [sessionId], references: [id])
+  sessionId      String
+  user           SessionUser?    @relation(fields: [userId], references: [id])
+  userId         String?
+  menuItem       MenuItem        @relation(fields: [menuItemId], references: [id])
+  menuItemId     String
+  quantity       Int             @default(1)
+  isShared       Boolean         @default(true)
+  selectedAddOns CartItemAddOn[]
+  createdAt      DateTime        @default(now())
+}
+
+model CartItemAddOn {
+  id            String      @id @default(cuid())
+  cartItem      CartItem    @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
+  cartItemId    String
+  addOnOption   AddOnOption @relation(fields: [addOnOptionId], references: [id])
+  addOnOptionId String
 }
 
 model Order {
@@ -110,9 +144,20 @@ model OrderItem {
   orderId    String
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
   menuItemId String
-  is_cooked  Boolean  @default(false)
+  is_cooked  Boolean          @default(false)
   price      Int
-  quantity   Int      @default(1)
+  quantity   Int              @default(1)
+  selectedAddOns OrderItemAddOn[]
+}
+
+model OrderItemAddOn {
+  id            String      @id @default(cuid())
+  orderItem     OrderItem   @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  orderItemId   String
+  addOnOption   AddOnOption @relation(fields: [addOnOptionId], references: [id])
+  addOnOptionId String
+  name          String      
+  price         Int         
 }
 
 model Payment {

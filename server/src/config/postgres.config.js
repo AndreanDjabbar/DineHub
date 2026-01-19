@@ -29,4 +29,5 @@ export const closeConnection = async () => {
     await client.end({ timeout: 5 });
 };
 
+export const prismaClient = prisma;
 export default postgreSQL;

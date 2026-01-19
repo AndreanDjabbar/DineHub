@@ -34,7 +34,7 @@ class UserService {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await UserRepository.create({ name, email, password: hashedPassword, role, restaurantId });
+        const newUser = await UserRepository.create({ name, email, password: hashedPassword, role, restaurantId, is_verified: true });
         return newUser;
     }
 

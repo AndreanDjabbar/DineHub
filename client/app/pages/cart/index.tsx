@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { FiX, FiMapPin, FiMinus, FiPlus } from "react-icons/fi";
 import BackButton from "../components/BackButton";
-import CustomerNavbar from "../components/CustomerNavbar";
+import Button from "../components/Button";
 
 interface CartItem {
   id: number;
@@ -24,22 +24,25 @@ const formatRupiah = (price: number) => {
 
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [items, setItems] = useState<CartItem[]>([
     {
       id: 1,
       name: "A'la Carte Ayam",
-      price: 24091, 
+      price: 24091,
       quantity: 1,
-      image: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=200&q=80",
+      image:
+        "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=200&q=80",
       options: ["Paha Ayam", "Tanpa Sambal + Lalapan"],
-      notes: "Make it extra crispy please"
+      notes: "Make it extra crispy please",
     },
     {
       id: 2,
       name: "Spicy Noodle Chicken",
       price: 50000,
       quantity: 2,
-      image: "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=200&q=80",
+      image:
+        "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=200&q=80",
       options: ["Level 3 Spicy", "Extra Egg (+5.000)"],
     },
     {
@@ -47,7 +50,8 @@ const CartPage: React.FC = () => {
       name: "Chicken Wrap",
       price: 35000,
       quantity: 1,
-      image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=200&q=80",
+      image:
+        "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=200&q=80",
       options: ["No Onions", "Extra Cheese (+5.000)"],
     },
   ]);
@@ -74,11 +78,11 @@ const CartPage: React.FC = () => {
   const total = subtotal + tax;
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-900 pb-32">
+    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-32">
       {/* --- Header --- */}
-      <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center justify-between border-b border-gray-50">
+      <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center justify-between shadow-sm">
         <BackButton />
-        <h1 className="text-lg font-bold">Cart</h1>
+        <h1 className="text-xl font-bold text-gray-900">Cart</h1>
         <div className="w-8" />
       </div>
 
@@ -96,12 +100,15 @@ const CartPage: React.FC = () => {
             </div>
 
             {/* Details */}
-            <div className="grow">  
+            <div className="grow">
               <h3 className="font-bold text-sm text-gray-900">{item.name}</h3>
               {item.options && item.options.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1.5">
                   {item.options.map((option, index) => (
-                    <span key={index} className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
+                    <span
+                      key={index}
+                      className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100"
+                    >
                       {option}
                     </span>
                   ))}
@@ -164,9 +171,7 @@ const CartPage: React.FC = () => {
           <span className="text-gray-500 font-medium">Total</span>
           <span className="text-xl font-bold">{formatRupiah(total)}</span>
         </div>
-        <button className="hover:cursor-pointer w-full bg-red-600 text-white font-bold py-4 rounded-2xl hover:bg-red-700 transition active:scale-[0.98]">
-          Checkout
-        </button>
+        <Button>Checkout</Button>
       </div>
     </div>
   );

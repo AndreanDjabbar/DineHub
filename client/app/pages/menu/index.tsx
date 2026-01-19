@@ -132,9 +132,9 @@ const Menu: React.FC = () => {
   const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
 
   return (
-    <div className="min-h-screen bg-white pb-24 font-sans text-gray-900">
+    <div className="min-h-screen bg-gray-50 pb-24 font-sans text-gray-900">
       {/* --- Header Section --- */}
-      <div className="sticky top-0 z-10 bg-white px-4 pt-4 pb-2">
+      <div className="sticky top-0 z-10 bg-white px-4 pt-4 pb-2 shadow-sm">
         {/* Top Bar: Location & Bag */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-1 cursor-pointer">
