@@ -158,7 +158,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 Category
               </label>
               <select
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white hover:cursor-pointer"
                 value={newMenuItem.categoryId}
                 onChange={(e) => {
                   setNewMenuItem({
@@ -381,7 +381,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                       <button
                         type="button"
                         onClick={handleAddOptionToAddOn}
-                        className="justify-center px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-gray-900 transition"
+                        className="justify-center px-3 py-2 bg-red-600 text-white rounded-lg text-sm font-bold hover:bg-gray-900 transition hover:cursor-pointer"
                       >
                         Add
                       </button>
@@ -395,7 +395,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                     className={`w-full py-2 rounded-lg text-sm font-bold transition ${
                       !newAddOn.name || newAddOn.options.length === 0
                         ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                        : "bg-red-100 text-red-600 hover:bg-red-200"
+                        : "bg-red-100 hover:cursor-pointer text-red-600 hover:bg-red-200"
                     }`}
                   >
                     Save Add-on Group
@@ -429,7 +429,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 <h4 className="font-bold text-gray-800">{category.name}</h4>
                 <button
                   onClick={() => handleDeleteCategory(category.id)}
-                  className="text-red-500 hover:text-red-700 p-1"
+                  className="text-red-500 hover:text-red-700 p-1 hover:cursor-pointer"
                   title="Delete Category"
                 >
                   <FiTrash2 />
@@ -480,7 +480,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                             onClick={() =>
                               handleDeleteMenuItem(item.id, category.id)
                             }
-                            className="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition"
+                            className="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition hover:cursor-pointer"
                           >
                             <FiTrash2 />
                           </button>

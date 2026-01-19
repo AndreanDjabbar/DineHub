@@ -67,7 +67,7 @@ const UserHeader = () => {
 
                 <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition ml-auto"
+                className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-red-600 transition ml-auto hover:cursor-pointer"
                 >
                 <FiLogOut /> Logout
                 </button>

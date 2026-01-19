@@ -52,9 +52,6 @@ const TableQR: React.FC<TableQRProps> = ({
 
   return (
     <div className="flex flex-col items-center p-6 border-2 border-dashed border-gray-300 rounded-xl w-full animate-fade-in mt-6">
-      <span className="font-bold text-sm mb-2">
-        Table Created Successfully!
-      </span>
       <h3 className="text-lg font-bold mb-4 text-gray-800">{tableName}</h3>
 
       <div
@@ -76,7 +73,7 @@ const TableQR: React.FC<TableQRProps> = ({
 
       <button
         onClick={handlePrint}
-        className="mt-4 flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition active:scale-95"
+        className="mt-4 flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 transition active:scale-95 hover:cursor-pointer"
       >
         <FiPrinter />
         Print QR Code

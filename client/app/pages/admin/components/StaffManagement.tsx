@@ -29,7 +29,7 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Form Section */}
-      <div className="lg:col-span-1 border-r border-gray-100 pr-8">
+      <div className="lg:col-span-1 border border-gray-100 p-8">
         <h3 className="text-lg font-bold mb-4">Add New Account</h3>
         <form onSubmit={handleAddUser} className="space-y-4">
           <TextInput
@@ -63,7 +63,7 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
               Role
             </label>
             <select
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white"
+              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white hover:cursor-pointer"
               value={newUser.role}
               onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
             >
@@ -82,7 +82,7 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
           {users.map((user) => (
             <div
               key={user.id}
-              className="flex justify-between items-center p-4 border border-gray-100 rounded-xl hover:shadow-md transition bg-gray-50"
+              className="flex justify-between items-center p-4 border border-gray-100 rounded-xl transition bg-gray-50"
             >
               <div className="flex items-center gap-4">
                 <div
@@ -101,13 +101,13 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleUserEditClick(user)}
-                  className="text-blue-400 hover:text-blue-600 p-2 hover:bg-blue-50 rounded-lg transition"
+                  className="text-blue-400 hover:text-blue-600 p-2 hover:bg-blue-50 rounded-lg transition hover:cursor-pointer"
                 >
                   <FiEdit />
                 </button>
                 <button
                   onClick={() => handleDeleteUser(user.id)}
-                  className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition"
+                  className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition hover:cursor-pointer"
                 >
                   <FiTrash2 />
                 </button>

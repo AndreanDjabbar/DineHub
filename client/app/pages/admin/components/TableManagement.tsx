@@ -3,6 +3,9 @@ import { FiLayers, FiEdit, FiTrash2, FiMousePointer } from "react-icons/fi";
 import type { Table } from "./types";
 import { NumInput, Button } from "~/components";
 import TableQR from "./TableQr";
+import { ImWarning } from "react-icons/im";
+import { CiWarning } from "react-icons/ci";
+import { BsInfoCircle } from "react-icons/bs";
 
 interface TableManagementProps {
   tables: Table[];
@@ -55,22 +58,12 @@ const TableManagement: React.FC<TableManagementProps> = ({
 
         {/* Section B: QR Display (Dynamic) */}
         {/* Shows QR for EITHER the newly created table OR the clicked table */}
-        {activeTable ? (
+        {activeTable && (
           <TableQR
             key={activeTable.id} // Key forces re-render when ID changes
             tableId={activeTable.id}
             tableName={activeTable.name}
           />
-        ) : (
-          // Placeholder state if nothing is selected
-          <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center text-gray-400 flex flex-col items-center">
-            <FiMousePointer className="mb-2 text-2xl" />
-            <p className="text-sm">
-              Select a table from the list
-              <br />
-              to view its QR Code
-            </p>
-          </div>
         )}
       </div>
 
@@ -85,43 +78,53 @@ const TableManagement: React.FC<TableManagementProps> = ({
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {tables.map((table) => (
-              <div
-                key={table.id}
-                className={`relative p-4 border rounded-xl flex flex-col items-center justify-center gap-2 transition cursor-pointer group
-                  ${
-                    activeTable?.id === table.id
-                      ? "border-red-600 bg-red-50 ring-2 ring-red-100 shadow-sm" // <--- Active Style (Red Border)
-                      : "border-gray-200 hover:border-red-300 hover:shadow-md bg-white" // <--- Inactive Style
-                  }
-                `}
-                onClick={() => onTableSelect(table)}
-              >
-                <div className="text-gray-300">
-                  <FiLayers size={24} />
-                </div>
-                <h4 className="font-bold text-gray-900">{table.name}</h4>
-                <span className="text-xs bg-white text-gray-600 px-2 py-1 rounded-md border border-gray-100">
-                  {table.capacity} Seats
-                </span>
+          <div>
+            <div className="border-2 border-dashed border-gray-200 rounded-xl p-8 mb-4 text-center text-gray-400 flex flex-col items-center">
+              <BsInfoCircle className="mb-2 text-2xl" />
+              <p className="text-sm">
+                Select a table from the list table below
+                <br />
+                to view its QR Code
+              </p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {tables.map((table) => (
+                <div
+                  key={table.id}
+                  className={`relative p-4 border rounded-xl flex flex-col items-center justify-center gap-2 transition cursor-pointer group
+                    ${
+                      activeTable?.id === table.id
+                        ? "border-red-600 bg-red-50 ring-2 ring-red-100 shadow-sm" // <--- Active Style (Red Border)
+                        : "border-gray-200 hover:border-red-300 hover:shadow-md bg-white" // <--- Inactive Style
+                    }
+                  `}
+                  onClick={() => onTableSelect(table)}
+                >
+                  <div className="text-gray-300">
+                    <FiLayers size={24} />
+                  </div>
+                  <h4 className="font-bold text-gray-900">{table.name}</h4>
+                  <span className="text-xs bg-white text-gray-600 px-2 py-1 rounded-md border border-gray-100">
+                    {table.capacity} Seats
+                  </span>
 
-                <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
-                  <button
-                    onClick={() => handleTableEditClick(table)}
-                    className="text-gray-400 hover:text-blue-600 transition"
-                  >
-                    <FiEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteTable(table.id)}
-                    className="text-gray-400 hover:text-red-600 transition"
-                  >
-                    <FiTrash2 />
-                  </button>
+                  <div className="absolute top-2 right-2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
+                    <button
+                      onClick={() => handleTableEditClick(table)}
+                      className="text-gray-400 hover:text-blue-600 transition hover:cursor-pointer"
+                    >
+                      <FiEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTable(table.id)}
+                      className="text-gray-400 hover:text-red-600 transition hover:cursor-pointer"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </div>

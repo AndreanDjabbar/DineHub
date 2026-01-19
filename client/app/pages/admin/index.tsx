@@ -619,19 +619,19 @@ const AdminDashboard: React.FC = () => {
           <div className="flex border-b border-gray-100 justify-between">
             <button
               onClick={() => setActiveTab("staff")}
-              className={`py-4 px-2 flex-1 text-sm font-bold flex flex-col items-center justify-center gap-2 transition ${activeTab === "staff" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
+              className={`py-4 px-2 flex-1 text-sm font-bold flex flex-col items-center justify-center gap-2 transition hover:cursor-pointer ${activeTab === "staff" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
               <FiUserPlus size={25} /> Staff Management
             </button>
             <button
               onClick={() => setActiveTab("tables")}
-              className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition ${activeTab === "tables" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
+              className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition hover:cursor-pointer ${activeTab === "tables" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
               <FiLayers size={25}/> Table Management
             </button>
             <button
               onClick={() => setActiveTab("menu")}
-              className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition ${activeTab === "menu" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
+              className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition hover:cursor-pointer ${activeTab === "menu" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
               <FiBookOpen size={25}/> Menu Management
             </button>
