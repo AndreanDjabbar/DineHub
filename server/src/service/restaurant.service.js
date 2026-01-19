@@ -86,10 +86,10 @@ class RestaurantService {
   }
 
   static async createTable({ restaurantId, name, capacity }) {
-    const table = await RestaurantRepository.createTable(
-      restaurantId,
-      { name, capacity }
-    );
+    const table = await RestaurantRepository.createTable(restaurantId, {
+      name,
+      capacity,
+    });
     return table;
   }
 
@@ -104,6 +104,12 @@ class RestaurantService {
   static async updateTable(id, data) {
     const updatedTable = await RestaurantRepository.updateTable(id, data);
     return updatedTable;
+  }
+
+  static async getTableById(id) {
+    const table = await RestaurantRepository.getTableById(id);
+    if (!table) throw new Error("Table not found");
+    return table;
   }
 }
 

@@ -85,7 +85,7 @@ class RestaurantRepository {
         `;
   }
 
-  static async deleteTable(id) {  
+  static async deleteTable(id) {
     await postgreSQL`
             DELETE FROM public."Table" WHERE id = ${id}
         `;
@@ -99,6 +99,22 @@ class RestaurantRepository {
             RETURNING id, name, capacity
         `;
     return updatedTable;
+  }
+
+  static async getTableById(id) {
+    const [table] = await postgreSQL`
+            SELECT 
+                t.id,
+                t.name,
+                t.capacity,
+                t.restaurant_id as "restaurantId",
+                r.name as "restaurantName",
+                r.address as "restaurantAddress"
+            FROM public."Table" t
+            LEFT JOIN public."Restaurant" r ON r.id = t.restaurant_id
+            WHERE t.id = ${id}
+        `;
+    return table;
   }
 }
 

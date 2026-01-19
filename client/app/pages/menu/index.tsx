@@ -1,27 +1,37 @@
-import React from "react";
-import { FiSearch, FiPlus, FiUser, FiShoppingBag, FiChevronRight } from "react-icons/fi";
+import React, { useEffect, useState } from "react";
+import {
+  FiSearch,
+  FiPlus,
+  FiUser,
+  FiShoppingBag,
+  FiChevronRight,
+} from "react-icons/fi";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { BottomNavigation } from "~/components";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
-interface Product {
-  id: number;
+interface MenuItem {
+  id: string;
   name: string;
   price: number;
-  image: string;
-  type: "noodle" | "salad" | "wrap" | "plate";
+  image: string | null;
+  categoryId: string;
+  isAvailable: boolean;
 }
 
-interface Category {
-  id: number;
+interface MenuCategory {
+  id: string;
   name: string;
-  image: string;
+  items: MenuItem[];
 }
 
-interface Restaurant {
-  id: number;
+interface TableInfo {
+  id: string;
   name: string;
-  location: string;
+  capacity: number;
+  restaurantId: string;
+  restaurantName: string;
+  restaurantAddress: string;
 }
 
 const formatRupiah = (price: number) => {
@@ -33,115 +43,130 @@ const formatRupiah = (price: number) => {
   }).format(price);
 };
 
-const categories: Category[] = [
-  {
-    id: 1,
-    name: "Entrees",
-    image:
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=100&q=80",
-  },
-  {
-    id: 2,
-    name: "Grab & Go",
-    image:
-      "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=100&q=80",
-  },
-  {
-    id: 3,
-    name: "Drinks",
-    image:
-      "https://images.unsplash.com/photo-1544145945-f90425340c7e?auto=format&fit=crop&w=100&q=80",
-  },
-  {
-    id: 4,
-    name: "Snacks",
-    image:
-      "https://plus.unsplash.com/premium_photo-1687014520257-3b09f6668092?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 5,
-    name: "Extras",
-    image:
-      "https://images.unsplash.com/photo-1576458088443-04a19bb13da6?auto=format&fit=crop&w=100&q=80",
-  },
-];
-
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Spicy noodle chicken",
-    price: 50000,
-    type: "noodle",
-    image:
-      "https://images.unsplash.com/photo-1555126634-323283e090fa?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 2,
-    name: "Delightful Caesar Salad",
-    price: 20000,
-    type: "salad",
-    image:
-      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 3,
-    name: "Delightful Bound Salad",
-    price: 25000,
-    type: "salad",
-    image:
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 4,
-    name: "Chicken Wrap",
-    price: 30000,
-    type: "wrap",
-    image:
-      "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 5,
-    name: "Beef Rice Bowl",
-    price: 45000,
-    type: "plate",
-    image:
-      "https://images.unsplash.com/photo-1688431508895-4c2cab13b181?auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    id: 6,
-    name: "Broccoli Beef",
-    price: 30000,
-    type: "plate",
-    image:
-      "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80",
-  },
-];
-
 const Menu: React.FC = () => {
   const navigate = useNavigate();
-  const restaurant: Restaurant = {
-    id: 1,
-    name: "Fried Chicken Restaurant",
-    location: "123 Main St, Cityville",
+  const [searchParams] = useSearchParams();
+  const tableId = searchParams.get("table");
+
+  // State
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [tableInfo, setTableInfo] = useState<TableInfo | null>(null);
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [cart, setCart] = useState<MenuItem[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Fetch table and restaurant info
+  useEffect(() => {
+    const fetchTableInfo = async () => {
+      if (!tableId) {
+        setError("No table ID provided. Please scan a valid QR code.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:4000/dinehub/api/restaurant/table/${tableId}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch table information");
+        }
+
+        const data = await response.json();
+        setTableInfo(data.data);
+      } catch (err: any) {
+        setError(err.message || "Failed to load table information");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTableInfo();
+  }, [tableId]);
+
+  // Fetch menu categories and items
+  useEffect(() => {
+    const fetchMenu = async () => {
+      if (!tableInfo?.restaurantId) return;
+
+      try {
+        const response = await fetch(
+          `http://localhost:4000/dinehub/api/menu/categories/${tableInfo.restaurantId}`
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch menu");
+        }
+
+        const data = await response.json();
+        setCategories(data.data || []);
+      } catch (err: any) {
+        console.error("Error fetching menu:", err);
+      }
+    };
+
+    fetchMenu();
+  }, [tableInfo?.restaurantId]);
+
+  const handleAddToCart = (item: MenuItem) => {
+    setCart([...cart, item]);
   };
-  const [cart, setCart ] = React.useState<Product[]>([]);
-  const handleAddToCart = (product: Product) => {
-    setCart([...cart, product]);
-  }
 
   const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
+
+  // Get all unique menu items across all categories
+  const allMenuItems = categories.flatMap((cat) => cat.items);
+
+  // Filter items based on search query
+  const filteredItems = searchQuery
+    ? allMenuItems.filter((item) =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : allMenuItems;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading menu...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !tableInfo) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="text-center bg-white rounded-2xl p-8 shadow-lg max-w-md">
+          <div className="text-red-600 mb-4">
+            <FaMapMarkerAlt className="w-12 h-12 mx-auto" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            Unable to Load Menu
+          </h2>
+          <p className="text-gray-600">{error || "Table not found"}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24 font-sans text-gray-900">
       {/* --- Header Section --- */}
       <div className="sticky top-0 z-10 bg-white px-4 pt-4 pb-2 shadow-sm">
-        {/* Top Bar: Location & Bag */}
+        {/* Top Bar: Restaurant Info & Table */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1 cursor-pointer">
+          <div className="flex items-center gap-2">
             <FaMapMarkerAlt className="w-4 h-4 text-red-600 fill-red-600" />
-            <span className="font-semibold text-2xl">
-              {restaurant.name}
-            </span>
+            <div>
+              <span className="font-semibold text-xl block">
+                {tableInfo.restaurantName}
+              </span>
+              <span className="text-xs text-gray-500">{tableInfo.name}</span>
+            </div>
           </div>
         </div>
 
@@ -151,76 +176,110 @@ const Menu: React.FC = () => {
           <input
             type="text"
             placeholder="Search menu"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-gray-100 rounded-full py-1.5 pl-12 pr-4 text-gray-700 outline-none focus:ring-2 focus:ring-red-200"
           />
         </div>
       </div>
+
       {/* --- Categories Section --- */}
-      <div className="px-4 mt-4">
-        <div className="flex justify-between md:justify-start md:gap-8 overflow-x-auto pb-2 scrollbar-hide">
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="flex flex-col items-center gap-2 min-w-[70px] cursor-pointer hover:opacity-80 transition"
-            >
-              {/* Category Image Wrapper */}
-              <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 shadow-sm">
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className="text-xs font-medium text-gray-700">
-                {cat.name}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* --- Products Grid --- */}
-      <main className="px-4 mt-6">
-        {/* Responsive Grid: 2 cols on mobile, 3 on md, 4 on lg */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6">
-          {products.map((product) => (
-            <div key={product.id} className="group flex flex-col">
-              {/* Product Image Container */}
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-gray-100 mb-3">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                />
-
-                {/* Add Button Overlay */}
-                <button 
-                className="absolute bottom-2 right-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition active:scale-80"
-                onClick={() => handleAddToCart(product)}>
-                  <div className="w-6 h-6 rounded-full border border-red-500 flex items-center justify-center">
-                    <FiPlus className="w-4 h-4 text-red-600" strokeWidth={3} />
-                  </div>
-                </button>
-              </div>
-
-              {/* Product Details */}
-              <div className="flex flex-col grow">
-                <h3 className="font-bold text-gray-900 leading-tight mb-1 text-[15px]">
-                  {product.name}
-                </h3>
-                <span className="font-bold text-[15px]">
-                  {formatRupiah(product.price)}
+      {categories.length > 0 && !searchQuery && (
+        <div className="px-4 mt-4">
+          <div className="flex justify-start gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {categories.map((cat) => (
+              <div
+                key={cat.id}
+                className="flex flex-col items-center gap-2 min-w-[70px] cursor-pointer hover:opacity-80 transition"
+              >
+                {/* Category Circle */}
+                <div className="w-16 h-16 rounded-full overflow-hidden bg-linear-to-br from-red-500 to-red-600 shadow-sm flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">
+                    {cat.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-xs font-medium text-gray-700 text-center">
+                  {cat.name}
                 </span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+      )}
+
+      {/* --- Products Grid --- */}
+      <main className="px-4 mt-6">
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500">
+              {searchQuery
+                ? "No items found matching your search"
+                : "No menu items available"}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6">
+            {filteredItems.map((item) => (
+              <div key={item.id} className="group flex flex-col">
+                {/* Product Image Container */}
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-gray-100 mb-3">
+                  {item.image ? (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200">
+                      <span className="text-gray-400 text-4xl font-bold">
+                        {item.name.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Add Button Overlay */}
+                  {item.isAvailable ? (
+                    <button
+                      className="absolute bottom-2 right-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition active:scale-80"
+                      onClick={() => handleAddToCart(item)}
+                    >
+                      <div className="w-6 h-6 rounded-full border border-red-500 flex items-center justify-center">
+                        <FiPlus
+                          className="w-4 h-4 text-red-600"
+                          strokeWidth={3}
+                        />
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                      <span className="text-white font-bold text-sm">
+                        Unavailable
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Product Details */}
+                <div className="flex flex-col grow">
+                  <h3 className="font-bold text-gray-900 leading-tight mb-1 text-[15px]">
+                    {item.name}
+                  </h3>
+                  <span className="font-bold text-[15px]">
+                    {formatRupiah(item.price)}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </main>
+
       {/* --- Floating Cart Pop-up --- */}
       {cart.length > 0 && (
         <div className="fixed bottom-[85px] left-4 right-4 z-20 animate-slide-up">
           <button
             className="w-full bg-white text-gray-900 rounded-2xl shadow-xl shadow-black/5 flex items-stretch overflow-hidden hover:bg-gray-50 transition active:scale-[0.98]"
-            onClick={() => navigate('/cart')}
+            onClick={() => navigate("/cart")}
           >
             {/* Left: Red Square (1:1 Ratio) */}
             <div className="bg-red-600 w-[70px] aspect-square flex items-center justify-center shrink-0">
@@ -230,11 +289,9 @@ const Menu: React.FC = () => {
             {/* Right: Content Info */}
             <div className="grow flex items-center justify-between px-4 py-3">
               <div className="flex flex-col items-start">
-                <span className="font-bold text-base">
-                  {cart.length} Items
-                </span>
+                <span className="font-bold text-base">{cart.length} Items</span>
                 <span className="text-xs text-gray-500 font-medium truncate max-w-[120px]">
-                  {restaurant.name}
+                  {tableInfo.restaurantName}
                 </span>
               </div>
 
