@@ -9,7 +9,7 @@ import {
   FiChevronRight,
   FiUser,
 } from "react-icons/fi";
-import { BottomNavigation } from "~/components";
+import { BottomNavigation, ProfileBadge } from "~/components";
 
 interface User {
   id: string;
@@ -86,16 +86,7 @@ const ProfilePage: React.FC = () => {
         <h1 className="text-xl font-bold text-gray-900">Account</h1>
       </div>
 
-      {/* --- Profile Info Card --- */}
-      <div className="px-4 mt-6">
-        <div className="flex flex-col items-center bg-gray-50 rounded-xl p-6 shadow-sm">
-          <FiUser className="w-16 h-16" />
-
-          {/* Name & Email */}
-          <h2 className="text-xl font-bold mb-1">{user.name}</h2>
-          <p className="text-gray-500 text-sm">{user.email}</p>
-        </div>
-      </div>
+      <ProfileBadge/>
 
       {/* --- Options Menu --- */}
       <div className="px-4 mt-8">
