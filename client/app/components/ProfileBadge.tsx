@@ -60,7 +60,7 @@ const ProfileBadge: React.FC<ProfileBadgeProps> = () => {
                 <div className="flex flex-col items-center gap-2 pt-2">
                     {/* Avatar */}
                     <div>
-                        <FiUser className="w-16 h-16 text-gray-400" />
+                        <FiUser className="w-16 h-16 " />
                     </div>
 
                     {/* User Info */}
