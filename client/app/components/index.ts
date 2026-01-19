@@ -3,11 +3,13 @@ import Button from "./Button";
 import BottomNavigation from "./BottomNavigation";
 import NumInput from "./NumInput";
 import TextInput from "./TextInput";
+import UserHeader from "./UserHeader";
 
 export {
     BackButton,
     Button,
     BottomNavigation,
     NumInput,
-    TextInput
+    TextInput,
+    UserHeader
 }
