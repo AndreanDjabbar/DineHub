@@ -38,12 +38,6 @@ const BottomNavigation = () => {
           label="Account"
           onClick={handleAccountClick}
         />
-
-        <NavItem
-          to="/partner"
-          icon={<LuHandshake className="w-6 h-6" />}
-          label="Partner with Us"
-        />
       </div>
     </div>
   );

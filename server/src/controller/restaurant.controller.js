@@ -130,3 +130,13 @@ export const updateTableController = async (req, res) => {
     return responseError(res, 500, error.message, "error", null);
   }
 };
+
+export const getTableByIdController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await RestaurantService.getTableById(id);
+    return responseSuccess(res, 200, "Table fetched", "data", result);
+  } catch (error) {
+    return responseError(res, 500, error.message, "error", null);
+  }
+};
