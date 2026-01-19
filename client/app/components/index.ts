@@ -4,7 +4,7 @@ import BottomNavigation from "./BottomNavigation";
 import NumInput from "./NumInput";
 import TextInput from "./TextInput";
 import UserHeader from "./UserHeader";
-import UploadImage from "./UploadImage";
+import ImageInput from "./ImageInput";
 import QuantityPicker from "./QuantityPicker";
 import ProfileBadge from "./ProfileBadge";
 
@@ -15,7 +15,7 @@ export {
     NumInput,
     TextInput,
     UserHeader,
-    UploadImage,
+    ImageInput,
     ProfileBadge,
     QuantityPicker,
 }
