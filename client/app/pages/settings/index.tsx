@@ -24,7 +24,7 @@ const SettingsPage: React.FC = () => {
       <div className="sticky top-0 z-10 bg-white px-4 py-4 flex items-center shadow-sm">
         <button
           onClick={() => navigate(-1)} // Go back to Profile
-          className="p-2 -ml-2 text-gray-600 hover:bg-gray-50 rounded-full transition"
+          className="p-2 -ml-2 text-gray-600 hover:bg-gray-50 rounded-full transition hover:cursor-pointer"
         >
           <FiArrowLeft className="w-6 h-6" />
         </button>
@@ -55,7 +55,7 @@ const SettingsPage: React.FC = () => {
           <div className="bg-red-50 rounded-xl overflow-hidden shadow-sm">
             <button 
                 onClick={() => alert("Are you sure?")}
-                className="w-full flex items-center justify-between p-4 hover:bg-red-100 transition"
+                className="w-full flex items-center justify-between p-4 hover:bg-red-100 transition hover:cursor-pointer"
             >
               <div className="flex items-center gap-4">
                 <div className="text-red-600 bg-white p-2 rounded-full">
@@ -88,7 +88,7 @@ const SettingsItem: React.FC<SettingsItemProps> = ({ icon, label, value, onClick
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-between p-4 hover:bg-gray-100 transition active:bg-gray-200"
+      className="w-full flex items-center justify-between p-4 hover:bg-gray-100 transition active:bg-gray-200 hover:cursor-pointer"
     >
       <div className="flex items-center gap-4">
         <div className="text-gray-500 text-xl">{icon}</div>
