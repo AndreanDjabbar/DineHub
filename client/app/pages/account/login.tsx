@@ -3,6 +3,7 @@ import { useNavigate, NavLink } from "react-router";
 import { FiMail, FiLock } from "react-icons/fi";
 import { BiLoader } from "react-icons/bi";
 import { BottomNavigation, TextInput, Button } from "~/components";
+import api from "~/lib/axios";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -24,57 +25,45 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
+      const response = await api.post("/auth/login", {
+        email: formData.email,
+        password: formData.password,        
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+      })
 
-      const data = await response.json();
-      if (response.ok) {
+      const data = response.data;
+      if (data.success) {
         console.log("Login successful!, Data: ", data);
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
         const role = data.data.user.role;
-        if (role === "ADMIN") {
-          navigate("/admin");
-          return;
-        } else if (role === "CASHIER") {
-          navigate("/cashier");
-          return;
-        } else if (role === "KITCHEN") {
-          navigate("/kitchen");
-          return;
-        } else if (role === "Developer") {
-          navigate("/developer");
-          return;
-        } else {
-          navigate("/menu");
+        const routeMapping: Record<any, string> = {
+          ADMIN: "/admin",
+          CASHIER: "/cashier",
+          KITCHEN: "/kitchen",
+          Developer: "/developer",
         }
-      } else {
-        console.log("Response Data: ", data);
-        if (data.message.includes("Email not verified")) {
-          alert("Please verify your email before logging in.");
-          navigate("/verify-otp", {
-            state: { email: formData.email, token: data.data.token },
-          });
-        } else {
-          alert(data.message);
-          setError(data.message);
-        }
+        const redirectRoute = routeMapping[role] || "/";
+        navigate(redirectRoute);
       }
     } catch (error) {
+      const data = (error as any)?.data;
       console.error("Login failed:", error);
+      if (data.message.includes("Email not verified")) {
+        alert("Please verify your email before logging in.");
+        navigate("/verify-otp", {
+          state: { email: formData.email, token: data.data.token },
+        });
+      } else {
+        alert(data.message);
+        setError(data.message);
+      }
       setError(
-        error instanceof Error ? error.message : "An unexpected error occurred."
+        data?.message || "An unexpected error occurred."
       );
     } finally {
       setIsLoading(false);

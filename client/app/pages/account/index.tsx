@@ -10,6 +10,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 import { BottomNavigation, ProfileBadge } from "~/components";
+import api from "~/lib/axios";
 
 interface User {
   id: string;
@@ -33,21 +34,15 @@ const ProfilePage: React.FC = () => {
       }
 
       try {
-        const response = await fetch("http://localhost:4000/dinehub/api/auth/profile", {
-          method: "GET",  
+        const response = await api.get("/auth/profile", {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
-        if (response.ok) {
-          const data = await response.json();
-          console.log("User Profile Data: ", data);
-          setUser({ id: data.data.id, name: data.data.name, email: data.data.email });
-          setIsLoggedIn(true);
-        } else {
-          setIsLoggedIn(false);
-        }
+        const data = response.data;
+        console.log("User Profile Data: ", data);
+        setUser({ id: data.data.id, name: data.data.name, email: data.data.email });
+        setIsLoggedIn(true);
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
         setIsLoggedIn(false);
@@ -62,13 +57,11 @@ const ProfilePage: React.FC = () => {
     const token = localStorage.getItem("token");
     if(token){
       try{
-        await fetch("http://localhost:4000/dinehub/api/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        await api.post("/auth/logout", {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
       } catch (error) {
         console.error("Failed to logout:", error);
       }

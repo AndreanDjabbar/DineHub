@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, NavLink, useSearchParams } from "react-router";
 import { FiArrowLeft, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { BackButton, Button } from "~/components";
+import api from "~/lib/axios";
 
 const ResetPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -41,28 +42,18 @@ const ResetPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `http://localhost:4000/dinehub/api/auth/forgot-password/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`,
+      const response = await api.post(
+        `/auth/forgot-password/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`,
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            newPassword: formData.newPassword,
-          }),
+          newPassword: formData.newPassword,
         }
       );
 
-      const data = await response.json();
-      if (response.ok) {
-        navigate("/login");
-      } else {
-        setError(data.message || "Failed to reset password.");
-      }
-    } catch (error) {
+      const data = response.data;
+      navigate("/login");
+    } catch (error: any) {
       console.error("Reset password failed:", error);
-      setError("Network error. Please try again.");
+      setError(error.response?.data?.message || "Failed to reset password.");
     } finally {
       setIsLoading(false);
     }

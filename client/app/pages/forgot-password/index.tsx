@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router";
 import { FiArrowLeft, FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 import { BackButton } from "~/components";
+import api from "~/lib/axios";
 
 const ForgotPassword: React.FC = () => {
   const navigate = useNavigate();
@@ -22,28 +23,19 @@ const ForgotPassword: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/auth/forgot-password/email-verification",
+      const response = await api.post(
+        "/auth/forgot-password/email-verification",
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-          }),
+          email: formData.email,
         }
       );
 
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Success response Data: ", data);
-        navigate("/login");
-      } else {
-       setError(data.message || "Failed to send reset email.");
-      }
-    } catch (error) {
-      console.error("Password change failed failed:", error);
+      const data = response.data;
+      console.log("Success response Data: ", data);
+      navigate("/login");
+    } catch (error: any) {
+      console.error("Password change failed:", error);
+      setError(error.response?.data?.message || "Failed to send reset email.");
     } finally {
       setIsLoading(false);
     }

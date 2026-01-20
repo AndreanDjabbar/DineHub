@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { FiEye, FiEyeOff } from "react-icons/fi";
+import api from "~/lib/axios";
 
 const RegisterRestaurant = () => {
   const navigate = useNavigate();
@@ -21,28 +22,17 @@ const RegisterRestaurant = () => {
     setLoading(true);
 
     try {
-      // Calling the public endpoint we discussed
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/public/register-tenant",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }
+      const response = await api.post(
+        "/public/register-tenant",
+        formData
       );
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // In a real app, you'd redirect to payment here
-        alert("Registration successful! Redirecting to login...");
-        navigate("/login");
-      } else {
-        alert("Error: " + (data.message || "Registration failed"));
-      }
-    } catch (error) {
+      const data = response.data;
+      alert("Registration successful! Redirecting to login...");
+      navigate("/login");
+    } catch (error: any) {
       console.error("Registration failed", error);
-      alert("Network error. Please try again.");
+      alert("Error: " + (error.response?.data?.message || "Registration failed"));
     } finally {
       setLoading(false);
     }

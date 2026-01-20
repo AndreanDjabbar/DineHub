@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { FiLogOut, FiUserPlus, FiLayers, FiBookOpen, FiUser } from "react-icons/fi";
-
 // Import Components
 import { 
   StatsGrid,
@@ -21,6 +20,7 @@ import type {
   AddOnOption,
 } from "./components/types";
 import { UserHeader } from "~/components";
+import api from "~/lib/axios";
 
 const sortTablesByNumber = (tables: Table[]): Table[] => {
   return [...tables].sort((a, b) => {
@@ -30,7 +30,7 @@ const sortTablesByNumber = (tables: Table[]): Table[] => {
   });
 };
 
-const AdminDashboard: React.FC = () => {
+const AdminDashboard = () => {
   const token = localStorage.getItem("token");
   const userString = localStorage.getItem("user");
   const [activeTab, setActiveTab] = useState<"staff" | "tables" | "menu">(
@@ -86,31 +86,6 @@ const AdminDashboard: React.FC = () => {
   }
 
   useEffect(() => {
-    const fetchRestaurantDetails = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:4000/dinehub/api/restaurant/${restaurantId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-        } else {
-          console.error("Failed to fetch restaurant details");
-        }
-      } catch (error) {
-        console.error("Failed to fetch restaurant details:", error);
-      }
-    };
-    fetchRestaurantDetails();
-  });
-
-  useEffect(() => {
     const fetchStaff = async () => {
       console.log("Fetching staff...");
       console.log("Restaurant ID:", restaurantId);
@@ -121,38 +96,24 @@ const AdminDashboard: React.FC = () => {
       }
       try {
         const [cashierRes, kitchenRes] = await Promise.all([
-          fetch(
-            `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
+          api.get(`/user/cashier/${restaurantId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          api.get(`/user/kitchen/${restaurantId}`, {
+            headers: {
+              authorization: `Bearer ${token}`,
             }
-          ),
-          fetch(
-            `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          ),
+          }) 
         ]);
-        if (!cashierRes.ok || !kitchenRes.ok) {
-          console.error("Failed to fetch staff data");
-          return;
-        }
-        const cashierData = await cashierRes.json();
-        const kitchenData = await kitchenRes.json();
-        const cashiers = cashierData.data || [];
-        const kitchenStaff = kitchenData.data || [];
+        const cashierData = await cashierRes.data;
+        const kitchenData = await kitchenRes.data;
+
+        const cashiers = cashierData.data?.cashier || [];
+        const kitchenStaff = kitchenData.data?.kitchen || [];
 
         const allStaff = [...cashiers, ...kitchenStaff];
-        console.log("All Staff: ", allStaff);
         setUsers(allStaff);
       } catch (error) {
         console.error("Error fetching staff data:", error);
@@ -165,23 +126,13 @@ const AdminDashboard: React.FC = () => {
     const fetchTables = async () => {
       console.log("Fetching tables...");
       try {
-        const response = await fetch(
-          `http://localhost:4000/dinehub/api/restaurant/tables/${restaurantId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          console.error("Failed to fetch tables data");
-          return;
-        }
-        const data = await response.json();
-        const tables = data.data || [];
-        console.log("All Tables: ", tables);
+        const response = await api.get(`/restaurant/tables/${restaurantId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = response.data;
+        const tables = data?.data?.tables || [];
         setTables(tables);
       } catch (error) {
         console.error("Error fetching tables data:", error);
@@ -193,24 +144,17 @@ const AdminDashboard: React.FC = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       if (activeTab !== "menu") return;
-      console.log("Fetching categories...");
       try {
-        const response = await fetch(
-          `http://localhost:4000/dinehub/api/menu/categories/${restaurantId}`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+        const response = await api.get(`/menu/categories/${restaurantId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           }
-        );
-        if (!response.ok) {
-          console.error("Failed to fetch categories");
-          return;
-        }
-        const data = await response.json();
-        setCategories(data.data || []);
+        });
+        console.log("Fetching categories...");
+        console.log("Response:", response);
+        const categories = response.data.data?.categories || [];
+        console.log("Categories:", categories);
+        setCategories(categories);
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
@@ -233,22 +177,14 @@ const AdminDashboard: React.FC = () => {
       restaurantId: restaurantId,
     };
     try {
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/user/create-staff",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const response = await api.post("/user/create-staff", {
+        payload,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create staff");
-      }
+      const data = response.data;
 
       const createdUser = data.data;
 
@@ -285,28 +221,20 @@ const AdminDashboard: React.FC = () => {
     if (!editingUser) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:4000/dinehub/api/user/update-staff/${editingUser.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: editingUser.name,
-            email: editingUser.email,
-            role: editingUser.role,
-          }),
-        }
-      );
+      const response = await api.put(`/user/update-staff/${editingUser.id}`, {
+        name: editingUser.name,
+        email: editingUser.email,
+        role: editingUser.role,
+      }, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update staff");
-      }
+      const data = response.data;
 
-      const updatedUser = data.data;
+      const updatedUser = data?.data?.user;
 
       setUsers(
         users.map((u) =>
@@ -321,7 +249,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = (id: string) => {
+  const handleDeleteUser = async(id: string) => {
     setUsers(users.filter((u) => u.id !== id));
     console.log("Deleting user with ID:", id);
 
@@ -329,10 +257,8 @@ const AdminDashboard: React.FC = () => {
       console.error("No restaurant ID found for user");
       return;
     }
-    fetch(`http://localhost:4000/dinehub/api/user/delete-staff/${id}`, {
-      method: "POST",
+    await api.post(`/user/delete-staff/${id}`, {}, {
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
@@ -361,28 +287,18 @@ const AdminDashboard: React.FC = () => {
     const nextNumber = getNextTableNumber(tables);
     const tableName = `Table ${nextNumber}`;
     try {
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/restaurant/tables ",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: tableName,
-            capacity: newTable.capacity,
-            restaurantId: restaurantId,
-          }),
-        }
-      );
+      const response = await api.post("/restaurant/tables", {
+        name: tableName,
+        capacity: newTable.capacity,
+        restaurantId: restaurantId,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const data = await response.json();
-      console.log("Data:", data);
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create table");
-      }
-      const createdTable = data.data;
+      const data = response.data;
+      const createdTable = data?.data?.table;
 
       setTables((prev) =>
         sortTablesByNumber([
@@ -397,7 +313,7 @@ const AdminDashboard: React.FC = () => {
 
       setActiveTable(createdTable);
 
-      setNewTable({ capacity: 2 }); // Reset form
+      setNewTable({ capacity: 2 });
       alert("Table added successfully");
     } catch (error) {
       console.error("Error adding table:", error);
@@ -409,27 +325,18 @@ const AdminDashboard: React.FC = () => {
     if (!editingTable) return;
 
     try {
-      const response = await fetch(
-        `http://localhost:4000/dinehub/api/restaurant/tables/${editingTable.id}`,
-        {
-          method: "PUT",
+      const response = await api.put(
+        `/restaurant/tables/${editingTable.id}`, {
+          name: editingTable.name,
+          capacity: editingTable.capacity,
+        }, {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: editingTable.name,
-            capacity: editingTable.capacity,
-          }),
-        }
-      );
+          }
+        })
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update table");
-      }
-
-      const updatedTable = data.data;
+      const data = response.data;
+      const updatedTable = data.data.table;
 
       setTables((prev) =>
         sortTablesByNumber(
@@ -446,7 +353,7 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDeleteTable = (id: number) => {
+  const handleDeleteTable = async (id: number) => {
     setTables(tables.filter((t) => t.id !== id));
     console.log("Deleting table with ID:", id);
 
@@ -454,10 +361,8 @@ const AdminDashboard: React.FC = () => {
       console.error("No restaurant ID found for user");
       return;
     }
-    fetch(`http://localhost:4000/dinehub/api/restaurant/tables/${id}`, {
-      method: "DELETE",
+    await api.delete(`/restaurant/tables/${id}`, {
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     });
@@ -466,27 +371,18 @@ const AdminDashboard: React.FC = () => {
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/menu/categories",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: newCategory.name,
-            image: newCategory.image,
-            restaurantId: restaurantId,
-          }),
+      const response = await api.post("/menu/categories", {
+        name: newCategory.name,
+        image: newCategory.image,
+        restaurantId: restaurantId,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         }
-      );
+      })
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create category");
-      }
-      const createdCategory = data.data;
+      const data = response.data;
+      const createdCategory = data?.data?.category;
       setCategories([...categories, { ...createdCategory, items: [] }]);
       setNewCategory({ name: "", image: "" });
       alert("Category added successfully");
@@ -498,29 +394,20 @@ const AdminDashboard: React.FC = () => {
   const handleAddMenuItem = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/menu/items",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: newMenuItem.name,
-            price: newMenuItem.price,
-            categoryId: newMenuItem.categoryId,
-            image: newMenuItem.image,
-            addOns: newMenuItem.addOns,
-          }),
+      const response = await api.post("/menu/items", {
+        name: newMenuItem.name,
+        price: newMenuItem.price,
+        categoryId: newMenuItem.categoryId,
+        image: newMenuItem.image,
+        addOns: newMenuItem.addOns,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         }
-      );
+      })
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to create menu item");
-      }
-      const createdItem = data.data;
+      const data = response.data;
+      const createdItem = data?.data?.menuItem;
 
       setCategories(
         categories.map((cat) =>
@@ -566,10 +453,8 @@ const AdminDashboard: React.FC = () => {
     if (!confirm("Are you sure? This will delete all items in this category."))
       return;
     try {
-      await fetch(`http://localhost:4000/dinehub/api/menu/categories/${id}`, {
-        method: "DELETE",
+      await api.delete(`/menu/categories/${id}`, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
@@ -582,10 +467,8 @@ const AdminDashboard: React.FC = () => {
   const handleDeleteMenuItem = async (id: string, categoryId: string) => {
     if (!confirm("Are you sure?")) return;
     try {
-      await fetch(`http://localhost:4000/dinehub/api/menu/items/${id}`, {
-        method: "DELETE",
+      await api.delete(`/menu/items/${id}`, {
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });

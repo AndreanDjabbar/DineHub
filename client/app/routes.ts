@@ -9,6 +9,7 @@ export default [
   layout("./layouts/ProtectedLayout.tsx", [
     route("account", "./pages/account/index.tsx"),
     route("settings", "./pages/settings/index.tsx"),
+
     layout("./layouts/DeveloperLayout.tsx", [
       route("developer", "./pages/developer/index.tsx"),
     ]),
@@ -36,7 +37,6 @@ export default [
   route("cart", "./pages/cart/index.tsx"),
   route("orders", "./pages/orders/index.tsx"),
   route("verify-otp", "./pages/account/verifyotp.tsx"),
-
   route("register-tenant", "./pages/register-tenant/index.tsx"),
   route("partner", "./pages/partner/index.tsx"),
   route("partner-payment", "./pages/partner-payment/index.tsx"),

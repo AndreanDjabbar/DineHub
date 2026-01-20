@@ -10,6 +10,7 @@ import {
   FiMapPin,
   FiX,
 } from "react-icons/fi";
+import api from "~/lib/axios";
 
 interface Restaurant {
   id: string;
@@ -57,23 +58,17 @@ const DeveloperDashboard: React.FC = () => {
 
   const fetchRestaurants = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/restaurant/restaurants",
+      const response = await api.get(
+        "/restaurant/restaurants",
         {
-          method: "GET",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched Restaurants: ", data);
-        setRestaurants(data.data);
-      } else {
-        console.error("Failed to fetch restaurants, Status:", response.status);
-      }
+      const data = response.data;
+      console.log("Fetched Restaurants: ", data);
+      setRestaurants(data.data);
     } catch (err: any) {
       console.error("Failed to fetch restaurants:", err);
     }
@@ -119,22 +114,18 @@ const DeveloperDashboard: React.FC = () => {
 
   const handleCreate = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:4000/dinehub/api/restaurant/onboard",
+      const response = await api.post(
+        "/restaurant/onboard",
+        formData,
         {
-          method: "POST",
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(formData),
         }
       );
-      if (response.ok) {
-        await fetchRestaurants();
-        setShowModal(false);
-        resetForm();
-      }
+      await fetchRestaurants();
+      setShowModal(false);
+      resetForm();
     } catch (err: any) {
       console.error("Failed to create tenant:", err);
     }
@@ -153,24 +144,14 @@ const DeveloperDashboard: React.FC = () => {
       if (formData.adminPassword) {
         updateBody.adminPassword = formData.adminPassword;
       }
-
-      const response = await fetch(
-        `http://localhost:4000/dinehub/api/restaurant/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(updateBody),
-        }
-      );
-      console.log("Update Response:", response);
-      if (response.ok) {
-        await fetchRestaurants();
-        setShowModal(false);
-        resetForm();
-      }
+      const response = await api.put(`/restaurant/${id}`, updateBody, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      await fetchRestaurants();
+      setShowModal(false);
+      resetForm();
     } catch (err: any) {
       console.error("Failed to update tenant:", err);
     }
@@ -190,10 +171,8 @@ const DeveloperDashboard: React.FC = () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        await fetch("http://localhost:4000/dinehub/api/auth/logout", {
-          method: "POST",
+        await api.post("/auth/logout", {}, {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
@@ -225,14 +204,14 @@ const DeveloperDashboard: React.FC = () => {
         </div>
         <button
           onClick={handleLogout}
-          className="text-gray-400 hover:text-red-600 flex items-center gap-2 text-sm font-bold transition"
+          className="text-gray-400 hover:text-red-600 flex items-center gap-2 text-sm font-bold transition hover:cursor-pointer"
         >
           <FiLogOut /> Logout
         </button>
       </header>
 
       <main className="p-8 max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col md:flex-row gap-4 justify-between mb-8">
           <div>
             <h2 className="text-2xl font-extrabold text-gray-900">
               Active Tenants
@@ -243,7 +222,7 @@ const DeveloperDashboard: React.FC = () => {
           </div>
           <button
             onClick={openCreateModal}
-            className="bg-red-600 hover:bg-red-700 text-white px-5 py-3 rounded-2xl font-bold flex items-center gap-2 transition shadow-lg shadow-red-100 active:scale-[0.98]"
+            className="bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold flex items-center gap-2 transition shadow-lg shadow-red-100 text-sm px-4 py-3 w-fit hover:cursor-pointer"
           >
             <FiPlus className="w-5 h-5" /> Onboard Restaurant
           </button>
@@ -260,7 +239,7 @@ const DeveloperDashboard: React.FC = () => {
                 <h3 className="text-xl font-bold text-gray-900">{repo.name}</h3>
                 <button
                   onClick={() => handleEditClick(repo)}
-                  className="text-gray-400 hover:text-red-600 transition p-1 bg-gray-50 rounded-lg"
+                  className="text-gray-400 hover:text-red-600 transition p-1 bg-gray-50 rounded-lg hover:cursor-pointer"
                   title="Edit Restaurant"
                 >
                   <FiEdit2 />
@@ -297,9 +276,9 @@ const DeveloperDashboard: React.FC = () => {
       {/* --- Create Modal --- */}
       {showModal && (
         <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white text-gray-900 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl scale-100">
+          <div className="bg-white text-gray-900 w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl scale-100 max-h-[90vh] flex flex-col">
             <div className="px-8 py-6 flex justify-between items-center border-b border-gray-50">
-              <div>
+              <div className="">
                 <h3 className="font-extrabold text-xl text-gray-900">
                   {isEditing ? "Edit Tenant" : "Onboard New Tenant"}
                 </h3>
@@ -311,148 +290,150 @@ const DeveloperDashboard: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-2 bg-gray-50 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600 transition"
+                className="p-2 bg-gray-50 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600 transition hover:cursor-pointer"
               >
                 <FiX className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Left: Restaurant Info */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-red-600 uppercase tracking-wider mb-4">
-                    Restaurant Details
-                  </h4>
+            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+              <div className="p-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* Left: Restaurant Info */}
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-bold text-red-600 uppercase tracking-wider mb-4">
+                      Restaurant Details
+                    </h4>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">
-                      Brand Name
-                    </label>
-                    <input
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
-                      placeholder="e.g. Burger King"
-                      value={formData.name}
-                      required
-                      onChange={(e) =>
-                        setFormData({ ...formData, name: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">
-                      URL Slug
-                    </label>
-                    <input
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
-                      placeholder="e.g. burger-king-jkt"
-                      value={formData.slug}
-                      required
-                      onChange={(e) =>
-                        setFormData({ ...formData, slug: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">
-                      Address
-                    </label>
-                    <textarea
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400 resize-none"
-                      placeholder="Full Address..."
-                      value={formData.address}
-                      rows={2}
-                      required
-                      onChange={(e) =>
-                        setFormData({ ...formData, address: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-
-                {/* Right: Initial Admin Info */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-red-600 uppercase tracking-wider mb-4">
-                    Admin Account
-                  </h4>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">
-                      Admin Name
-                    </label>
-                    <input
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
-                      placeholder="Full Name"
-                      value={formData.adminName}
-                      required
-                      onChange={(e) =>
-                        setFormData({ ...formData, adminName: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">
-                      Email Address
-                    </label>
-                    <input
-                      className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
-                      placeholder="admin@brand.com"
-                      value={formData.adminEmail}
-                      type="email"
-                      required
-                      onChange={(e) =>
-                        setFormData({ ...formData, adminEmail: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-gray-700">
-                      Password
-                    </label>
-                    <div className="relative">
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">
+                        Brand Name
+                      </label>
                       <input
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
-                        placeholder="••••••••"
-                        value={formData.adminPassword}
-                        type={showPassword ? "text" : "password"}
-                        required={!isEditing}
+                        placeholder="e.g. Burger King"
+                        value={formData.name}
+                        required
                         onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            adminPassword: e.target.value,
-                          })
+                          setFormData({ ...formData, name: e.target.value })
                         }
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                      >
-                        {showPassword ? (
-                          <FiEyeOff className="w-5 h-5" />
-                        ) : (
-                          <FiEye className="w-5 h-5" />
-                        )}
-                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">
+                        URL Slug
+                      </label>
+                      <input
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                        placeholder="e.g. burger-king-jkt"
+                        value={formData.slug}
+                        required
+                        onChange={(e) =>
+                          setFormData({ ...formData, slug: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">
+                        Address
+                      </label>
+                      <textarea
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400 resize-none"
+                        placeholder="Full Address..."
+                        value={formData.address}
+                        rows={2}
+                        required
+                        onChange={(e) =>
+                          setFormData({ ...formData, address: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right: Initial Admin Info */}
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-bold text-red-600 uppercase tracking-wider mb-4">
+                      Admin Account
+                    </h4>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">
+                        Admin Name
+                      </label>
+                      <input
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                        placeholder="Full Name"
+                        value={formData.adminName}
+                        required
+                        onChange={(e) =>
+                          setFormData({ ...formData, adminName: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">
+                        Email Address
+                      </label>
+                      <input
+                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                        placeholder="admin@brand.com"
+                        value={formData.adminEmail}
+                        type="email"
+                        required
+                        onChange={(e) =>
+                          setFormData({ ...formData, adminEmail: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                          placeholder="••••••••"
+                          value={formData.adminPassword}
+                          type={showPassword ? "text" : "password"}
+                          required={!isEditing}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              adminPassword: e.target.value,
+                            })
+                          }
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                        >
+                          {showPassword ? (
+                            <FiEyeOff className="w-5 h-5" />
+                          ) : (
+                            <FiEye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="pt-6 border-t border-gray-50 flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-6 py-3 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-8 py-3 rounded-2xl font-bold bg-red-600 text-white hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98]"
-                >
-                  {isEditing ? "Update Tenant" : "Create Tenant"}
-                </button>
+                <div className="pt-6 border-t border-gray-50 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-6 py-3 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-8 py-3 rounded-2xl font-bold bg-red-600 text-white hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98]"
+                  >
+                    {isEditing ? "Update Tenant" : "Create Tenant"}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

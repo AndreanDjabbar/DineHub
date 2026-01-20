@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { FiGrid, FiLogOut, FiCreditCard, FiPrinter } from "react-icons/fi";
 import { UserHeader } from "~/components";
+import api from "~/lib/axios";
 
 interface Table {
   id: number;
@@ -25,15 +26,8 @@ const CashierDashboard: React.FC = () => {
         console.log("Fetching tables...");
 
         try{
-            const response = await fetch(`http://localhost:4000/dinehub/api/restaurant/tables/${restaurantId}`, {
-            method: "GET",
-            headers: { "Content-Type": "application/json" },
-            });
-            if(!response.ok){
-            console.error("Failed to fetch tables data");
-            return;
-            }
-            const data = await response.json();
+            const response = await api.get(`/restaurant/tables/${restaurantId}`);
+            const data = response.data;
             const tables = data.data || [];
             console.log("All Tables: ", tables); 
             setTables(tables);

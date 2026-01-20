@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { FiCheckCircle, FiClock, FiLogOut, FiCheckSquare, FiSquare } from "react-icons/fi";
+import api from "~/lib/axios";
 
 const KitchenDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -53,13 +54,11 @@ const KitchenDashboard: React.FC = () => {
     const token = localStorage.getItem("token");
     if(token){
       try{
-        await fetch("http://localhost:4000/dinehub/api/auth/logout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        await api.post("/auth/logout", {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
       } catch (error) {
         console.error("Failed to logout:", error);
       }

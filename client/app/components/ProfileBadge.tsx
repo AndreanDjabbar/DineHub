@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FiLogOut, FiUser, FiX } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
+import api from '~/lib/axios';
 
 interface ProfileBadgeProps {
 }
@@ -31,17 +32,15 @@ const ProfileBadge: React.FC<ProfileBadgeProps> = () => {
         const token = localStorage.getItem("token");
 
         if (token) {
-        try {
-            await fetch("http://localhost:4000/dinehub/api/auth/logout", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-            });
-        } catch (error) {
-            console.error("Failed to logout:", error);
-        }
+            try {
+                await api.post("/auth/logout", {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                });
+            } catch (error) {
+                console.error("Failed to logout:", error);
+            }
         }
         localStorage.removeItem("token");
         localStorage.removeItem("user");

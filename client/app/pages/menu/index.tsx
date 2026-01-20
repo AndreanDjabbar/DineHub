@@ -9,6 +9,7 @@ import {
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { BottomNavigation, QuantityPicker } from "~/components";
 import { useNavigate, useSearchParams } from "react-router";
+import api from "~/lib/axios";
 
 interface MenuItem {
   id: string;
@@ -77,18 +78,14 @@ const Menu: React.FC = () => {
       }
 
       try {
-        const response = await fetch(
-          `http://localhost:4000/dinehub/api/restaurant/table/${tableId}`
+        const response = await api.get(
+          `/restaurant/table/${tableId}`
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch table information");
-        }
-
-        const data = await response.json();
+        const data = response.data;
         setTableInfo(data.data);
       } catch (err: any) {
-        setError(err.message || "Failed to load table information");
+        setError(err.response?.data?.message || "Failed to load table information");
       } finally {
         setLoading(false);
       }
@@ -103,15 +100,11 @@ const Menu: React.FC = () => {
       if (!tableInfo?.restaurantId) return;
 
       try {
-        const response = await fetch(
-          `http://localhost:4000/dinehub/api/menu/categories/${tableInfo.restaurantId}`
+        const response = await api.get(
+          `/menu/categories/${tableInfo.restaurantId}`
         );
 
-        if (!response.ok) {
-          throw new Error("Failed to fetch menu");
-        }
-
-        const data = await response.json();
+        const data = response.data;
         setCategories(data.data || []);
       } catch (err: any) {
         console.error("Error fetching menu:", err);
