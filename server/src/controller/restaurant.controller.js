@@ -80,7 +80,9 @@ export const createTableController = async (req, res) => {
       201,
       "Table created successfully",
       "data",
-      result
+      {
+        table: result,
+      }
     );
   } catch (error) {
     return responseError(res, 500, error.message, "error", null);
@@ -93,7 +95,9 @@ export const getTablesByRestaurantIdController = async (req, res) => {
     const result = await RestaurantService.getTablesByRestaurantId(
       restaurantId
     );
-    return responseSuccess(res, 200, "Tables fetched", "data", result);
+    return responseSuccess(res, 200, "Tables fetched", "data", {
+      tables: result,
+    });
   } catch (error) {
     return responseError(res, 500, error.message, "error", null);
   }
@@ -124,7 +128,9 @@ export const updateTableController = async (req, res) => {
       200,
       "Table updated successfully",
       "data",
-      result
+      {
+        table: result,
+      }
     );
   } catch (error) {
     return responseError(res, 500, error.message, "error", null);

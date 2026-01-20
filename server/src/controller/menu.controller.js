@@ -5,7 +5,9 @@ export const createCategoryController = async (req, res) => {
   try {
     const data = req.body;
     const result = await MenuService.createCategory(data);
-    return responseSuccess(res, 201, "Category created successfully", "data", result);
+    return responseSuccess(res, 201, "Category created successfully", "data", {
+      category: result,
+    });
   } catch (error) {
     return responseError(res, 500, "Failed to create category", "error", error.message);
   }
@@ -15,7 +17,9 @@ export const getCategoriesByRestaurantIdController = async (req, res) => {
   try {
     const { restaurantId } = req.params;
     const result = await MenuService.getCategoriesByRestaurantId(restaurantId);
-    return responseSuccess(res, 200, "Categories fetched successfully", "data", result);
+    return responseSuccess(res, 200, "Categories fetched successfully", "data", {
+      categories: result,
+    });
   } catch (error) {
     return responseError(res, 500, "Failed to fetch categories", "error", error.message);
   }
@@ -35,7 +39,9 @@ export const createMenuItemController = async (req, res) => {
   try {
     const data = req.body;
     const result = await MenuService.createMenuItem(data);
-    return responseSuccess(res, 201, "Menu item created successfully", "data", result);
+    return responseSuccess(res, 201, "Menu item created successfully", "data", {
+      menuItem: result,
+    });
   } catch (error) {
     return responseError(res, 500, "Failed to create menu item", "error", error.message);
   }

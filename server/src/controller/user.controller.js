@@ -40,7 +40,9 @@ export const updateStaffController = async (req, res) => {
     const { name, email } = req.body;
     try {
         const result = await UserService.updateStaff(id, { name, email });
-        return responseSuccess(res, 200, "User updated successfully", "data", result);
+        return responseSuccess(res, 200, "User updated successfully", "data", {
+            user: result
+        });
     } catch (error) {
         return responseError(res, 500, error.message, "error", null);
     }
@@ -60,7 +62,9 @@ export const getCashierByRestaurantIdController = async (req, res) => {
     const { restaurantId } = req.params;
     try {
         const result = await UserService.getCashierByRestaurantId(restaurantId);
-        return responseSuccess(res, 200, "Cashier fetched", "data", result);
+        return responseSuccess(res, 200, "Cashier fetched", "data", {
+            cashier: result
+        });
     } catch (error) {
         return responseError(res, 500, error.message, "error", null);
     }
@@ -70,7 +74,9 @@ export const getKitchenByRestaurantIdController = async (req, res) => {
     const { restaurantId } = req.params;
     try {
         const result = await UserService.getKitchenByRestaurantId(restaurantId);
-        return responseSuccess(res, 200, "Kitchen fetched", "data", result);
+        return responseSuccess(res, 200, "Kitchen fetched", "data", {
+            kitchen: result
+        });
     } catch (error) {
         return responseError(res, 500, error.message, "error", null);
     }
