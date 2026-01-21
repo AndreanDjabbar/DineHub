@@ -63,7 +63,19 @@ class UserService {
         return updatedUser;
     }
 
-    static async deleteStaff(id) {
+    static async deleteStaff(id, currentUserID) {
+        const user = await UserRepository.getById(id);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        const currentUser = await UserRepository.getById(currentUserID);
+        if (!currentUser) {
+            throw new Error("Current user not found");
+        }
+        if (currentUser.role !== "Developer" && currentUser.restaurant_id !== user.restaurant_id) {
+            throw new Error("Unauthorized access");
+        }
+
         await UserRepository.delete(id);
     }
     

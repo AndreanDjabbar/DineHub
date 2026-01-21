@@ -53,8 +53,9 @@ export const updateStaffController = async (req, res) => {
 
 export const deleteStaffController = async (req, res) => {
     const { id } = req.params;
+    const { userID } = req.user;
     try {
-        const result = await UserService.deleteStaff(id);
+        const result = await UserService.deleteStaff(id, userID);
         return responseSuccess(res, 200, "User deleted successfully", "data", result);
     } catch (error) {
         return responseError(res, 500, error.message, "error", null);
