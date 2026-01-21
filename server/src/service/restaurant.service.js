@@ -66,7 +66,10 @@ class RestaurantService {
     }
 
     if (Object.keys(adminData).length > 0) {
-      const admin = await UserRepository.getAdminByRestaurantId(id);
+      const admin = await UserRepository.getByRoleRestaurantId(
+        "ADMIN",
+        restaurant.id
+      );
       if (admin) {
         await UserRepository.updateUser(admin.id, adminData);
       }

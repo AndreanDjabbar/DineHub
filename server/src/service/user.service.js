@@ -52,11 +52,11 @@ class UserService {
     }
     
     static async getCashierByRestaurantId(restaurantId) {
-        return await UserRepository.getCashierByRestaurantId(restaurantId);
+        return await UserRepository.getByRoleRestaurantId("CASHIER", restaurantId);
     }
 
     static async getKitchenByRestaurantId(restaurantId) {
-        return await UserRepository.getKitchenByRestaurantId(restaurantId);
+        return await UserRepository.getByRoleRestaurantId("KITCHEN", restaurantId);
     }
 }
 
