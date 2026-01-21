@@ -15,30 +15,13 @@ class UserRepository {
     return user;
   }
 
-  static async getAdminByRestaurantId(restaurantId) {
-    const [admin] = await postgreSQL`
-            SELECT * FROM public."User" 
-            WHERE restaurant_id = ${restaurantId} AND role = 'ADMIN'
-        `;
-    return admin;
-  }
-
-  static async getCashierByRestaurantId(restaurantId) {
-    const cashiers = await postgreSQL`
+  static async getByRoleRestaurantId(role, restaurantId) {
+    const users = await postgreSQL`
             SELECT id, name, email, role
             FROM public."User" 
-            WHERE restaurant_id = ${restaurantId} AND role = 'CASHIER'
+            WHERE restaurant_id = ${restaurantId} AND role = ${role}
         `;
-    return cashiers;
-  }
-
-  static async getKitchenByRestaurantId(restaurantId) {
-    const kitchenStaff = await postgreSQL`
-            SELECT id, name, email, role
-            FROM public."User" 
-            WHERE restaurant_id = ${restaurantId} AND role = 'KITCHEN'
-        `;
-    return kitchenStaff;
+    return users;
   }
 
   static async create({
