@@ -27,10 +27,18 @@ class UserService {
         return { restaurant: newRestaurant, admin: newAdmin };
     }
 
-    static async createStaff({ name, email, password, role, restaurantId }) {
+    static async createStaff({ name, email, password, role, restaurantId, userID }) {
         const existingUser = await UserRepository.getByEmail(email);
         if (existingUser) {
             throw new Error("Email already in use");
+        }
+        
+        const currentUser = await UserRepository.getById(userID);
+        if (!currentUser) {
+            throw new Error("Current user not found");
+        }
+        if (currentUser.role !== "Developer" && currentUser.restaurant_id !== restaurantId) {
+            throw new Error("Unauthorized access");
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,11 +46,19 @@ class UserService {
         return newUser;
     }
 
-    static async updateStaff(id, { name, email }) {
+    static async updateStaff({id, name, email, currentUserID}) {
         const user = await UserRepository.getById(id);
         if (!user) {
             throw new Error("User not found");
         }
+        const currentUser = await UserRepository.getById(currentUserID);
+        if (!currentUser) {
+            throw new Error("Current user not found");
+        }
+        if (currentUser.role !== "Developer" && currentUser.restaurant_id !== user.restaurant_id) {
+            throw new Error("Unauthorized access");
+        }
+
         const updatedUser = await UserRepository.updateUser(id, { name, email });
         return updatedUser;
     }
@@ -51,11 +67,27 @@ class UserService {
         await UserRepository.delete(id);
     }
     
-    static async getCashierByRestaurantId(restaurantId) {
+    static async getCashierStaffByRestaurantId(restaurantId, userID) {
+        const currentUser = await UserRepository.getById(userID);
+        if (!currentUser) {
+            throw new Error("Current user not found");
+        }
+        if (currentUser.restaurant_id !== restaurantId) {
+            throw new Error("Unauthorized access");
+        }
+
         return await UserRepository.getByRoleRestaurantId("CASHIER", restaurantId);
     }
 
-    static async getKitchenByRestaurantId(restaurantId) {
+    static async getKitchenStaffByRestaurantId(restaurantId, userID) {
+        const currentUser = await UserRepository.getById(userID);
+        if (!currentUser) {
+            throw new Error("Current user not found");
+        }
+        if (currentUser.restaurant_id !== restaurantId) {
+            throw new Error("Unauthorized access");
+        }
+
         return await UserRepository.getByRoleRestaurantId("KITCHEN", restaurantId);
     }
 }

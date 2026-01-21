@@ -1,3 +1,4 @@
+import logger from "../../logs/logger.js";
 import UserService from "../service/user.service.js";
 import { responseSuccess, responseError } from "../util/response.util.js"; 
 
@@ -25,7 +26,8 @@ export const getAllRestaurantsController = async (req, res) => {
 export const createStaffController = async (req, res) => {
     try {
         const { name, email, password, role, restaurantId } = req.body;
-        const result = await UserService.createStaff({ name, email, password, role, restaurantId });
+        const { userID } = req.user;
+        const result = await UserService.createStaff({ name, email, password, role, restaurantId, userID });
         return responseSuccess(res, 201, "User created successfully", "data", result);
     } catch (error) {
         if (error.code === '23505') {
@@ -37,9 +39,10 @@ export const createStaffController = async (req, res) => {
 
 export const updateStaffController = async (req, res) => {
     const { id } = req.params;
+    const { userID } = req.user;
     const { name, email } = req.body;
     try {
-        const result = await UserService.updateStaff(id, { name, email });
+        const result = await UserService.updateStaff({id, name, email, currentUserID: userID});
         return responseSuccess(res, 200, "User updated successfully", "data", {
             user: result
         });
@@ -58,10 +61,10 @@ export const deleteStaffController = async (req, res) => {
     }
 }
 
-export const getCashierByRestaurantIdController = async (req, res) => {
+export const getCashierStaffByRestaurantIdController = async (req, res) => {
     const { restaurantId } = req.params;
     try {
-        const result = await UserService.getCashierByRestaurantId(restaurantId);
+        const result = await UserService.getCashierStaffByRestaurantId(restaurantId);
         return responseSuccess(res, 200, "Cashier fetched", "data", {
             cashier: result
         });
@@ -70,10 +73,12 @@ export const getCashierByRestaurantIdController = async (req, res) => {
     }
 }
 
-export const getKitchenByRestaurantIdController = async (req, res) => {
+export const getKitchenStaffByRestaurantIdController = async (req, res) => {
     const { restaurantId } = req.params;
+    const { userID } = req.user;
+
     try {
-        const result = await UserService.getKitchenByRestaurantId(restaurantId);
+        const result = await UserService.getKitchenStaffByRestaurantId(restaurantId, userID);
         return responseSuccess(res, 200, "Kitchen fetched", "data", {
             kitchen: result
         });
