@@ -64,8 +64,9 @@ export const deleteStaffController = async (req, res) => {
 
 export const getCashierStaffByRestaurantIdController = async (req, res) => {
     const { restaurantId } = req.params;
+    const currentUserID = req.user.userID;
     try {
-        const result = await UserService.getCashierStaffByRestaurantId(restaurantId);
+        const result = await UserService.getCashierStaffByRestaurantId(restaurantId, currentUserID);
         return responseSuccess(res, 200, "Cashier fetched", "data", {
             cashier: result
         });
