@@ -3,12 +3,21 @@ import * as RestaurantController from "../controller/restaurant.controller.js";
 import validateToken from "../middleware/jwt.middleware.js";
 import authorizedRoles from "../middleware/role.middleware.js";
 validateToken
+import validateSchema from "../middleware/schema.middleware.js";
+
+import { 
+  createRestaurantSchema,
+  updateRestaurantSchema,
+  createTableSchema,
+  updateTableSchema 
+} from "../validation/restaurant.validation.js";
 
 const router = express.Router();
 
 router.post(
   "/onboard", 
-  validateToken, 
+  validateToken,
+  validateSchema(createRestaurantSchema), 
   authorizedRoles("Developer"),
   RestaurantController.onboardTenantController
 );
@@ -27,6 +36,7 @@ router.get(
 router.put(
   "/:id", 
   validateToken, 
+  validateSchema(updateRestaurantSchema),
   authorizedRoles("Developer"),
   RestaurantController.updateRestaurantController
 );
@@ -49,6 +59,7 @@ router.get(
 router.post(
   "/tables", 
   validateToken, 
+  validateSchema(createTableSchema),
   authorizedRoles("Developer", "ADMIN"),
   RestaurantController.createTableController
 );
@@ -61,6 +72,7 @@ router.delete(
 router.put(
   "/tables/:id", 
   validateToken, 
+  validateSchema(updateTableSchema),
   authorizedRoles("Developer", "ADMIN"),
   RestaurantController.updateTableController
 );
