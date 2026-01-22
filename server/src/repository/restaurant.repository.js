@@ -17,6 +17,24 @@ class RestaurantRepository {
     return restaurant;
   }
 
+  static async getByName(name) {
+    const [restaurant] = await postgreSQL`
+        SELECT id, name, slug, address
+        FROM public."Restaurant"
+        WHERE name = ${name}
+    `;
+    return restaurant;
+  }
+
+  static async getBySlug(slug) {
+    const [restaurant] = await postgreSQL`
+        SELECT id, name, slug, address
+        FROM public."Restaurant"
+        WHERE slug = ${slug}
+    `;
+    return restaurant;
+  }
+
   static async create(data) {
     const [newRestaurant] = await postgreSQL`
             INSERT INTO public."Restaurant" (id, name, slug, address, created_at, updated_at)
@@ -43,7 +61,6 @@ class RestaurantRepository {
   }
 
   static async getAll() {
-    // We use "AS" to rename the columns to match your Frontend React State exactly
     return await postgreSQL`
         SELECT 
             r.id,
@@ -107,9 +124,9 @@ class RestaurantRepository {
                 t.id,
                 t.name,
                 t.capacity,
-                t.restaurant_id as "restaurantId",
-                r.name as "restaurantName",
-                r.address as "restaurantAddress"
+                t.restaurant_id,
+                r.name,
+                r.address
             FROM public."Table" t
             LEFT JOIN public."Restaurant" r ON r.id = t.restaurant_id
             WHERE t.id = ${id}
