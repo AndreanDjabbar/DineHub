@@ -1,5 +1,5 @@
 import RestaurantRepository from "../repository/restaurant.repository.js";
-import UserRepository from "../repository/user.repository.js"; // Import User Repo
+import UserRepository from "../repository/user.repository.js";
 import bcrypt from "bcrypt";
 
 class RestaurantService {
@@ -14,6 +14,12 @@ class RestaurantService {
     const existingUser = await UserRepository.getByEmail(adminEmail);
     if (existingUser) throw new Error("Admin email already exists");
 
+    const existingRestaurant = await RestaurantRepository.getByName(name);
+    if (existingRestaurant) throw new Error("Restaurant name already exists");
+
+    const existingSlug = await RestaurantRepository.getBySlug(slug);
+    if (existingSlug) throw new Error("Restaurant slug already exists");
+
     const newRestaurant = await RestaurantRepository.create({
       name,
       slug,
@@ -23,21 +29,28 @@ class RestaurantService {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
+    const existingAdmin = await UserRepository.getByEmail(adminEmail);
+    if (existingAdmin) throw new Error("Admin email already exists");
+
     const newAdmin = await UserRepository.create({
       name: adminName,
       email: adminEmail,
       password: hashedPassword,
       role: "ADMIN",
       is_verified: true,
-      restaurantId: newRestaurant.id, // Link them here
+      restaurantId: newRestaurant.id,
     });
 
     return { restaurant: newRestaurant, admin: newAdmin };
   }
 
-  static async getRestaurant(id) {
+  static async getRestaurant(id, currentUserID) {
     const restaurant = await RestaurantRepository.getById(id);
     if (!restaurant) throw new Error("Restaurant not found");
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== id) throw new Error("Unauthorized access");
     return restaurant;
   }
 
@@ -45,18 +58,27 @@ class RestaurantService {
     const restaurant = await RestaurantRepository.getById(id);
     if (!restaurant) throw new Error("Restaurant not found");
 
-    // Update restaurant details
     const restaurantData = {
       name: data.name,
       slug: data.slug,
       address: data.address,
     };
+
+    const existingRestaurant = await RestaurantRepository.getByName(data.name);
+    if (existingRestaurant && existingRestaurant.id !== id) {
+      throw new Error("Restaurant name already exists");
+    }
+
+    const existingSlug = await RestaurantRepository.getBySlug(data.slug);
+    if (existingSlug && existingSlug.id !== id) {
+      throw new Error("Restaurant slug already exists");
+    }
+
     const updatedRestaurant = await RestaurantRepository.update(
       id,
       restaurantData
     );
 
-    // Update admin user if admin fields are provided
     const adminData = {};
     if (data.adminName) adminData.name = data.adminName;
     if (data.adminEmail) adminData.email = data.adminEmail;
@@ -88,7 +110,14 @@ class RestaurantService {
     return await RestaurantRepository.getAll();
   }
 
-  static async createTable({ restaurantId, name, capacity }) {
+  static async createTable({ restaurantId, name, capacity, currentUserID }) {
+    const restaurant = await RestaurantRepository.getById(restaurantId);
+    if (!restaurant) throw new Error("Restaurant not found");
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurantId) throw new Error("Unauthorized access");
+
     const table = await RestaurantRepository.createTable(restaurantId, {
       name,
       capacity,
@@ -96,15 +125,44 @@ class RestaurantService {
     return table;
   }
 
-  static async deleteTable(id) {
-    await RestaurantRepository.deleteTable(id);
+  static async deleteTable(id, currentUserID) {
+    const table = await RestaurantRepository.getTableById(id);
+    console.log("Table to delete:", table);
+    if (!table) throw new Error("Table not found");
+    const restaurant = await RestaurantRepository.getById(table.restaurant_id);
+    console.log("Associated restaurant:", restaurant);
+    if (!restaurant) throw new Error("Restaurant not found");
+    const currentUser = await UserRepository.getById(currentUserID);
+      
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurant.id) throw new Error("Unauthorized access");
+
+    const deletedTable = await RestaurantRepository.deleteTable(id);
+    return deletedTable;
   }
 
-  static async getTablesByRestaurantId(restaurantId) {
+  static async getTablesByRestaurantId(restaurantId, currentUserID) {
+    const restaurant = await RestaurantRepository.getById(restaurantId);
+    if (!restaurant) throw new Error("Restaurant not found");
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurantId) throw new Error("Unauthorized access");
+
     return await RestaurantRepository.getTablesByRestaurantId(restaurantId);
   }
 
-  static async updateTable(id, data) {
+  static async updateTable(id, currentUserID, data) {
+    const table = await RestaurantRepository.getTableById(id);
+    if (!table) throw new Error("Table not found");
+    const restaurant = await RestaurantRepository.getById(table.restaurant_id);
+    if (!restaurant) throw new Error("Restaurant not found");
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurant.id) throw new Error("Unauthorized access");
+
     const updatedTable = await RestaurantRepository.updateTable(id, data);
     return updatedTable;
   }
