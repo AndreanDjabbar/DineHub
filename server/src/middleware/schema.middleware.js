@@ -1,6 +1,6 @@
 import { responseError } from "../util/response.util.js";
 
-const validate = (schema) => {
+const validateSchema = (schema) => {
     return (req, res, next) => {
         const { error } = schema.validate(req.body, {
             abortEarly: false,
@@ -15,4 +15,4 @@ const validate = (schema) => {
     }
 }
 
-export default validate;
+export default validateSchema;
