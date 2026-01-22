@@ -23,12 +23,14 @@ const CashierDashboard: React.FC = () => {
   }, []);
 
     const fetchTables = async () => {
-        console.log("Fetching tables...");
-
         try{
-            const response = await api.get(`/restaurant/tables/${restaurantId}`);
+            const response = await api.get(`/restaurant/tables/${restaurantId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
             const data = response.data;
-            const tables = data.data || [];
+            const tables = data?.data?.tables || [];
             console.log("All Tables: ", tables); 
             setTables(tables);
         } catch(error) {
