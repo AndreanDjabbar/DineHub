@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FiTrash2, FiX, FiBookOpen, FiAlertCircle } from "react-icons/fi";
 import type { MenuCategory, AddOn, AddOnOption } from "./types";
-import { TextInput, NumInput, Button, ImageInput } from "~/components";
+import { TextInput, NumInput, Button, ImageInput, ConfirmationPopup } from "~/components";
 
 interface MenuManagementProps {
   categories: MenuCategory[];
@@ -44,6 +44,10 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
     category?: string;
     image?: string;
   }>({});
+  const [isDeleteCategoryPopupOpen, setIsDeleteCategoryPopupOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<MenuCategory | null>(null);
+  const [isDeleteItemPopupOpen, setIsDeleteItemPopupOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ id: string; categoryId: string; name: string } | null>(null);
 
   const validateAndSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +71,28 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
     if (Object.keys(newErrors).length === 0) {
       handleAddMenuItem(e);
       setErrors({});
+    }
+  };
+
+  const handleDeleteCategoryClick = (category: MenuCategory) => {
+    setCategoryToDelete(category);
+    setIsDeleteCategoryPopupOpen(true);
+  };
+
+  const confirmDeleteCategory = () => {
+    if (categoryToDelete) {
+      handleDeleteCategory(categoryToDelete.id || "");
+    }
+  };
+
+  const handleDeleteItemClick = (itemId: string, categoryId: string, itemName: string) => {
+    setItemToDelete({ id: itemId, categoryId, name: itemName });
+    setIsDeleteItemPopupOpen(true);
+  };
+
+  const confirmDeleteItem = () => {
+    if (itemToDelete) {
+      handleDeleteMenuItem(itemToDelete.id, itemToDelete.categoryId);
     }
   };
 
@@ -98,7 +124,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               required
               value={newCategory.image || null}
               onChange={(imageUrl) => {
-                setNewCategory({ ...newCategory, image: (imageUrl || "") });
+                setNewCategory({ ...newCategory, image: imageUrl || "" });
                 if (errors.image) setErrors({ ...errors, image: undefined });
               }}
             />
@@ -427,7 +453,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 )}
                 <h4 className="font-bold text-gray-800">{category.name}</h4>
                 <button
-                  onClick={() => handleDeleteCategory(category?.id || "")}
+                  onClick={() => handleDeleteCategoryClick(category)}
                   className="text-red-500 hover:text-red-700 p-1 hover:cursor-pointer"
                   title="Delete Category"
                 >
@@ -440,7 +466,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                     {category?.items?.map((item) => (
                       <div
                         key={item.id}
-                        className="flex justify-between items-center p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition"
+                        className="flex justify-between items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition group"
                       >
                         {item.image && (
                           <img
@@ -477,9 +503,9 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                         <div className="flex gap-2">
                           <button
                             onClick={() =>
-                              handleDeleteMenuItem(item.id, category?.id || "")
+                              handleDeleteItemClick(item.id, category?.id || "", item.name)
                             }
-                            className="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition hover:cursor-pointer"
+                            className="text-gray-400 hover:text-red-600 p-2 rounded-lg transition hover:cursor-pointer opacity-0 group-hover:opacity-100"
                           >
                             <FiTrash2 />
                           </button>
@@ -505,6 +531,29 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
           )}
         </div>
       </div>
+
+      {/* Confirmation Popups */}
+      <ConfirmationPopup
+        isOpen={isDeleteCategoryPopupOpen}
+        onClose={() => setIsDeleteCategoryPopupOpen(false)}
+        onConfirm={confirmDeleteCategory}
+        title="Delete Category"
+        message={`Are you sure you want to delete the category "${categoryToDelete?.name}"? All items in this category will also be deleted. This action cannot be undone.`}
+        icon={FiTrash2}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+
+      <ConfirmationPopup
+        isOpen={isDeleteItemPopupOpen}
+        onClose={() => setIsDeleteItemPopupOpen(false)}
+        onConfirm={confirmDeleteItem}
+        title="Delete Menu Item"
+        message={`Are you sure you want to delete "${itemToDelete?.name}"? This action cannot be undone.`}
+        icon={FiTrash2}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

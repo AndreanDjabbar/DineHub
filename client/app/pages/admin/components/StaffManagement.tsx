@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FiDollarSign,
   FiMonitor,
@@ -7,7 +7,7 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import type { User } from "./types";
-import { TextInput, Button } from "~/components";
+import { TextInput, Button, ConfirmationPopup } from "~/components";
 
 interface StaffManagementProps {
   users: User[];
@@ -26,6 +26,20 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
   handleUserEditClick,
   handleDeleteUser,
 }) => {
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+
+  const handleDeleteClick = (user: User) => {
+    setUserToDelete(user);
+    setIsDeletePopupOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (userToDelete) {
+      handleDeleteUser(userToDelete.id);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Form Section */}
@@ -82,7 +96,7 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
           {users.map((user) => (
             <div
               key={user.id}
-              className="flex justify-between items-center p-4 border border-gray-100 rounded-xl transition bg-gray-50"
+              className="flex justify-between items-center p-4 border border-gray-200 hover:border-red-300 rounded-xl transition group"
             >
               <div className="flex items-center gap-4">
                 <div
@@ -101,13 +115,13 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => handleUserEditClick(user)}
-                  className="text-blue-400 hover:text-blue-600 p-2 hover:bg-blue-50 rounded-lg transition hover:cursor-pointer"
+                  className="text-gray-400 hover:text-blue-600 transition hover:cursor-pointer opacity-0 group-hover:opacity-100"
                 >
                   <FiEdit />
                 </button>
                 <button
-                  onClick={() => handleDeleteUser(user.id)}
-                  className="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition hover:cursor-pointer"
+                  onClick={() => handleDeleteClick(user)}
+                  className="text-gray-400 hover:text-red-600 transition hover:cursor-pointer opacity-0 group-hover:opacity-100"
                 >
                   <FiTrash2 />
                 </button>
@@ -124,6 +138,18 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
           )}
         </div>
       </div>
+
+      {/* Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={isDeletePopupOpen}
+        onClose={() => setIsDeletePopupOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete User"
+        message={`Are you sure you want to delete ${userToDelete?.name}? This action cannot be undone.`}
+        icon={FiTrash2}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };

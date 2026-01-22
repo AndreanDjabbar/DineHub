@@ -7,15 +7,17 @@ import UserHeader from "./UserHeader";
 import ImageInput from "./ImageInput";
 import QuantityPicker from "./QuantityPicker";
 import ProfileBadge from "./ProfileBadge";
+import ConfirmationPopup from "./ConfirmationPopup";
 
 export {
-    BackButton,
-    Button,
-    BottomNavigation,
-    NumInput,
-    TextInput,
-    UserHeader,
-    ImageInput,
-    ProfileBadge,
-    QuantityPicker,
-}
+  BackButton,
+  Button,
+  BottomNavigation,
+  NumInput,
+  TextInput,
+  UserHeader,
+  ImageInput,
+  ProfileBadge,
+  QuantityPicker,
+  ConfirmationPopup,
+};

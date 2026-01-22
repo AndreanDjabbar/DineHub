@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { FiLayers, FiEdit, FiTrash2, FiMousePointer } from "react-icons/fi";
 import type { Table } from "./types";
-import { NumInput, Button } from "~/components";
+import { NumInput, Button, ConfirmationPopup } from "~/components";
 import TableQR from "./TableQr";
 import { ImWarning } from "react-icons/im";
 import { CiWarning } from "react-icons/ci";
@@ -28,6 +28,20 @@ const TableManagement: React.FC<TableManagementProps> = ({
   activeTable,
   onTableSelect,
 }) => {
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+  const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
+
+  const handleDeleteClick = (table: Table) => {
+    setTableToDelete(table);
+    setIsDeletePopupOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (tableToDelete) {
+      handleDeleteTable(tableToDelete.id);
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* --- Left Column: Form & QR Preview --- */}
@@ -116,7 +130,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
                       <FiEdit />
                     </button>
                     <button
-                      onClick={() => handleDeleteTable(table.id)}
+                      onClick={() => handleDeleteClick(table)}
                       className="text-gray-400 hover:text-red-600 transition hover:cursor-pointer"
                     >
                       <FiTrash2 />
@@ -128,6 +142,17 @@ const TableManagement: React.FC<TableManagementProps> = ({
           </div>
         )}
       </div>
+      {/* Confirmation Popup */}
+      <ConfirmationPopup
+        isOpen={isDeletePopupOpen}
+        onClose={() => setIsDeletePopupOpen(false)}
+        onConfirm={confirmDelete}
+        title="Delete Table"
+        message={`Are you sure you want to delete ${tableToDelete?.name}? This action cannot be undone.`}
+        icon={FiTrash2}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };
