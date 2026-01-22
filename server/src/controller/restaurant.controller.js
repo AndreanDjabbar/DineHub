@@ -28,7 +28,9 @@ export const getAllRestaurantsController = async (req, res) => {
 export const getRestaurantController = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await RestaurantService.getRestaurant(id);
+    const currentUserID = req.user.userID;
+
+    const result = await RestaurantService.getRestaurant(id, currentUserID);
     return responseSuccess(res, 200, "Restaurant fetched", "data", result);
   } catch (error) {
     return responseError(res, 500, error.message, "error", null);
@@ -70,10 +72,12 @@ export const deleteRestaurantController = async (req, res) => {
 export const createTableController = async (req, res) => {
   try {
     const { restaurantId, name, capacity } = req.body;
+    const currentUserID = req.user.userID;
     const result = await RestaurantService.createTable({
       restaurantId,
       name,
       capacity,
+      currentUserID,
     });
     return responseSuccess(
       res,
@@ -92,8 +96,11 @@ export const createTableController = async (req, res) => {
 export const getTablesByRestaurantIdController = async (req, res) => {
   try {
     const { restaurantId } = req.params;
+    const currentUserID = req.user.userID;
+
     const result = await RestaurantService.getTablesByRestaurantId(
-      restaurantId
+      restaurantId,
+      currentUserID
     );
     return responseSuccess(res, 200, "Tables fetched", "data", {
       tables: result,
@@ -106,7 +113,9 @@ export const getTablesByRestaurantIdController = async (req, res) => {
 export const deleteTableController = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await RestaurantService.deleteTable(id);
+    const currentUserID = req.user.userID;
+
+    const result = await RestaurantService.deleteTable(id, currentUserID);
     return responseSuccess(
       res,
       200,
@@ -122,7 +131,9 @@ export const deleteTableController = async (req, res) => {
 export const updateTableController = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await RestaurantService.updateTable(id, req.body);
+    const currentUserID = req.user.userID;
+
+    const result = await RestaurantService.updateTable(id, currentUserID, req.body);
     return responseSuccess(
       res,
       200,
