@@ -127,10 +127,9 @@ class RestaurantService {
 
   static async deleteTable(id, currentUserID) {
     const table = await RestaurantRepository.getTableById(id);
-    console.log("Table to delete:", table);
     if (!table) throw new Error("Table not found");
     const restaurant = await RestaurantRepository.getById(table.restaurant_id);
-    console.log("Associated restaurant:", restaurant);
+    
     if (!restaurant) throw new Error("Restaurant not found");
     const currentUser = await UserRepository.getById(currentUserID);
       
