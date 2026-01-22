@@ -1,6 +1,6 @@
 import express from "express";
 import * as RestaurantController from "../controller/restaurant.controller.js";
-import { validateToken } from "../middleware/jwt.middleware.js";
+import validateToken from "../middleware/jwt.middleware.js";
 import authorizedRoles from "../middleware/role.middleware.js";
 validateToken
 

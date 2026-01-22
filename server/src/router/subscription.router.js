@@ -6,13 +6,12 @@ import {
     createCorePaymentSchema 
 } from "../validation/subscription.validation.js";
 
-import { validateToken } from "../middleware/jwt.middleware.js";
-
-import validate from "../middleware/validate.middleware.js";
+import validateToken from "../middleware/jwt.middleware.js";
+import validateSchema from "../middleware/schema.middleware.js";
 
 const router = express.Router();
 
-router.post("/payment", validate(createCorePaymentSchema), validateToken, createCorePaymentController);
+router.post("/payment", validateSchema(createCorePaymentSchema), validateToken, createCorePaymentController);
 router.post("/webhook-payment", webhookPaymentController);
 
 export default router;
