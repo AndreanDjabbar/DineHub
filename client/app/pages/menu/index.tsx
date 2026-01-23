@@ -65,7 +65,7 @@ const Menu: React.FC = () => {
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
+    null,
   );
 
   // Fetch table and restaurant info
@@ -78,13 +78,13 @@ const Menu: React.FC = () => {
       }
 
       try {
-        const response = await api.get(
-          `/restaurant/table/${tableId}`
-        );
+        const response = await api.get(`/restaurant/table/${tableId}`);
         const data = response.data;
         setTableInfo(data.data);
       } catch (err: any) {
-        setError(err.response?.data?.message || "Failed to load table information");
+        setError(
+          err.response?.data?.message || "Failed to load table information",
+        );
       } finally {
         setLoading(false);
       }
@@ -100,7 +100,7 @@ const Menu: React.FC = () => {
 
       try {
         const response = await api.get(
-          `/menu/categories/${tableInfo.restaurant_id}`
+          `/menu/categories/${tableInfo.restaurant_id}`,
         );
 
         const data = response.data;
@@ -147,7 +147,7 @@ const Menu: React.FC = () => {
   const handleCategoryClick = (categoryId: string) => {
     // Toggle category selection - click again to deselect
     setSelectedCategoryId(
-      selectedCategoryId === categoryId ? null : categoryId
+      selectedCategoryId === categoryId ? null : categoryId,
     );
     // Clear search when selecting a category
     setSearchQuery("");
@@ -161,18 +161,27 @@ const Menu: React.FC = () => {
     return sum + (item?.price || 0) * qty;
   }, 0);
 
-  // Filter items based on search query
-  const filteredItems = allMenuItems.filter((item) => {
-    const matchesSearch = searchQuery
-      ? item.name.toLowerCase().includes(searchQuery.toLowerCase())
-      : true;
+  // Filter categories and items based on search query and selected category
+  const filteredCategories = categories
+    .map((category) => {
+      const filteredItems = category.items.filter((item) => {
+        const matchesSearch = searchQuery
+          ? item.name.toLowerCase().includes(searchQuery.toLowerCase())
+          : true;
 
-    const matchesCategory = selectedCategoryId
-      ? item.categoryId === selectedCategoryId
-      : true;
+        const matchesCategory = selectedCategoryId
+          ? item.categoryId === selectedCategoryId
+          : true;
 
-    return matchesSearch && matchesCategory;
-  });
+        return matchesSearch && matchesCategory;
+      });
+
+      return {
+        ...category,
+        items: filteredItems,
+      };
+    })
+    .filter((category) => category.items.length > 0);
 
   if (loading) {
     return (
@@ -268,7 +277,7 @@ const Menu: React.FC = () => {
       )}
       {/* --- Products Grid --- */}
       <main className="px-4 mt-6">
-        {filteredItems.length === 0 ? (
+        {filteredCategories.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">
               {searchQuery
@@ -277,65 +286,82 @@ const Menu: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6 mb-20">
-            {filteredItems.map((item) => (
-              <div key={item.id} className="group flex flex-col">
-                {/* Product Image Container */}
-                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-gray-100 mb-3">
-                  {item.image ? (
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200">
-                      <span className="text-gray-400 text-4xl font-bold">
-                        {item.name.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Add Button / Counter Overlay */}
-                  {item.isAvailable ? (
-                    cart[item.id] ? (
-                      <div className="absolute bottom-2 right-2">
-                        <QuantityPicker
-                          quantity={cart[item.id]}
-                          onIncrement={() => handleAddToCart(item.id)}
-                          onDecrement={() => handleRemoveFromCart(item.id)}
-                        />
-                      </div>
-                    ) : (
-                      <button
-                        className="absolute bottom-2 right-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition active:scale-80"
-                        onClick={() => handleAddToCart(item.id)}
-                      >
-                        <div className="w-8 h-8 rounded-full border border-red-500 flex items-center justify-center">
-                          <FiPlus
-                            className="w-4 h-4 text-red-600"
-                            strokeWidth={3}
-                          />
-                        </div>
-                      </button>
-                    )
-                  ) : (
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">
-                        Unavailable
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Product Details */}
-                <div className="flex flex-col grow">
-                  <h3 className="font-bold text-gray-900 leading-tight mb-1 text-[15px]">
-                    {item.name}
-                  </h3>
-                  <span className="font-bold text-[15px]">
-                    {formatRupiah(item.price)}
+          <div className="space-y-8 mb-20">
+            {filteredCategories.map((category) => (
+              <div key={category.id} className="space-y-4">
+                {/* Category Header */}
+                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  {category.name}
+                  <span className="text-sm font-normal text-gray-500">
+                    ({category.items.length})
                   </span>
+                </h2>
+
+                {/* Category Items Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-6">
+                  {category.items.map((item) => (
+                    <div key={item.id} className="group flex flex-col">
+                      {/* Product Image Container */}
+                      <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-gray-100 mb-3">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-100 to-gray-200">
+                            <span className="text-gray-400 text-4xl font-bold">
+                              {item.name.charAt(0)}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Add Button / Counter Overlay */}
+                        {item.isAvailable ? (
+                          cart[item.id] ? (
+                            <div className="absolute bottom-2 right-2">
+                              <QuantityPicker
+                                quantity={cart[item.id]}
+                                onIncrement={() => handleAddToCart(item.id)}
+                                onDecrement={() =>
+                                  handleRemoveFromCart(item.id)
+                                }
+                              />
+                            </div>
+                          ) : (
+                            <button
+                              className="absolute bottom-2 right-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition active:scale-80"
+                              onClick={() => handleAddToCart(item.id)}
+                            >
+                              <div className="w-8 h-8 rounded-full border border-red-500 flex items-center justify-center">
+                                <FiPlus
+                                  className="w-4 h-4 text-red-600"
+                                  strokeWidth={3}
+                                />
+                              </div>
+                            </button>
+                          )
+                        ) : (
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                            <span className="text-white font-bold text-sm">
+                              Unavailable
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Product Details */}
+                      <div className="flex flex-col grow">
+                        <h3 className="font-bold text-gray-900 leading-tight mb-1 text-[15px]">
+                          {item.name}
+                        </h3>
+                        <span className="font-bold text-[15px]">
+                          {formatRupiah(item.price)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -351,7 +377,7 @@ const Menu: React.FC = () => {
               // Save categories to localStorage so cart page can access menu items
               localStorage.setItem(
                 "dinehub-menu-categories",
-                JSON.stringify(categories)
+                JSON.stringify(categories),
               );
               navigate("/cart");
             }}

@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { FiLayers, FiEdit, FiTrash2, FiMousePointer } from "react-icons/fi";
+import {
+  FiLayers,
+  FiEdit,
+  FiTrash2,
+  FiMousePointer,
+  FiCheckCircle,
+} from "react-icons/fi";
 import type { Table } from "./types";
 import { NumInput, Button, ConfirmationPopup } from "~/components";
+import NotificationPopup from "~/components/NotificationPopup";
 import TableQR from "./TableQr";
 import { ImWarning } from "react-icons/im";
 import { CiWarning } from "react-icons/ci";
@@ -30,6 +37,9 @@ const TableManagement: React.FC<TableManagementProps> = ({
 }) => {
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
+  const [isSuccessNotificationOpen, setIsSuccessNotificationOpen] =
+    useState(false);
+  const [deletedTableName, setDeletedTableName] = useState<string>("");
 
   const handleDeleteClick = (table: Table) => {
     setTableToDelete(table);
@@ -38,7 +48,9 @@ const TableManagement: React.FC<TableManagementProps> = ({
 
   const confirmDelete = () => {
     if (tableToDelete) {
+      setDeletedTableName(tableToDelete.name);
       handleDeleteTable(tableToDelete.id);
+      setIsSuccessNotificationOpen(true);
     }
   };
 
@@ -152,6 +164,18 @@ const TableManagement: React.FC<TableManagementProps> = ({
         icon={FiTrash2}
         confirmText="Delete"
         cancelText="Cancel"
+      />
+
+      {/* Success Notification */}
+      <NotificationPopup
+        isOpen={isSuccessNotificationOpen}
+        onClose={() => setIsSuccessNotificationOpen(false)}
+        title="Table Deleted"
+        message={`${deletedTableName} has been successfully deleted.`}
+        icon={FiCheckCircle}
+        iconClassName="text-green-600"
+        autoClose={true}
+        autoCloseDelay={3000}
       />
     </div>
   );

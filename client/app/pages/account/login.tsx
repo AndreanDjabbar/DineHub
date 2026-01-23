@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate, NavLink } from "react-router";
-import { FiMail, FiLock } from "react-icons/fi";
+import { FiMail, FiLock, FiCheckCircle } from "react-icons/fi";
 import { BiLoader } from "react-icons/bi";
 import { BottomNavigation, TextInput, Button } from "~/components";
+import NotificationPopup from "~/components/NotificationPopup";
 import api from "~/lib/axios";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationTitle, setNotificationTitle] = useState("Error");
 
   const [formData, setFormData] = useState({
     email: "",
@@ -25,46 +29,53 @@ const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/auth/login", {
-        email: formData.email,
-        password: formData.password,        
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+      const response = await api.post(
+        "/auth/login",
+        {
+          email: formData.email,
+          password: formData.password,
         },
-      })
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        },
+      );
 
       const data = response.data;
       if (data.success) {
         console.log("Login successful!, Data: ", data);
         localStorage.setItem("token", data.data.token);
         localStorage.setItem("user", JSON.stringify(data.data.user));
-        const role = data.data.user.role;
-        const routeMapping: Record<any, string> = {
-          ADMIN: "/admin",
-          CASHIER: "/cashier",
-          KITCHEN: "/kitchen",
-          Developer: "/developer",
-        }
-        const redirectRoute = routeMapping[role] || "/";
-        navigate(redirectRoute);
+
+        setNotificationTitle("Login Successful");
+        setNotificationMessage("Welcome back! Redirecting...");
+        setIsNotificationOpen(true);
+
+        setTimeout(() => {
+          const role = data.data.user.role;
+          const routeMapping: Record<any, string> = {
+            ADMIN: "/admin",
+            CASHIER: "/cashier",
+            KITCHEN: "/kitchen",
+            Developer: "/developer",
+          };
+          const redirectRoute = routeMapping[role] || "/";
+          navigate(redirectRoute);
+        }, 1500);
       }
     } catch (error) {
       const data = (error as any)?.data;
       console.error("Login failed:", error);
-      if (data.message.includes("Email not verified")) {
+      if (data?.message?.includes("Email not verified")) {
         alert("Please verify your email before logging in.");
         navigate("/verify-otp", {
           state: { email: formData.email, token: data.data.token },
         });
       } else {
-        alert(data.message);
-        setError(data.message);
+        setError("Incorrect email or password. Please try again.");
       }
-      setError(
-        data?.message || "An unexpected error occurred."
-      );
     } finally {
       setIsLoading(false);
     }
@@ -145,6 +156,17 @@ const Login: React.FC = () => {
       </div>
 
       <BottomNavigation />
+
+      {/* Success Notification */}
+      <NotificationPopup
+        isOpen={isNotificationOpen}
+        onClose={() => setIsNotificationOpen(false)}
+        title={notificationTitle}
+        message={notificationMessage}
+        icon={FiCheckCircle}
+        iconClassName="text-green-600"
+        autoClose={false}
+      />
     </div>
   );
 };

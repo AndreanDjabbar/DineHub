@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { FiLogOut, FiUserPlus, FiLayers, FiBookOpen, FiUser } from "react-icons/fi";
+import {
+  FiLogOut,
+  FiUserPlus,
+  FiLayers,
+  FiBookOpen,
+  FiUser,
+} from "react-icons/fi";
 // Import Components
-import { 
+import {
   StatsGrid,
   StaffManagement,
   TableManagement,
   MenuManagement,
   EditUserModal,
-  EditTableModal 
+  EditTableModal,
 } from "./components";
 
 // Import Types
@@ -18,9 +24,12 @@ import type {
   MenuCategory,
   AddOn,
   AddOnOption,
+  MenuItem,
 } from "./components/types";
 import { UserHeader } from "~/components";
 import api from "~/lib/axios";
+import EditMenuModal from "./components/EditMenuItemModal";
+import EditCategoryModal from "./components/EditCategoryModal";
 
 const sortTablesByNumber = (tables: Table[]): Table[] => {
   return [...tables].sort((a, b) => {
@@ -34,7 +43,7 @@ const AdminDashboard = () => {
   const token = localStorage.getItem("token");
   const userString = localStorage.getItem("user");
   const [activeTab, setActiveTab] = useState<"staff" | "tables" | "menu">(
-    "staff"
+    "staff",
   );
   const user = userString ? JSON.parse(userString) : null;
   const restaurantId = user?.restaurantId;
@@ -78,8 +87,11 @@ const AdminDashboard = () => {
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-
   const [editingTable, setEditingTable] = useState<Table | null>(null);
+  const [editingCategory, setEditingCategory] = useState<MenuCategory | null>(
+    null,
+  );
+  const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
 
   if (!token || !userString) {
     window.location.href = "/login";
@@ -104,8 +116,8 @@ const AdminDashboard = () => {
           api.get(`/user/kitchen/${restaurantId}`, {
             headers: {
               authorization: `Bearer ${token}`,
-            }
-          }) 
+            },
+          }),
         ]);
         const cashierData = await cashierRes.data;
         const kitchenData = await kitchenRes.data;
@@ -148,7 +160,7 @@ const AdminDashboard = () => {
         const response = await api.get(`/menu/categories/${restaurantId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
-          }
+          },
         });
         console.log("Fetching categories...");
         console.log("Response:", response);
@@ -182,7 +194,7 @@ const AdminDashboard = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
       const data = response.data;
 
@@ -215,22 +227,35 @@ const AdminDashboard = () => {
     setIsEditModalOpen(true);
   };
 
+  const handleCategoryEditClick = (categoryToEdit: MenuCategory) => {
+    setEditingCategory(categoryToEdit);
+    setIsEditModalOpen(true);
+  };
+
+  const handleMenuEditClick = (itemToEdit: MenuItem) => {
+    setEditingMenuItem(itemToEdit);
+    setIsEditModalOpen(true);
+  };
+
   const handleUpdateUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!editingUser) return;
 
     try {
-      const response = await api.put(`/user/update-staff/${editingUser.id}`, {
-        name: editingUser.name,
-        email: editingUser.email,
-        role: editingUser.role,
-      }, 
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await api.put(
+        `/user/update-staff/${editingUser.id}`,
+        {
+          name: editingUser.name,
+          email: editingUser.email,
+          role: editingUser.role,
         },
-      })
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       const data = response.data;
 
@@ -238,8 +263,8 @@ const AdminDashboard = () => {
 
       setUsers(
         users.map((u) =>
-          u.id === updatedUser.id ? { ...u, ...updatedUser } : u
-        )
+          u.id === updatedUser.id ? { ...u, ...updatedUser } : u,
+        ),
       );
 
       setEditingUser(null);
@@ -249,7 +274,7 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteUser = async(id: string) => {
+  const handleDeleteUser = async (id: string) => {
     setUsers(users.filter((u) => u.id !== id));
     console.log("Deleting user with ID:", id);
 
@@ -257,11 +282,15 @@ const AdminDashboard = () => {
       console.error("No restaurant ID found for user");
       return;
     }
-    await api.post(`/user/delete-staff/${id}`, {}, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    await api.post(
+      `/user/delete-staff/${id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
   };
 
   const getNextTableNumber = (tables: Table[]) => {
@@ -287,15 +316,19 @@ const AdminDashboard = () => {
     const nextNumber = getNextTableNumber(tables);
     const tableName = `Table ${nextNumber}`;
     try {
-      const response = await api.post("/restaurant/tables", {
-        name: tableName,
-        capacity: newTable.capacity,
-        restaurantId: restaurantId,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await api.post(
+        "/restaurant/tables",
+        {
+          name: tableName,
+          capacity: newTable.capacity,
+          restaurantId: restaurantId,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       const data = response.data;
       const createdTable = data?.data?.table;
@@ -308,7 +341,7 @@ const AdminDashboard = () => {
             name: createdTable.name,
             capacity: createdTable.capacity,
           },
-        ])
+        ]),
       );
 
       setActiveTable(createdTable);
@@ -326,14 +359,17 @@ const AdminDashboard = () => {
 
     try {
       const response = await api.put(
-        `/restaurant/tables/${editingTable.id}`, {
+        `/restaurant/tables/${editingTable.id}`,
+        {
           name: editingTable.name,
           capacity: editingTable.capacity,
-        }, {
+        },
+        {
           headers: {
             Authorization: `Bearer ${token}`,
-          }
-        })
+          },
+        },
+      );
 
       const data = response.data;
       const updatedTable = data.data.table;
@@ -341,9 +377,9 @@ const AdminDashboard = () => {
       setTables((prev) =>
         sortTablesByNumber(
           prev.map((t) =>
-            t.id === updatedTable.id ? { ...t, ...updatedTable } : t
-          )
-        )
+            t.id === updatedTable.id ? { ...t, ...updatedTable } : t,
+          ),
+        ),
       );
 
       setEditingTable(null);
@@ -371,15 +407,19 @@ const AdminDashboard = () => {
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.post("/menu/categories", {
-        name: newCategory.name,
-        image: newCategory.image,
-        restaurantId: restaurantId,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      })
+      const response = await api.post(
+        "/menu/categories",
+        {
+          name: newCategory.name,
+          image: newCategory.image,
+          restaurantId: restaurantId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       const data = response.data;
       const createdCategory = data?.data?.category;
@@ -391,20 +431,73 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleUpdateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+
+    try {
+      const response = await api.put(
+        `/menu/categories/${editingCategory.id}`,
+        {
+          name: editingCategory.name,
+          image: editingCategory.image,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = response.data;
+      const updatedCategory = data.data.category;
+
+      setCategories((prev) =>
+        prev.map((c) =>
+          c.id === updatedCategory.id ? { ...c, ...updatedCategory } : c,
+        ),
+      );
+
+      setEditingCategory(null);
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Error updating category:", error);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    if (!confirm("Are you sure? This will delete all items in this category."))
+      return;
+    try {
+      await api.delete(`/menu/categories/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCategories(categories.filter((c) => c.id !== id));
+    } catch (error) {
+      console.error("Error deleting category:", error);
+    }
+  };
+
   const handleAddMenuItem = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.post("/menu/items", {
-        name: newMenuItem.name,
-        price: newMenuItem.price,
-        categoryId: newMenuItem.categoryId,
-        image: newMenuItem.image,
-        addOns: newMenuItem.addOns,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      })
+      const response = await api.post(
+        "/menu/items",
+        {
+          name: newMenuItem.name,
+          price: newMenuItem.price,
+          categoryId: newMenuItem.categoryId,
+          image: newMenuItem.image,
+          addOns: newMenuItem.addOns,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
       const data = response.data;
       const createdItem = data?.data?.menuItem;
@@ -413,8 +506,8 @@ const AdminDashboard = () => {
         categories.map((cat) =>
           cat.id === createdItem.categoryId
             ? { ...cat, items: [...(cat?.items || []), createdItem] }
-            : cat
-        )
+            : cat,
+        ),
       );
 
       setNewMenuItem({
@@ -449,18 +542,47 @@ const AdminDashboard = () => {
     setNewAddOnOption({ name: "", price: 0 });
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    if (!confirm("Are you sure? This will delete all items in this category."))
-      return;
+  const handleUpdateMenuItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingMenuItem) return;
+
     try {
-      await api.delete(`/menu/categories/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await api.put(
+        `/menu/items/${editingMenuItem.id}`,
+        {
+          name: editingMenuItem.name,
+          price: editingMenuItem.price,
+          categoryId: editingMenuItem.categoryId,
+          image: editingMenuItem.image,
+          addOns: editingMenuItem.addOns,
         },
-      });
-      setCategories(categories.filter((c) => c.id !== id));
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      const data = response.data;
+      const updatedItem = data.data.menuItem;
+
+      setCategories((prev) =>
+        prev.map((c) =>
+          c.id === updatedItem.categoryId
+            ? {
+                ...c,
+                items: (c.items || []).map((i) =>
+                  i.id === updatedItem.id ? { ...i, ...updatedItem } : i,
+                ),
+              }
+            : c,
+        ),
+      );
+
+      setEditingMenuItem(null);
+      setIsEditModalOpen(false);
     } catch (error) {
-      console.error("Error deleting category:", error);
+      console.error("Error updating menu item:", error);
     }
   };
 
@@ -475,9 +597,9 @@ const AdminDashboard = () => {
       setCategories(
         categories.map((cat) =>
           cat.id === categoryId
-            ? { ...cat, items: cat?.items?.filter((i) => i.id !== id) }
-            : cat
-        )
+            ? { ...cat, items: (cat?.items || []).filter((i) => i.id !== id) }
+            : cat,
+        ),
       );
     } catch (error) {
       console.error("Error deleting menu item:", error);
@@ -508,13 +630,13 @@ const AdminDashboard = () => {
               onClick={() => setActiveTab("tables")}
               className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition hover:cursor-pointer ${activeTab === "tables" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
-              <FiLayers size={25}/> Table Management
+              <FiLayers size={25} /> Table Management
             </button>
             <button
               onClick={() => setActiveTab("menu")}
               className={`py-4 px-2 text-sm font-bold flex flex-1 flex-col items-center justify-center gap-2 transition hover:cursor-pointer ${activeTab === "menu" ? "bg-red-50 text-red-600 border-b-2 border-red-600" : "text-gray-500 hover:bg-gray-50"}`}
             >
-              <FiBookOpen size={25}/> Menu Management
+              <FiBookOpen size={25} /> Menu Management
             </button>
           </div>
 
@@ -563,6 +685,8 @@ const AdminDashboard = () => {
                 handleAddOptionToAddOn={handleAddOptionToAddOn}
                 handleDeleteCategory={handleDeleteCategory}
                 handleDeleteMenuItem={handleDeleteMenuItem}
+                handleMenuEditClick={handleMenuEditClick}
+                handleCategoryEditClick={handleCategoryEditClick}
               />
             )}
 
@@ -586,6 +710,29 @@ const AdminDashboard = () => {
                 setEditingTable(null);
               }}
               onUpdate={handleUpdateTable}
+            />
+
+            <EditMenuModal
+              isOpen={isEditModalOpen && !!editingMenuItem}
+              editingMenuItem={editingMenuItem}
+              setEditingMenuItem={setEditingMenuItem as any}
+              onClose={() => {
+                setIsEditModalOpen(false);
+                setEditingMenuItem(null);
+              }}
+              onUpdate={handleUpdateMenuItem}
+              categories={categories}
+            />
+
+            <EditCategoryModal
+              isOpen={isEditModalOpen && !!editingCategory}
+              editingCategory={editingCategory}
+              setEditingCategory={setEditingCategory as any}
+              onClose={() => {
+                setIsEditModalOpen(false);
+                setEditingCategory(null);
+              }}
+              onUpdate={handleUpdateCategory}
             />
           </div>
         </div>
