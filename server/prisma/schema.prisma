@@ -69,7 +69,7 @@ model MenuItem {
   name        String
   price       Int
   image       String?
-  category    MenuCategory @relation(fields: [categoryId], references: [id])
+  category    MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   categoryId  String
   isAvailable Boolean      @default(true)
   addOns      AddOn[]
