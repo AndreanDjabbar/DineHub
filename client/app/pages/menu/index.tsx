@@ -31,7 +31,7 @@ interface TableInfo {
   id: string;
   name: string;
   capacity: number;
-  restaurantId: string;
+  restaurant_id: string;
   restaurantName: string;
   restaurantAddress: string;
 }
@@ -81,7 +81,6 @@ const Menu: React.FC = () => {
         const response = await api.get(
           `/restaurant/table/${tableId}`
         );
-
         const data = response.data;
         setTableInfo(data.data);
       } catch (err: any) {
@@ -97,22 +96,22 @@ const Menu: React.FC = () => {
   // Fetch menu categories and items
   useEffect(() => {
     const fetchMenu = async () => {
-      if (!tableInfo?.restaurantId) return;
+      if (!tableInfo?.restaurant_id) return;
 
       try {
         const response = await api.get(
-          `/menu/categories/${tableInfo.restaurantId}`
+          `/menu/categories/${tableInfo.restaurant_id}`
         );
 
         const data = response.data;
-        setCategories(data.data || []);
+        setCategories(data.data.categories || []);
       } catch (err: any) {
         console.error("Error fetching menu:", err);
       }
     };
 
     fetchMenu();
-  }, [tableInfo?.restaurantId]);
+  }, [tableInfo?.restaurant_id]);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
