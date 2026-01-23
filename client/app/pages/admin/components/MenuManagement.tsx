@@ -1,7 +1,19 @@
 import React, { useState } from "react";
-import { FiTrash2, FiX, FiBookOpen, FiAlertCircle } from "react-icons/fi";
-import type { MenuCategory, AddOn, AddOnOption } from "./types";
-import { TextInput, NumInput, Button, ImageInput, ConfirmationPopup } from "~/components";
+import {
+  FiTrash2,
+  FiX,
+  FiBookOpen,
+  FiAlertCircle,
+  FiEdit,
+} from "react-icons/fi";
+import type { MenuCategory, AddOn, AddOnOption, MenuItem } from "./types";
+import {
+  TextInput,
+  NumInput,
+  Button,
+  ImageInput,
+  ConfirmationPopup,
+} from "~/components";
 
 interface MenuManagementProps {
   categories: MenuCategory[];
@@ -19,6 +31,8 @@ interface MenuManagementProps {
   handleAddOptionToAddOn: () => void;
   handleDeleteCategory: (id: string) => void;
   handleDeleteMenuItem: (id: string, categoryId: string) => void;
+  handleMenuEditClick: (menu: MenuItem) => void;
+  handleCategoryEditClick: (category: MenuCategory) => void;
 }
 
 const MenuManagement: React.FC<MenuManagementProps> = ({
@@ -37,6 +51,8 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
   handleAddOptionToAddOn,
   handleDeleteCategory,
   handleDeleteMenuItem,
+  handleMenuEditClick,
+  handleCategoryEditClick,
 }) => {
   const [errors, setErrors] = useState<{
     name?: string;
@@ -44,10 +60,17 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
     category?: string;
     image?: string;
   }>({});
-  const [isDeleteCategoryPopupOpen, setIsDeleteCategoryPopupOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<MenuCategory | null>(null);
+  const [isDeleteCategoryPopupOpen, setIsDeleteCategoryPopupOpen] =
+    useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState<MenuCategory | null>(
+    null,
+  );
   const [isDeleteItemPopupOpen, setIsDeleteItemPopupOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{ id: string; categoryId: string; name: string } | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<{
+    id: string;
+    categoryId: string;
+    name: string;
+  } | null>(null);
 
   const validateAndSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,7 +108,11 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
     }
   };
 
-  const handleDeleteItemClick = (itemId: string, categoryId: string, itemName: string) => {
+  const handleDeleteItemClick = (
+    itemId: string,
+    categoryId: string,
+    itemName: string,
+  ) => {
     setItemToDelete({ id: itemId, categoryId, name: itemName });
     setIsDeleteItemPopupOpen(true);
   };
@@ -444,21 +471,32 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               className="bg-white border border-gray-200 rounded-xl overflow-hidden"
             >
               <div className="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
-                {category.image && (
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-14 h-14 object-cover rounded-full border border-gray-200 mr-4"
-                  />
-                )}
-                <h4 className="font-bold text-gray-800">{category.name}</h4>
-                <button
-                  onClick={() => handleDeleteCategoryClick(category)}
-                  className="text-red-500 hover:text-red-700 p-1 hover:cursor-pointer"
-                  title="Delete Category"
-                >
-                  <FiTrash2 />
-                </button>
+                <div className="flex items-center flex-1">
+                  {category.image && (
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="w-14 h-14 object-cover rounded-full border border-gray-200 mr-4"
+                    />
+                  )}
+                  <h4 className="font-bold text-gray-800">{category.name}</h4>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleCategoryEditClick(category)}
+                    className="text-gray-400 hover:text-blue-600 p-1 hover:cursor-pointer transition"
+                    title="Edit Category"
+                  >
+                    <FiEdit />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCategoryClick(category)}
+                    className="text-gray-400 hover:text-red-600 p-1 hover:cursor-pointer transition"
+                    title="Delete Category"
+                  >
+                    <FiTrash2 />
+                  </button>
+                </div>
               </div>
               <div className="p-4">
                 {(category?.items?.length || 0) > 0 ? (
@@ -502,8 +540,18 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                         </div>
                         <div className="flex gap-2">
                           <button
+                            onClick={() => handleMenuEditClick(item)}
+                            className="text-gray-400 hover:text-blue-600 p-2 rounded-lg transition hover:cursor-pointer opacity-0 group-hover:opacity-100"
+                          >
+                            <FiEdit />
+                          </button>
+                          <button
                             onClick={() =>
-                              handleDeleteItemClick(item.id, category?.id || "", item.name)
+                              handleDeleteItemClick(
+                                item.id,
+                                category?.id || "",
+                                item.name,
+                              )
                             }
                             className="text-gray-400 hover:text-red-600 p-2 rounded-lg transition hover:cursor-pointer opacity-0 group-hover:opacity-100"
                           >

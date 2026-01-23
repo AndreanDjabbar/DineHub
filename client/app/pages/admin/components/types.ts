@@ -29,6 +29,7 @@ export interface MenuItem {
   id: string;
   name: string;
   price: number;
+  categoryId: string;
   image?: string;
   isAvailable: boolean;
   addOns?: AddOn[];
