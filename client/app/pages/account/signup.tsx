@@ -9,6 +9,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 import { BottomNavigation, TextInput, BackButton, Button } from "~/components";
+import api from "~/lib/axios";
 
 const Signup: React.FC = () => {
   const navigate = useNavigate();
@@ -42,32 +43,21 @@ const Signup: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
+      const response = await api.post(
         "http://localhost:4000/dinehub/api/auth/register",
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-          }),
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
         }
       );
 
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Response Data: ", data);
-        const token = data.data?.token;
+      const data = response.data;
+      const token = data.data?.token;
         setIsLoading(false);
         navigate(`/verify-otp?email=${formData.email}&token=${token}`);
-      } else {
-        setError(data.message || "Signup failed");
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
+    } catch (err: any) {
+      setError(err?.data.message || "Signup failed");
     } finally {
       setIsLoading(false);
     }

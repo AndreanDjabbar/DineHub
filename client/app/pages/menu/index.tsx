@@ -83,7 +83,7 @@ const Menu: React.FC = () => {
         setTableInfo(data.data);
       } catch (err: any) {
         setError(
-          err.response?.data?.message || "Failed to load table information",
+          err.data?.message || "Failed to load table information",
         );
       } finally {
         setLoading(false);

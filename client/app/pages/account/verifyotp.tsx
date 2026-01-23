@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { BackButton } from "~/components";
+import api from "~/lib/axios";
 
 const VerifyOtp: React.FC = () => {
   const navigate = useNavigate();
@@ -72,33 +73,24 @@ const VerifyOtp: React.FC = () => {
     }
 
     try {
-      const response = await fetch(
+      await api.post(
         `http://localhost:4000/dinehub/api/auth/verify/register-otp?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ otpCode: otpCode }),
+          otpCode: otpCode
         }
       );
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Email verified successfully!");
-        navigate("/login");
-      } else {
-        setError(data.message || "Invalid OTP code");
-        const msg = data.message.toLowerCase();
+      alert("Email verified successfully!");
+      navigate("/login");
+    } catch (err: any) {
+      setError(err.data.message || "Invalid OTP code");
+        const msg = err.data.message.toLowerCase();
         if (msg.includes("expired")) {
           alert("Your OTP has expired. Please sign up again.");
           navigate("/signup");
         } else {
-          setError(data.message || "OTP verification failed");
-          alert(data.message || "OTP verification failed");
+          setError(err.data.message || "OTP verification failed");
+          alert(err.data.message || "OTP verification failed");
         }
-      }
-    } catch (err) {
-      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -112,17 +104,9 @@ const VerifyOtp: React.FC = () => {
         return;
       }
       try {
-        const response = await fetch(
+        await api.post(
           `http://localhost:4000/dinehub/api/auth/verify/register-token?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-          }
         );
-        if (!response.ok) {
-          alert("Invalid or expired token. Please sign up again.");
-          navigate("/signup");
-        }
       } catch (error) {
         console.error("Token verification failed:", error);
         alert("Token verification failed. Please sign up again.");

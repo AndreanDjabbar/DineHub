@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { MdMenu } from 'react-icons/md';
 import ProfileBadge from './ProfileBadge';
 import { BiX } from 'react-icons/bi';
+import api from '~/lib/axios';
 
 const UserHeader = () => {
     const [restaurantName, setRestaurantName] = React.useState<string>("");
@@ -30,23 +31,16 @@ const UserHeader = () => {
         }
 
         try {
-            const response = await fetch(
+            const response = await api.get(
                 `http://localhost:4000/dinehub/api/restaurant/${restaurantId}`,
                 {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
             );
-
-            if (response.ok) {
-                const data = await response.json();
-                setRestaurantName(data.data.name);
-            } else {
-                console.error("Failed to fetch restaurant details");
-            }
+            const data = response.data;
+            setRestaurantName(data.data.name);
         } catch (error) {
             console.error("Failed to fetch restaurant details:", error);
         } finally {
