@@ -133,6 +133,176 @@ class RestaurantRepository {
         `;
     return table;
   }
+
+  static async createMenuCategory(data) {
+    const [newCategory] = await postgreSQL`
+            INSERT INTO public."MenuCategory" (id, name, image, "restaurantId", "createdAt")
+            VALUES (gen_random_uuid(), ${data.name}, ${data.image}, ${data.restaurantId}, NOW())
+            RETURNING id, name, image, "restaurantId"
+        `;
+    return newCategory;
+  }
+
+  static async getFullMenuByRestaurantId(restaurantId) {
+    const result = await postgreSQL`
+      SELECT 
+          mc.id,
+          mc.name,
+          mc.image,
+          mc.restaurant_id,
+          mc."createdAt",
+          (
+              SELECT json_agg(item_data)
+              FROM (
+                  SELECT 
+                  mi.id,
+                  mi.name,
+                  mi.price,
+                  mi.image,
+                  mi."categoryId",
+                  mi."isAvailable",
+                  mi."createdAt",
+                      (
+                          SELECT json_agg(addon_data)
+                          FROM (
+                              SELECT 
+                              ao.id,
+                              ao.name,
+                              ao."minSelect",
+                              ao."maxSelect",
+                              ao."menuItemId",
+                              ao."createdAt",
+                              ao."updatedAt",
+                                  (
+                                      SELECT json_agg(opt) 
+                                      FROM "AddOnOption" opt 
+                                      WHERE opt."addOnId" = ao.id
+                                  ) as options
+                              FROM "AddOn" ao 
+                              WHERE ao."menuItemId" = mi.id
+                          ) addon_data
+                      ) as add_ons
+                  FROM "MenuItem" mi 
+                  WHERE mi."categoryId" = mc.id
+              ) item_data
+          ) as items
+      FROM "MenuCategory" mc
+      WHERE mc.restaurant_id = ${restaurantId}`;
+    return result;
+  }
+
+  static async getMenuCategoriesByRestaurantId(restaurantId) {
+    const [categories] = await postgreSQL`
+            SELECT 
+                mc.id,
+                mc.name,
+                mc.image,
+                mc.restaurant_id as "restaurantId",
+                mc."createdAt"
+            FROM public."MenuCategory" mc
+            WHERE mc.restaurant_id = ${restaurantId}
+        `;
+    return categories;
+  }
+
+  static async deleteMenuCategory(id) {
+    await postgreSQL`
+        DELETE FROM public."MenuCategory" WHERE id = ${id}
+    `;
+  }
+
+  static async createMenuItem(data) {
+    const [newMenuItem] = await postgreSQL`
+            INSERT INTO public."MenuItem" (id, name, price, image, "categoryId", "isAvailable", "createdAt")
+            VALUES (gen_random_uuid(), ${data.name}, ${data.price}, ${data.image}, ${data.categoryId}, ${data.isAvailable ?? true}, NOW())
+            RETURNING id, name, price, image, "categoryId", "isAvailable", "createdAt"
+        `;
+    return newMenuItem;
+  }
+
+  static async getMenuItemByCategoryId(categoryId) {
+    const [menuItem] = await postgreSQL`
+            SELECT 
+                mi.id,
+                mi.name,
+                mi.price,
+                mi.image,
+                mi."categoryId",
+                mi."isAvailable",
+                mi."createdAt"
+            FROM public."MenuItem" mi
+            WHERE mi."categoryId" = ${categoryId}
+        `;
+    return menuItem;
+  }
+
+  static async updateMenuItem(id, data) {
+    const [updatedMenuItem] = await postgreSQL`
+          UPDATE public."MenuItem"
+          SET name = ${data.name},
+              price = ${data.price},
+              image = ${data.image},
+              "isAvailable" = ${data.isAvailable ?? true}
+          WHERE id = ${id}
+          RETURNING id, name, price, image, "isAvailable"
+    `;
+    return updatedMenuItem;
+  }
+
+  static async deleteMenuItem(id) {
+    await postgreSQL`
+        DELETE FROM public."MenuItem" WHERE id = ${id}
+    `;
+  }
+
+  static async createAddOn(data) {
+    const [newAddOn] = await postgreSQL`
+            INSERT INTO public."AddOn" (id, name, "minSelect", "maxSelect", "menuItemId", "createdAt", "updatedAt")
+            VALUES (gen_random_uuid(), ${data.name}, ${data.minSelect}, ${data.maxSelect}, ${data.menuItemId}, NOW(), NOW())
+            RETURNING id, name, "minSelect", "maxSelect", "menuItemId", "createdAt"
+        `;
+    return newAddOn;
+  }
+
+  static async getAddOnByMenuItemId(menuItemId) {
+    const [addOn] = await postgreSQL`
+            SELECT 
+                ao.id,
+                ao.name,
+                ao."minSelect",
+                ao."maxSelect",
+                ao."menuItemId",
+                ao."createdAt"
+                ao."updatedAt"
+            FROM public."AddOn" ao
+            WHERE ao."menuItemId" = ${menuItemId}
+        `;
+    return addOn;
+  }
+
+  static async createAddOnOption(data) {
+    const [newAddOnOption] = await postgreSQL`
+            INSERT INTO public."AddOn" (id, name, price, "addOnId", "createdAt", "updatedAt")
+            VALUES (gen_random_uuid(), ${data.name}, ${data.price}, ${data.addOnId}, NOW(), NOW())
+            RETURNING id, name, price, "addOnId", "createdAt", "updatedAt"
+        `;
+    return newAddOnOption;
+  }
+
+  static async getAddOnOptionByAddOnId(addOnId) {
+    const [addOnOption] = await postgreSQL`
+            SELECT 
+                aop.id,
+                aop.name,
+                aop.price,
+                aop."addOnId",
+                aop."createdAt"
+                aop."updatedAt"
+            FROM public."AddOnOption" aop
+            WHERE aop."addOnId" = ${addOnId}
+        `;
+    return addOnOption;
+  }
 }
 
 export default RestaurantRepository;
