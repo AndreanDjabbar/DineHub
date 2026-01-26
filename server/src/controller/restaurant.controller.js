@@ -1,5 +1,6 @@
 import { responseSuccess, responseError } from "../util/response.util.js";
 import RestaurantService from "../service/restaurant.service.js";
+import logger from "../../logs/logger.js";
 
 export const onboardTenantController = async (req, res) => {
   try {
@@ -155,5 +156,73 @@ export const getTableByIdController = async (req, res) => {
     return responseSuccess(res, 200, "Table fetched", "data", result);
   } catch (error) {
     return responseError(res, 500, error.message, "error", null);
+  }
+};
+
+export const createCategoryController = async (req, res) => {
+  try {
+    const data = req.body;
+    const result = await RestaurantService.createCategory(data);
+    return responseSuccess(res, 201, "Category created successfully", "data", {
+      category: result,
+    });
+  } catch (error) {
+    return responseError(res, 500, "Failed to create category", "error", error.message);
+  }
+};
+
+export const getFullMenuController = async (req, res) => {
+  try {
+    const { restaurantId } = req.params;
+    const result = await RestaurantService.getFullMenuService(restaurantId);
+    return responseSuccess(res, 200, "All menu fetched successfully", "data", {
+      menu: result,
+    });
+  } catch (error) {
+    logger.error("Error get full menu: ", error.message)
+    return responseError(res, 500, "Failed to fetch categories", "error", error.message);
+  }
+};
+
+export const deleteCategoryController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await RestaurantService.deleteCategory(id);
+    return responseSuccess(res, 200, "Category deleted successfully");
+  } catch (error) {
+    return responseError(res, 500, "Failed to delete category", "error", error.message);
+  }
+};
+
+export const createMenuItemController = async (req, res) => {
+  try {
+    const data = req.body;
+    const result = await RestaurantService.createMenuItem(data);
+    return responseSuccess(res, 201, "Menu item created successfully", "data", {
+      menuItem: result,
+    });
+  } catch (error) {
+    return responseError(res, 500, "Failed to create menu item", "error", error.message);
+  }
+};
+
+export const updateMenuItemController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    const result = await RestaurantService.updateMenuItem(id, data);
+    return responseSuccess(res, 200, "Menu item updated successfully", "data", result);
+  } catch (error) {
+    return responseError(res, 500, "Failed to update menu item", "error", error.message);
+  }
+};
+
+export const deleteMenuItemController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await RestaurantService.deleteMenuItem(id);
+    return responseSuccess(res, 200, "Menu item deleted successfully");
+  } catch (error) {
+    return responseError(res, 500, "Failed to delete menu item", "error", error.message);
   }
 };
