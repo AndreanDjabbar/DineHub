@@ -172,7 +172,15 @@ class RestaurantService {
     return table;
   }
 
-  static async createCategory(data) {
+  static async createCategory(data, currentUserID) {
+    const restaurant = await RestaurantRepository.getById(data.restaurantId);
+    if (!restaurant) throw new Error("Restaurant not found");
+
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurant.id) throw new Error("Unauthorized access");
+
     return await RestaurantRepository.createMenuCategory(data);
   };
 
@@ -180,19 +188,69 @@ class RestaurantService {
     return await RestaurantRepository.getFullMenuByRestaurantId(restaurantId);
   };
 
-  static async deleteCategory(id) {
+  static async deleteCategory(id, currentUserID) {
+    const category = await RestaurantRepository.getMenuCategoryById(id)
+    if (!category) throw new Error("Category not found");
+
+    const restaurant = await RestaurantRepository.getById(category.restaurantId);
+    if (!restaurant) throw new Error("Restaurant not found");
+
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurant.id) throw new Error("Unauthorized access");
+
     return await RestaurantRepository.deleteMenuCategory(id);
   };
 
-  static async createMenuItem(data) {
+  static async createMenuItem(data, currentUserID) {
+    const category = await RestaurantRepository.getMenuCategoryById(data.categoryId)
+    if (!category) throw new Error("Category not found");
+
+    const restaurant = await RestaurantRepository.getById(category.restaurantId);
+    if (!restaurant) throw new Error("Restaurant not found");
+
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurant.id) throw new Error("Unauthorized access");
+
     return await RestaurantRepository.createMenuItem(data);
   };
 
-  static async updateMenuItem(id, data) {
+  static async updateMenuItem(id, data, currentUserID) {
+    const menuItem = await RestaurantRepository.getMenuItemById(id);
+    if (!menuItem) throw new Error("Menu item not found");
+
+    const category = await RestaurantRepository.getMenuCategoryById(menuItem.categoryId)
+    if (!category) throw new Error("Category not found");
+
+    const restaurant = await RestaurantRepository.getById(category.restaurantId);
+    if (!restaurant) throw new Error("Restaurant not found");
+
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurant.id) throw new Error("Unauthorized access");
+
     return await RestaurantRepository.updateMenuItem(id, data);
   };
 
   static async deleteMenuItem(id) {
+    const menuItem = await RestaurantRepository.getMenuItemById(id);
+    if (!menuItem) throw new Error("Menu item not found");
+
+    const category = await RestaurantRepository.getMenuCategoryById(menuItem.categoryId)
+    if (!category) throw new Error("Category not found");
+
+    const restaurant = await RestaurantRepository.getById(category.restaurantId);
+    if (!restaurant) throw new Error("Restaurant not found");
+
+    const currentUser = await UserRepository.getById(currentUserID);
+    if (!currentUser) throw new Error("Current user not found");
+
+    if (currentUser.restaurant_id !== restaurant.id) throw new Error("Unauthorized access");
+
     return await RestaurantRepository.deleteMenuItem(id);
   };
 }

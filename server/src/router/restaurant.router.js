@@ -25,7 +25,7 @@ router.post(
   RestaurantController.onboardTenantController
 );
 router.get(
-  "/restaurants", 
+  "/restaurant", 
   validateToken, 
   authorizedRoles("Developer"),
   RestaurantController.getAllRestaurantsController
@@ -50,7 +50,7 @@ router.delete(
   RestaurantController.deleteRestaurantController
 );
 router.get(
-  "/tables/:restaurantId",
+  "/table/:restaurantId",
   validateToken,
   authorizedRoles("Developer", "ADMIN", "CASHIER"),
   RestaurantController.getTablesByRestaurantIdController
@@ -60,20 +60,20 @@ router.get(
   RestaurantController.getTableByIdController
 );
 router.post(
-  "/tables", 
+  "/table", 
   validateToken, 
   validateSchema(createTableSchema),
   authorizedRoles("Developer", "ADMIN"),
   RestaurantController.createTableController
 );
 router.delete(
-  "/tables/:id", 
+  "/table/:id", 
   validateToken, 
   authorizedRoles("Developer", "ADMIN"),
   RestaurantController.deleteTableController
 );
 router.put(
-  "/tables/:id", 
+  "/table/:id", 
   validateToken, 
   validateSchema(updateTableSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -81,7 +81,7 @@ router.put(
 );
 
 router.post(
-    "/categories", 
+    "/category", 
     validateToken,
     validateSchema(createMenuCategorySchema), 
     authorizedRoles("Developer", "ADMIN"),
@@ -92,27 +92,27 @@ router.get(
     RestaurantController.getFullMenuController
 );
 router.delete(
-    "/categories/:id", 
+    "/category/:id", 
     validateToken,
     authorizedRoles("Developer", "ADMIN"),
     RestaurantController.deleteCategoryController
 );
 router.post(
-    "/items",
+    "/item",
     validateToken, 
     validateSchema(createMenuItemSchema), 
     authorizedRoles("Developer", "ADMIN"),
     RestaurantController.createMenuItemController
 );
 router.put(
-    "/items/:id",
+    "/item/:id",
     validateToken, 
     validateSchema(updateMenuItemSchema), 
     authorizedRoles("Developer", "ADMIN"),
     RestaurantController.updateMenuItemController
 );
 router.delete(
-    "/items/:id", 
+    "/item/:id", 
     validateToken,
     authorizedRoles("Developer", "ADMIN"),
     RestaurantController.deleteMenuItemController

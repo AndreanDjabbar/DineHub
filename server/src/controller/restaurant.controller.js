@@ -162,7 +162,9 @@ export const getTableByIdController = async (req, res) => {
 export const createCategoryController = async (req, res) => {
   try {
     const data = req.body;
-    const result = await RestaurantService.createCategory(data);
+    const currentUserID = req.user.userID;
+    
+    const result = await RestaurantService.createCategory(data, currentUserID);
     return responseSuccess(res, 201, "Category created successfully", "data", {
       category: result,
     });
@@ -187,7 +189,9 @@ export const getFullMenuController = async (req, res) => {
 export const deleteCategoryController = async (req, res) => {
   try {
     const { id } = req.params;
-    await RestaurantService.deleteCategory(id);
+    const currentUserID = req.user.userID;
+
+    await RestaurantService.deleteCategory(id, currentUserID);
     return responseSuccess(res, 200, "Category deleted successfully");
   } catch (error) {
     return responseError(res, 500, "Failed to delete category", "error", error.message);
@@ -197,7 +201,9 @@ export const deleteCategoryController = async (req, res) => {
 export const createMenuItemController = async (req, res) => {
   try {
     const data = req.body;
-    const result = await RestaurantService.createMenuItem(data);
+    const currentUserID = req.user.userID;
+
+    const result = await RestaurantService.createMenuItem(data, currentUserID);
     return responseSuccess(res, 201, "Menu item created successfully", "data", {
       menuItem: result,
     });
@@ -209,8 +215,10 @@ export const createMenuItemController = async (req, res) => {
 export const updateMenuItemController = async (req, res) => {
   try {
     const { id } = req.params;
+    const currentUserID = req.user.userID;
+
     const data = req.body;
-    const result = await RestaurantService.updateMenuItem(id, data);
+    const result = await RestaurantService.updateMenuItem(id, data, currentUserID);
     return responseSuccess(res, 200, "Menu item updated successfully", "data", result);
   } catch (error) {
     return responseError(res, 500, "Failed to update menu item", "error", error.message);
@@ -220,7 +228,9 @@ export const updateMenuItemController = async (req, res) => {
 export const deleteMenuItemController = async (req, res) => {
   try {
     const { id } = req.params;
-    await RestaurantService.deleteMenuItem(id);
+    const currentUserID = req.user.userID;
+
+    await RestaurantService.deleteMenuItem(id, currentUserID);
     return responseSuccess(res, 200, "Menu item deleted successfully");
   } catch (error) {
     return responseError(res, 500, "Failed to delete menu item", "error", error.message);
