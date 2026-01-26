@@ -9,7 +9,10 @@ import {
   createRestaurantSchema,
   updateRestaurantSchema,
   createTableSchema,
-  updateTableSchema 
+  updateTableSchema, 
+  updateMenuItemSchema,
+  createMenuItemSchema,
+  createMenuCategorySchema
 } from "../validation/restaurant.validation.js";
 
 const router = express.Router();
@@ -75,6 +78,44 @@ router.put(
   validateSchema(updateTableSchema),
   authorizedRoles("Developer", "ADMIN"),
   RestaurantController.updateTableController
+);
+
+router.post(
+    "/categories", 
+    validateToken,
+    validateSchema(createMenuCategorySchema), 
+    authorizedRoles("Developer", "ADMIN"),
+    RestaurantController.createCategoryController
+);
+router.get(
+    "/full-menu/:restaurantId", 
+    RestaurantController.getFullMenuController
+);
+router.delete(
+    "/categories/:id", 
+    validateToken,
+    authorizedRoles("Developer", "ADMIN"),
+    RestaurantController.deleteCategoryController
+);
+router.post(
+    "/items",
+    validateToken, 
+    validateSchema(createMenuItemSchema), 
+    authorizedRoles("Developer", "ADMIN"),
+    RestaurantController.createMenuItemController
+);
+router.put(
+    "/items/:id",
+    validateToken, 
+    validateSchema(updateMenuItemSchema), 
+    authorizedRoles("Developer", "ADMIN"),
+    RestaurantController.updateMenuItemController
+);
+router.delete(
+    "/items/:id", 
+    validateToken,
+    authorizedRoles("Developer", "ADMIN"),
+    RestaurantController.deleteMenuItemController
 );
 
 export default router;
