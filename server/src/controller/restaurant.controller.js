@@ -13,15 +13,17 @@ export const onboardTenantController = async (req, res) => {
       result
     );
   } catch (error) {
+    logger.error(`Onboard Tenant error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
 
-export const getAllRestaurantsController = async (req, res) => {
+export const getAllRestaurantController = async (req, res) => {
   try {
     const result = await RestaurantService.getAll();
     return responseSuccess(res, 200, "Restaurants fetched", "data", result);
   } catch (error) {
+    logger.error(`Get All Restaurant error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
@@ -34,6 +36,7 @@ export const getRestaurantController = async (req, res) => {
     const result = await RestaurantService.getRestaurant(id, currentUserID);
     return responseSuccess(res, 200, "Restaurant fetched", "data", result);
   } catch (error) {
+    logger.error(`Get Restaurant error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
@@ -50,6 +53,7 @@ export const updateRestaurantController = async (req, res) => {
       result
     );
   } catch (error) {
+    logger.error(`Update Restaurant error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
@@ -66,6 +70,7 @@ export const deleteRestaurantController = async (req, res) => {
       result
     );
   } catch (error) {
+    logger.error(`Delete Restaurant error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
@@ -90,11 +95,12 @@ export const createTableController = async (req, res) => {
       }
     );
   } catch (error) {
+    logger.error(`Create Table error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
 
-export const getTablesByRestaurantIdController = async (req, res) => {
+export const getTableByRestaurantIdController = async (req, res) => {
   try {
     const { restaurantId } = req.params;
     const currentUserID = req.user.userID;
@@ -107,6 +113,7 @@ export const getTablesByRestaurantIdController = async (req, res) => {
       tables: result,
     });
   } catch (error) {
+    logger.error(`Get Table By Restaurant ID error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
@@ -125,6 +132,7 @@ export const deleteTableController = async (req, res) => {
       result
     );
   } catch (error) {
+    logger.error(`Delete Table error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
@@ -145,6 +153,7 @@ export const updateTableController = async (req, res) => {
       }
     );
   } catch (error) {
+    logger.error(`Update Table error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
@@ -155,6 +164,7 @@ export const getTableByIdController = async (req, res) => {
     const result = await RestaurantService.getTableById(id);
     return responseSuccess(res, 200, "Table fetched", "data", result);
   } catch (error) {
+    logger.error(`Get Table By ID error: ${error.message}`);
     return responseError(res, 500, error.message, "error", null);
   }
 };
@@ -169,6 +179,7 @@ export const createCategoryController = async (req, res) => {
       category: result,
     });
   } catch (error) {
+    logger.error(`Create Category error: ${error.message}`);
     return responseError(res, 500, "Failed to create category", "error", error.message);
   }
 };
@@ -181,7 +192,7 @@ export const getFullMenuController = async (req, res) => {
       menu: result,
     });
   } catch (error) {
-    logger.error("Error get full menu: ", error.message)
+    logger.error(`Get Full Menu error: ${error.message}`);
     return responseError(res, 500, "Failed to fetch categories", "error", error.message);
   }
 };
@@ -194,6 +205,7 @@ export const deleteCategoryController = async (req, res) => {
     await RestaurantService.deleteCategory(id, currentUserID);
     return responseSuccess(res, 200, "Category deleted successfully");
   } catch (error) {
+    logger.error(`Delete Category error: ${error.message}`);
     return responseError(res, 500, "Failed to delete category", "error", error.message);
   }
 };
@@ -208,6 +220,7 @@ export const createMenuItemController = async (req, res) => {
       menuItem: result,
     });
   } catch (error) {
+    logger.error(`Create Menu Item error: ${error.message}`);
     return responseError(res, 500, "Failed to create menu item", "error", error.message);
   }
 };
@@ -221,6 +234,7 @@ export const updateMenuItemController = async (req, res) => {
     const result = await RestaurantService.updateMenuItem(id, data, currentUserID);
     return responseSuccess(res, 200, "Menu item updated successfully", "data", result);
   } catch (error) {
+    logger.error(`Update Menu Item error: ${error.message}`);
     return responseError(res, 500, "Failed to update menu item", "error", error.message);
   }
 };
@@ -233,6 +247,7 @@ export const deleteMenuItemController = async (req, res) => {
     await RestaurantService.deleteMenuItem(id, currentUserID);
     return responseSuccess(res, 200, "Menu item deleted successfully");
   } catch (error) {
+    logger.error(`Delete Menu Item error: ${error.message}`);
     return responseError(res, 500, "Failed to delete menu item", "error", error.message);
   }
 };

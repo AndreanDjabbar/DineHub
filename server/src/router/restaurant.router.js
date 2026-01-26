@@ -28,7 +28,7 @@ router.get(
   "/restaurant", 
   validateToken, 
   authorizedRoles("Developer"),
-  RestaurantController.getAllRestaurantsController
+  RestaurantController.getAllRestaurantController
 );
 router.get(
   "/:id", 
@@ -53,7 +53,7 @@ router.get(
   "/table/:restaurantId",
   validateToken,
   authorizedRoles("Developer", "ADMIN", "CASHIER"),
-  RestaurantController.getTablesByRestaurantIdController
+  RestaurantController.getTableByRestaurantIdController
 );
 router.get(
   "/table/:id",
