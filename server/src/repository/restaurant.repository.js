@@ -136,9 +136,9 @@ class RestaurantRepository {
 
   static async createMenuCategory(data) {
     const [newCategory] = await postgreSQL`
-            INSERT INTO public."MenuCategory" (id, name, image, "restaurantId", "createdAt")
+            INSERT INTO public."MenuCategory" (id, name, image, restaurant_id, created_at)
             VALUES (gen_random_uuid(), ${data.name}, ${data.image}, ${data.restaurantId}, NOW())
-            RETURNING id, name, image, "restaurantId"
+            RETURNING id, name, image, restaurant_id, created_at
         `;
     return newCategory;
   }
@@ -150,7 +150,7 @@ class RestaurantRepository {
           mc.name,
           mc.image,
           mc.restaurant_id,
-          mc."createdAt",
+          mc.created_at,
           (
               SELECT json_agg(item_data)
               FROM (
@@ -159,31 +159,31 @@ class RestaurantRepository {
                   mi.name,
                   mi.price,
                   mi.image,
-                  mi."categoryId",
-                  mi."isAvailable",
-                  mi."createdAt",
+                  mi.category_id,
+                  mi.is_available,
+                  mi.created_at,
                       (
                           SELECT json_agg(addon_data)
                           FROM (
                               SELECT 
                               ao.id,
                               ao.name,
-                              ao."minSelect",
-                              ao."maxSelect",
-                              ao."menuItemId",
-                              ao."createdAt",
-                              ao."updatedAt",
+                              ao.min_select,
+                              ao.max_select,
+                              ao.menu_item_id,
+                              ao.created_at,
+                              ao.updated_at,
                                   (
                                       SELECT json_agg(opt) 
                                       FROM "AddOnOption" opt 
-                                      WHERE opt."addOnId" = ao.id
+                                      WHERE opt.add_on_id = ao.id
                                   ) as options
                               FROM "AddOn" ao 
-                              WHERE ao."menuItemId" = mi.id
+                              WHERE ao.menu_item_id = mi.id
                           ) addon_data
                       ) as add_ons
                   FROM "MenuItem" mi 
-                  WHERE mi."categoryId" = mc.id
+                  WHERE mi.category_id = mc.id
               ) item_data
           ) as items
       FROM "MenuCategory" mc
@@ -227,9 +227,9 @@ class RestaurantRepository {
 
   static async createMenuItem(data) {
     const [newMenuItem] = await postgreSQL`
-            INSERT INTO public."MenuItem" (id, name, price, image, "categoryId", "isAvailable", "createdAt")
+            INSERT INTO public."MenuItem" (id, name, price, image, category_id, is_available, created_at)
             VALUES (gen_random_uuid(), ${data.name}, ${data.price}, ${data.image}, ${data.categoryId}, ${data.isAvailable ?? true}, NOW())
-            RETURNING id, name, price, image, "categoryId", "isAvailable", "createdAt"
+            RETURNING id, name, price, image, category_id, is_available, created_at
         `;
     return newMenuItem;
   }
@@ -241,11 +241,11 @@ class RestaurantRepository {
                 mi.name,
                 mi.price,
                 mi.image,
-                mi."categoryId",
-                mi."isAvailable",
-                mi."createdAt"
+                mi.category_id,
+                mi.is_available,
+                mi.created_at
             FROM public."MenuItem" mi
-            WHERE mi."categoryId" = ${categoryId}
+            WHERE mi.category_id = ${categoryId}
         `;
     return menuItem;
   }
@@ -257,11 +257,11 @@ class RestaurantRepository {
                 mi.name,
                 mi.price,
                 mi.image,
-                mi."categoryId",
-                mi."isAvailable",
-                mi."createdAt"
+                mi.category_id,
+                mi.is_available,
+                mi.created_at
             FROM public."MenuItem" mi
-            WHERE mi."id" = ${id}
+            WHERE mi.id = ${id}
         `;
     return menuItem;
   }
@@ -272,9 +272,9 @@ class RestaurantRepository {
           SET name = ${data.name},
               price = ${data.price},
               image = ${data.image},
-              "isAvailable" = ${data.isAvailable ?? true}
+              is_available = ${data.isAvailable ?? true}
           WHERE id = ${id}
-          RETURNING id, name, price, image, "isAvailable"
+          RETURNING id, name, price, image, is_available
     `;
     return updatedMenuItem;
   }
@@ -287,9 +287,9 @@ class RestaurantRepository {
 
   static async createAddOn(data) {
     const [newAddOn] = await postgreSQL`
-            INSERT INTO public."AddOn" (id, name, "minSelect", "maxSelect", "menuItemId", "createdAt", "updatedAt")
+            INSERT INTO public."AddOn" (id, name, min_select, max_select, menu_item_id, created_at, updated_at)
             VALUES (gen_random_uuid(), ${data.name}, ${data.minSelect}, ${data.maxSelect}, ${data.menuItemId}, NOW(), NOW())
-            RETURNING id, name, "minSelect", "maxSelect", "menuItemId", "createdAt"
+            RETURNING id, name, min_select, max_select, menu_item_id, created_at, updated_at
         `;
     return newAddOn;
   }
@@ -299,22 +299,22 @@ class RestaurantRepository {
             SELECT 
                 ao.id,
                 ao.name,
-                ao."minSelect",
-                ao."maxSelect",
-                ao."menuItemId",
-                ao."createdAt"
-                ao."updatedAt"
+                ao.min_select,
+                ao.max_select,
+                ao.menu_item_id,
+                ao.created_at,
+                ao.updated_at
             FROM public."AddOn" ao
-            WHERE ao."menuItemId" = ${menuItemId}
+            WHERE ao.menu_item_id = ${menuItemId}
         `;
     return addOn;
   }
 
   static async createAddOnOption(data) {
     const [newAddOnOption] = await postgreSQL`
-            INSERT INTO public."AddOn" (id, name, price, "addOnId", "createdAt", "updatedAt")
+            INSERT INTO public."AddOnOption" (id, name, price, add_on_id, created_at, updated_at)
             VALUES (gen_random_uuid(), ${data.name}, ${data.price}, ${data.addOnId}, NOW(), NOW())
-            RETURNING id, name, price, "addOnId", "createdAt", "updatedAt"
+            RETURNING id, name, price, add_on_id, created_at, updated_at
         `;
     return newAddOnOption;
   }
@@ -325,11 +325,11 @@ class RestaurantRepository {
                 aop.id,
                 aop.name,
                 aop.price,
-                aop."addOnId",
-                aop."createdAt"
-                aop."updatedAt"
+                aop.add_on_id,
+                aop.created_at,
+                aop.updated_at
             FROM public."AddOnOption" aop
-            WHERE aop."addOnId" = ${addOnId}
+            WHERE aop.add_on_id = ${addOnId}
         `;
     return addOnOption;
   }
