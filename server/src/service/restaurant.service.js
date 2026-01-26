@@ -171,6 +171,30 @@ class RestaurantService {
     if (!table) throw new Error("Table not found");
     return table;
   }
+
+  static async createCategory(data) {
+    return await RestaurantRepository.createMenuCategory(data);
+  };
+
+  static async getFullMenuService(restaurantId) {
+    return await RestaurantRepository.getFullMenuByRestaurantId(restaurantId);
+  };
+
+  static async deleteCategory(id) {
+    return await RestaurantRepository.deleteMenuCategory(id);
+  };
+
+  static async createMenuItem(data) {
+    return await RestaurantRepository.createMenuItem(data);
+  };
+
+  static async updateMenuItem(id, data) {
+    return await RestaurantRepository.updateMenuItem(id, data);
+  };
+
+  static async deleteMenuItem(id) {
+    return await RestaurantRepository.deleteMenuItem(id);
+  };
 }
 
 export default RestaurantService;
