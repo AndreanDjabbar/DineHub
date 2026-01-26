@@ -15,27 +15,27 @@ datasource db {
 }
 
 model Table {
-  id           String     @id @default(cuid())
-  name         String
-  capacity     Int        @default(2)
-  qrcode       String?    @unique 
-  sessions     Session[]
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  restaurantId String     @map("restaurant_id")
-  restaurant   Restaurant @relation("RestaurantTables", fields: [restaurantId], references: [id], onDelete: Cascade)
+  id            String     @id @default(cuid())
+  name          String
+  capacity      Int        @default(2)
+  qrcode        String?    @unique 
+  sessions      Session[]
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  restaurant_id String
+  restaurant    Restaurant @relation("RestaurantTables", fields: [restaurant_id], references: [id], onDelete: Cascade)
 }
 
 model Session {
-  id        String        @id @default(cuid())
-  table     Table         @relation(fields: [tableId], references: [id])
-  tableId   String
-  status    SessionStatus @default(ACTIVE)
-  users     SessionUser[]
-  cartItems CartItem[]
-  orders    Order[]
-  createdAt DateTime      @default(now())
-  endedAt   DateTime?
+  id          String        @id @default(cuid())
+  table       Table         @relation(fields: [table_id], references: [id])
+  table_id    String
+  status      SessionStatus @default(ACTIVE)
+  users       SessionUser[]
+  cart_items  CartItem[]
+  orders      Order[]
+  created_at  DateTime      @default(now())
+  ended_at    DateTime?
 }
 
 enum SessionStatus {
@@ -44,131 +44,131 @@ enum SessionStatus {
 }
 
 model SessionUser {
-  id        String     @id @default(cuid())
-  session   Session    @relation(fields: [sessionId], references: [id])
-  sessionId String
-  uuidToken String     @unique
-  name      String?
-  orders    Order[]
-  cartItems CartItem[]
-  createdAt DateTime   @default(now())
+  id         String     @id @default(cuid())
+  session    Session    @relation(fields: [session_id], references: [id])
+  session_id String
+  uuid_token String     @unique
+  name       String?
+  orders     Order[]
+  cart_items CartItem[]
+  created_at DateTime   @default(now())
 }
 
 model MenuCategory {
-  id           String     @id @default(cuid())
-  name         String
-  image        String? 
-  items        MenuItem[]
-  createdAt    DateTime   @default(now())
-  restaurantId String     @map("restaurant_id")
-  restaurant   Restaurant @relation("RestaurantCategories", fields: [restaurantId], references: [id], onDelete: Cascade)
+  id            String     @id @default(cuid())
+  name          String
+  image         String? 
+  items         MenuItem[]
+  created_at    DateTime   @default(now())
+  restaurant_id String
+  restaurant    Restaurant @relation("RestaurantCategories", fields: [restaurant_id], references: [id], onDelete: Cascade)
 }
 
 model MenuItem {
-  id          String       @id @default(cuid())
-  name        String
-  price       Int
-  image       String?
-  category    MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  categoryId  String
-  isAvailable Boolean      @default(true)
-  addOns      AddOn[]
-  cartItems   CartItem[]
-  orderItems  OrderItem[]
-  createdAt   DateTime     @default(now())
+  id           String       @id @default(cuid())
+  name         String
+  price        Int
+  image        String?
+  category     MenuCategory @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  category_id  String
+  is_available Boolean      @default(true)
+  add_ons      AddOn[]
+  cart_items   CartItem[]
+  order_items  OrderItem[]
+  created_at   DateTime     @default(now())
 }
 
 model AddOn {
   id           String        @id @default(cuid())
   name         String
-  minSelect    Int           @default(0)
-  maxSelect    Int?          
-  menuItem     MenuItem      @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-  menuItemId   String
+  min_select   Int           @default(0)
+  max_select   Int?          
+  menu_item    MenuItem      @relation(fields: [menu_item_id], references: [id], onDelete: Cascade)
+  menu_item_id String
   options      AddOnOption[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
 }
 
 model AddOnOption {
-  id             String           @id @default(cuid())
-  name           String
-  price          Int              @default(0)
-  addOn          AddOn            @relation(fields: [addOnId], references: [id], onDelete: Cascade)
-  addOnId        String
-  cartItems      CartItemAddOn[]
-  orderItems     OrderItemAddOn[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id          String           @id @default(cuid())
+  name        String
+  price       Int              @default(0)
+  add_on      AddOn            @relation(fields: [add_on_id], references: [id], onDelete: Cascade)
+  add_on_id   String
+  cart_items  CartItemAddOn[]
+  order_items OrderItemAddOn[]
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
 }
 
 model CartItem {
-  id             String          @id @default(cuid())
-  session        Session         @relation(fields: [sessionId], references: [id])
-  sessionId      String
-  user           SessionUser?    @relation(fields: [userId], references: [id])
-  userId         String?
-  menuItem       MenuItem        @relation(fields: [menuItemId], references: [id])
-  menuItemId     String
-  quantity       Int             @default(1)
-  isShared       Boolean         @default(true)
-  selectedAddOns CartItemAddOn[]
-  createdAt      DateTime        @default(now())
+  id               String          @id @default(cuid())
+  session          Session         @relation(fields: [session_id], references: [id])
+  session_id       String
+  user             SessionUser?    @relation(fields: [user_id], references: [id])
+  user_id          String?
+  menu_item        MenuItem        @relation(fields: [menu_item_id], references: [id])
+  menu_item_id     String
+  quantity         Int             @default(1)
+  is_shared        Boolean         @default(true)
+  selected_add_ons CartItemAddOn[]
+  created_at       DateTime        @default(now())
 }
 
 model CartItemAddOn {
-  id            String      @id @default(cuid())
-  cartItem      CartItem    @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
-  cartItemId    String
-  addOnOption   AddOnOption @relation(fields: [addOnOptionId], references: [id])
-  addOnOptionId String
+  id              String      @id @default(cuid())
+  cart_item       CartItem    @relation(fields: [cart_item_id], references: [id], onDelete: Cascade)
+  cart_item_id    String
+  add_on_option   AddOnOption @relation(fields: [add_on_option_id], references: [id])
+  add_on_option_id String
 }
 
 model Order {
-  id         String       @id @default(cuid())
-  session    Session      @relation(fields: [sessionId], references: [id])
-  sessionId  String
-  user       SessionUser? @relation(fields: [userId], references: [id])
-  userId     String?
-  items      OrderItem[]
-  payments   Payment[]
-  status     OrderStatus  @default(PENDING)
-  totalPrice Int          @default(0)
-  isShared   Boolean      @default(false)
-  createdAt  DateTime     @default(now())
-  paidAt     DateTime?
+  id          String       @id @default(cuid())
+  session     Session      @relation(fields: [session_id], references: [id])
+  session_id  String
+  user        SessionUser? @relation(fields: [user_id], references: [id])
+  user_id     String?
+  items       OrderItem[]
+  payments    Payment[]
+  status      OrderStatus  @default(PENDING)
+  total_price Int          @default(0)
+  is_shared   Boolean      @default(false)
+  created_at  DateTime     @default(now())
+  paid_at     DateTime?
 }
 
 model OrderItem {
-  id         String   @id @default(cuid())
-  order      Order    @relation(fields: [orderId], references: [id])
-  orderId    String
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-  menuItemId String
-  is_cooked  Boolean          @default(false)
-  price      Int
-  quantity   Int              @default(1)
-  selectedAddOns OrderItemAddOn[]
+  id               String           @id @default(cuid())
+  order            Order            @relation(fields: [order_id], references: [id])
+  order_id         String
+  menu_item        MenuItem         @relation(fields: [menu_item_id], references: [id])
+  menu_item_id     String
+  is_cooked        Boolean          @default(false)
+  price            Int
+  quantity         Int              @default(1)
+  selected_add_ons OrderItemAddOn[]
 }
 
 model OrderItemAddOn {
-  id            String      @id @default(cuid())
-  orderItem     OrderItem   @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  orderItemId   String
-  addOnOption   AddOnOption @relation(fields: [addOnOptionId], references: [id])
-  addOnOptionId String
-  name          String      
-  price         Int         
+  id               String      @id @default(cuid())
+  order_item       OrderItem   @relation(fields: [order_item_id], references: [id], onDelete: Cascade)
+  order_item_id    String
+  add_on_option    AddOnOption @relation(fields: [add_on_option_id], references: [id])
+  add_on_option_id String
+  name             String      
+  price            Int         
 }
 
 model Payment {
-  id        String        @id @default(cuid())
-  order     Order         @relation(fields: [orderId], references: [id])
-  orderId   String
-  amount    Int
-  method    PaymentMethod
-  status    PaymentStatus @default(PENDING)
-  createdAt DateTime      @default(now())
+  id         String        @id @default(cuid())
+  order      Order         @relation(fields: [order_id], references: [id])
+  order_id   String
+  amount     Int
+  method     PaymentMethod
+  status     PaymentStatus @default(PENDING)
+  created_at DateTime      @default(now())
 }
 
 model Restaurant {
@@ -181,21 +181,21 @@ model Restaurant {
 
   users           User[]         @relation("RestaurantUsers")
   tables          Table[]        @relation("RestaurantTables")
-  menuCategories  MenuCategory[] @relation("RestaurantCategories")
+  menu_categories MenuCategory[] @relation("RestaurantCategories")
 }
 
 model User {
-  id            String         @id @default(cuid())
+  id            String      @id @default(cuid())
   name          String
-  email         String         @unique
+  email         String      @unique
   password      String
-  role          Role           @default(USER)
-  is_verified   Boolean        @default(false)
-  created_at    DateTime       @default(now())
-  updated_at    DateTime       @updatedAt
+  role          Role        @default(USER)
+  is_verified   Boolean     @default(false)
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
 
-  restaurantId  String?        @map("restaurant_id")
-  restaurant    Restaurant?    @relation("RestaurantUsers", fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant_id String?     @map("restaurant_id")
+  restaurant    Restaurant? @relation("RestaurantUsers", fields: [restaurant_id], references: [id], onDelete: Cascade)
 }
 
 model Subscription {
@@ -212,11 +212,11 @@ model Subscription {
 }
 
 model Subscription_Transaction {
-  id                 String        @id @default(cuid())
+  id                 String       @id @default(cuid())
   subscription_id    String
-  subscription       Subscription  @relation(fields: [subscription_id], references: [id], onDelete: Cascade)
-  order_id           String        @unique                     
-  gross_amount       Decimal       @db.Decimal(10,2)
+  subscription       Subscription @relation(fields: [subscription_id], references: [id], onDelete: Cascade)
+  order_id           String       @unique                     
+  gross_amount       Decimal      @db.Decimal(10,2)
   payment_method     String
   bank_name          String?
   payment_type       String?       
@@ -226,8 +226,8 @@ model Subscription_Transaction {
   status_code        String?
   payment_url        String?
   expiry_time        DateTime?
-  created_at         DateTime      @default(now())
-  updated_at         DateTime      @updatedAt
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
 }
 
 
