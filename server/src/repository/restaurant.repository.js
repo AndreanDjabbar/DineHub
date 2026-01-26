@@ -191,7 +191,7 @@ class RestaurantRepository {
     return result;
   }
 
-  static async getMenuCategoriesByRestaurantId(restaurantId) {
+  static async getMenuCategoryByRestaurantId(restaurantId) {
     const [categories] = await postgreSQL`
             SELECT 
                 mc.id,
@@ -201,6 +201,20 @@ class RestaurantRepository {
                 mc."createdAt"
             FROM public."MenuCategory" mc
             WHERE mc.restaurant_id = ${restaurantId}
+        `;
+    return categories;
+  }
+
+  static async getMenuCategoryById(categoryId) {
+    const [categories] = await postgreSQL`
+            SELECT 
+                mc.id,
+                mc.name,
+                mc.image,
+                mc.restaurant_id as "restaurantId",
+                mc."createdAt"
+            FROM public."MenuCategory" mc
+            WHERE mc.id = ${categoryId}
         `;
     return categories;
   }
@@ -232,6 +246,22 @@ class RestaurantRepository {
                 mi."createdAt"
             FROM public."MenuItem" mi
             WHERE mi."categoryId" = ${categoryId}
+        `;
+    return menuItem;
+  }
+
+  static async getMenuItemById(id) {
+    const [menuItem] = await postgreSQL`
+            SELECT 
+                mi.id,
+                mi.name,
+                mi.price,
+                mi.image,
+                mi."categoryId",
+                mi."isAvailable",
+                mi."createdAt"
+            FROM public."MenuItem" mi
+            WHERE mi."id" = ${id}
         `;
     return menuItem;
   }
