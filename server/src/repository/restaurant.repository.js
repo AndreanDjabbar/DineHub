@@ -143,6 +143,16 @@ class RestaurantRepository {
     return newCategory;
   }
 
+  static async updateMenuCategory(id, data) {
+    const [updatedCategory] = await postgreSQL`
+            UPDATE public."MenuCategory"
+            SET name = ${data.name}, image = ${data.image}
+            WHERE id = ${id}
+            RETURNING id, name, image, restaurant_id, created_at
+        `;
+    return updatedCategory;
+  }
+
   static async getFullMenuByRestaurantId(restaurantId) {
     const result = await postgreSQL`
       SELECT 
@@ -198,7 +208,7 @@ class RestaurantRepository {
                 mc.name,
                 mc.image,
                 mc.restaurant_id as "restaurantId",
-                mc."createdAt"
+                mc."created_at"
             FROM public."MenuCategory" mc
             WHERE mc.restaurant_id = ${restaurantId}
         `;
@@ -212,7 +222,7 @@ class RestaurantRepository {
                 mc.name,
                 mc.image,
                 mc.restaurant_id as "restaurantId",
-                mc."createdAt"
+                mc."created_at"
             FROM public."MenuCategory" mc
             WHERE mc.id = ${categoryId}
         `;

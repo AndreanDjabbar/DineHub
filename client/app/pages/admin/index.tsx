@@ -154,7 +154,7 @@ const AdminDashboard = () => {
   }, [restaurantId, token]);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchMenu = async () => {
       if (activeTab !== "menu") return;
       try {
         const response = await api.get(
@@ -165,16 +165,16 @@ const AdminDashboard = () => {
             },
           },
         );
-        console.log("Fetching categories...");
+        console.log("Fetching menu...");
         console.log("Response:", response);
-        const categories = response.data.data?.categories || [];
-        console.log("Categories:", categories);
-        setCategories(categories);
+        const menu = response.data.data?.menu || [];
+        console.log("Menu:", menu);
+        setCategories(menu);
       } catch (error) {
-        console.error("Error fetching categories:", error);
+        console.error("Error fetching menu:", error);
       }
     };
-    fetchCategories();
+    fetchMenu();
   }, [restaurantId, token, activeTab]);
 
   // --- HANDLERS ---
@@ -440,7 +440,7 @@ const AdminDashboard = () => {
 
     try {
       const response = await api.put(
-        `/menu/categories/${editingCategory.id}`,
+        `/restaurant/category/${editingCategory.id}`,
         {
           name: editingCategory.name,
           image: editingCategory.image,
@@ -469,10 +469,8 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    if (!confirm("Are you sure? This will delete all items in this category."))
-      return;
     try {
-      await api.delete(`/menu/categories/${id}`, {
+      await api.delete(`/restaurant/category/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -696,7 +694,7 @@ const AdminDashboard = () => {
             <EditUserModal
               isOpen={isEditModalOpen && !!editingUser}
               editingUser={editingUser}
-              setEditingUser={setEditingUser as any}
+              setEditingUser={setEditingUser}
               onClose={() => {
                 setIsEditModalOpen(false);
                 setEditingUser(null);
@@ -707,7 +705,7 @@ const AdminDashboard = () => {
             <EditTableModal
               isOpen={isEditModalOpen && !!editingTable}
               editingTable={editingTable}
-              setEditingTable={setEditingTable as any}
+              setEditingTable={setEditingTable}
               onClose={() => {
                 setIsEditModalOpen(false);
                 setEditingTable(null);
@@ -718,7 +716,7 @@ const AdminDashboard = () => {
             <EditMenuModal
               isOpen={isEditModalOpen && !!editingMenuItem}
               editingMenuItem={editingMenuItem}
-              setEditingMenuItem={setEditingMenuItem as any}
+              setEditingMenuItem={setEditingMenuItem}
               onClose={() => {
                 setIsEditModalOpen(false);
                 setEditingMenuItem(null);
@@ -730,7 +728,7 @@ const AdminDashboard = () => {
             <EditCategoryModal
               isOpen={isEditModalOpen && !!editingCategory}
               editingCategory={editingCategory}
-              setEditingCategory={setEditingCategory as any}
+              setEditingCategory={setEditingCategory}
               onClose={() => {
                 setIsEditModalOpen(false);
                 setEditingCategory(null);
