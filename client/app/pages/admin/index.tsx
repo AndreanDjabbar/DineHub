@@ -157,7 +157,15 @@ const AdminDashboard = () => {
         },
       });
       const menu = response.data.data?.menu || [];
-      setCategories(menu);
+      // Ensure each item has the correct categoryId from its parent category
+      const categoriesWithIds = menu.map((category: MenuCategory) => ({
+        ...category,
+        items: (category.items || []).map((item: MenuItem) => ({
+          ...item,
+          categoryId: item.categoryId || category.id || "",
+        })),
+      }));
+      setCategories(categoriesWithIds);
     } catch (error) {
       console.error("Error fetching menu:", error);
     }
@@ -227,7 +235,13 @@ const AdminDashboard = () => {
   };
 
   const handleMenuEditClick = (itemToEdit: MenuItem) => {
-    setEditingMenuItem(itemToEdit);
+    // Ensure categoryId is set correctly from the item's category object if needed
+    const itemWithCategoryId = {
+      ...itemToEdit,
+      categoryId:
+        itemToEdit.categoryId || (itemToEdit as any).category?.id || "",
+    };
+    setEditingMenuItem(itemWithCategoryId);
     setIsEditModalOpen(true);
   };
 

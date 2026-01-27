@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { FiUpload, FiX, FiImage, FiFile } from "react-icons/fi";
 
 interface ImageInputProps {
@@ -60,6 +60,17 @@ const ImageInput: React.FC<ImageInputProps> = ({
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  useEffect(() => {
+    setPreview(value);
+    if (!value) {
+      setFileName("");
+      setFileSize("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }, [value]);
+
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       {label && (
@@ -69,9 +80,17 @@ const ImageInput: React.FC<ImageInputProps> = ({
       )}
 
       <div
-        onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragging(true);
+        }}
         onDragLeave={() => setIsDragging(false)}
-        onDrop={(e) => { e.preventDefault(); setIsDragging(false); const file = e.dataTransfer.files?.[0]; if (file) processFile(file); }}
+        onDrop={(e) => {
+          e.preventDefault();
+          setIsDragging(false);
+          const file = e.dataTransfer.files?.[0];
+          if (file) processFile(file);
+        }}
         onClick={() => fileInputRef.current?.click()}
         className={`group relative flex flex-col items-center justify-center w-full min-h-[200px] border-2 border-dashed rounded-xl cursor-pointer transition-all overflow-hidden
           ${isDragging ? "border-red-500 bg-red-50" : "border-gray-300 hover:border-red-400 hover:bg-gray-50"}
@@ -95,7 +114,7 @@ const ImageInput: React.FC<ImageInputProps> = ({
                 alt="Preview"
                 className="w-full h-full object-cover"
               />
-              
+
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <p className="text-white text-xs font-medium bg-black/50 px-3 py-1 rounded-full">
                   Click to Change
@@ -108,8 +127,12 @@ const ImageInput: React.FC<ImageInputProps> = ({
                 <FiFile size={18} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-gray-800 truncate">{fileName || "Uploaded Image"}</p>
-                <p className="text-xs text-gray-400">{fileSize || "Memory file"}</p>
+                <p className="text-sm font-bold text-gray-800 truncate">
+                  {fileName || "Uploaded Image"}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {fileSize || "Memory file"}
+                </p>
               </div>
               <button
                 type="button"
