@@ -2,120 +2,124 @@ import express from "express";
 import * as RestaurantController from "../controller/restaurant.controller.js";
 import validateToken from "../middleware/jwt.middleware.js";
 import authorizedRoles from "../middleware/role.middleware.js";
-validateToken
+validateToken;
 import validateSchema from "../middleware/schema.middleware.js";
 
-import { 
+import {
   createRestaurantSchema,
   updateRestaurantSchema,
   createTableSchema,
-  updateTableSchema, 
+  updateTableSchema,
   updateMenuItemSchema,
   createMenuItemSchema,
-  createMenuCategorySchema
+  createMenuCategorySchema,
+  updateMenuCategorySchema,
 } from "../validation/restaurant.validation.js";
 
 const router = express.Router();
 
 router.post(
-  "/onboard", 
+  "/onboard",
   validateToken,
-  validateSchema(createRestaurantSchema), 
+  validateSchema(createRestaurantSchema),
   authorizedRoles("Developer"),
-  RestaurantController.onboardTenantController
+  RestaurantController.onboardTenantController,
 );
 router.get(
-  "/restaurant", 
-  validateToken, 
+  "/restaurant",
+  validateToken,
   authorizedRoles("Developer"),
-  RestaurantController.getAllRestaurantController
+  RestaurantController.getAllRestaurantController,
 );
 router.get(
-  "/:id", 
-  validateToken, 
+  "/:id",
+  validateToken,
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.getRestaurantController
+  RestaurantController.getRestaurantController,
 );
 router.put(
-  "/:id", 
-  validateToken, 
+  "/:id",
+  validateToken,
   validateSchema(updateRestaurantSchema),
   authorizedRoles("Developer"),
-  RestaurantController.updateRestaurantController
+  RestaurantController.updateRestaurantController,
 );
 router.delete(
-  "/:id", 
-  validateToken, 
+  "/:id",
+  validateToken,
   authorizedRoles("Developer"),
-  RestaurantController.deleteRestaurantController
+  RestaurantController.deleteRestaurantController,
 );
 router.get(
   "/table/:restaurantId",
   validateToken,
   authorizedRoles("Developer", "ADMIN", "CASHIER"),
-  RestaurantController.getTableByRestaurantIdController
+  RestaurantController.getTableByRestaurantIdController,
 );
-router.get(
-  "/table/:id",
-  RestaurantController.getTableByIdController
-);
+router.get("/table/:id", RestaurantController.getTableByIdController);
 router.post(
-  "/table", 
-  validateToken, 
+  "/table",
+  validateToken,
   validateSchema(createTableSchema),
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.createTableController
+  RestaurantController.createTableController,
 );
 router.delete(
-  "/table/:id", 
-  validateToken, 
+  "/table/:id",
+  validateToken,
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.deleteTableController
+  RestaurantController.deleteTableController,
 );
 router.put(
-  "/table/:id", 
-  validateToken, 
+  "/table/:id",
+  validateToken,
   validateSchema(updateTableSchema),
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.updateTableController
-);
-
-router.post(
-    "/category", 
-    validateToken,
-    validateSchema(createMenuCategorySchema), 
-    authorizedRoles("Developer", "ADMIN"),
-    RestaurantController.createCategoryController
-);
-router.get(
-    "/full-menu/:restaurantId", 
-    RestaurantController.getFullMenuController
-);
-router.delete(
-    "/category/:id", 
-    validateToken,
-    authorizedRoles("Developer", "ADMIN"),
-    RestaurantController.deleteCategoryController
+  RestaurantController.updateTableController,
 );
 router.post(
-    "/item",
-    validateToken, 
-    validateSchema(createMenuItemSchema), 
-    authorizedRoles("Developer", "ADMIN"),
-    RestaurantController.createMenuItemController
+  "/category",
+  validateToken,
+  validateSchema(createMenuCategorySchema),
+  authorizedRoles("Developer", "ADMIN"),
+  RestaurantController.createMenuCategoryController,
 );
 router.put(
-    "/item/:id",
-    validateToken, 
-    validateSchema(updateMenuItemSchema), 
-    authorizedRoles("Developer", "ADMIN"),
-    RestaurantController.updateMenuItemController
+  "/category/:id",
+  validateToken,
+  validateSchema(updateMenuCategorySchema),
+  authorizedRoles("Developer", "ADMIN"),
+  RestaurantController.updateMenuCategoryController,
+);
+router.get(
+  "/full-menu/:restaurantId",
+  RestaurantController.getFullMenuController,
 );
 router.delete(
-    "/item/:id", 
-    validateToken,
-    authorizedRoles("Developer", "ADMIN"),
-    RestaurantController.deleteMenuItemController
+  "/category/:id",
+  validateToken,
+  authorizedRoles("Developer", "ADMIN"),
+  RestaurantController.deleteCategoryController,
+);
+router.post(
+  "/item",
+  validateToken,
+  validateSchema(createMenuItemSchema),
+  authorizedRoles("Developer", "ADMIN"),
+  RestaurantController.createMenuItemController,
+);
+router.put(
+  "/item/:id",
+  validateToken,
+  validateSchema(updateMenuItemSchema),
+  authorizedRoles("Developer", "ADMIN"),
+  RestaurantController.updateMenuItemController,
+);
+router.delete(
+  "/item/:id",
+  validateToken,
+  authorizedRoles("Developer", "ADMIN"),
+  RestaurantController.deleteMenuItemController,
 );
 
 export default router;

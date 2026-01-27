@@ -79,7 +79,7 @@ class RestaurantRepository {
 
   static async createTable(restaurantId, data) {
     const [newTable] = await postgreSQL`
-            INSERT INTO public."Table" (id, restaurant_id, name, capacity, "createdAt", "updatedAt")
+            INSERT INTO public."Table" (id, restaurant_id, name, capacity, "created_at", "updated_at")
             VALUES (
               gen_random_uuid(), 
               ${restaurantId}, 
@@ -111,7 +111,7 @@ class RestaurantRepository {
   static async updateTable(id, data) {
     const [updatedTable] = await postgreSQL`
             UPDATE public."Table"
-            SET name = ${data.name}, capacity = ${data.capacity}, "updatedAt" = NOW()
+            SET name = ${data.name}, capacity = ${data.capacity}, "updated_at" = NOW()
             WHERE id = ${id}
             RETURNING id, name, capacity
         `;
@@ -141,6 +141,16 @@ class RestaurantRepository {
             RETURNING id, name, image, restaurant_id, created_at
         `;
     return newCategory;
+  }
+
+  static async updateMenuCategory(id, data) {
+    const [updatedCategory] = await postgreSQL`
+            UPDATE public."MenuCategory"
+            SET name = ${data.name}, image = ${data.image}
+            WHERE id = ${id}
+            RETURNING id, name, image, restaurant_id, created_at
+        `;
+    return updatedCategory;
   }
 
   static async getFullMenuByRestaurantId(restaurantId) {
@@ -198,7 +208,7 @@ class RestaurantRepository {
                 mc.name,
                 mc.image,
                 mc.restaurant_id as "restaurantId",
-                mc."createdAt"
+                mc."created_at"
             FROM public."MenuCategory" mc
             WHERE mc.restaurant_id = ${restaurantId}
         `;
@@ -212,7 +222,7 @@ class RestaurantRepository {
                 mc.name,
                 mc.image,
                 mc.restaurant_id as "restaurantId",
-                mc."createdAt"
+                mc."created_at"
             FROM public."MenuCategory" mc
             WHERE mc.id = ${categoryId}
         `;

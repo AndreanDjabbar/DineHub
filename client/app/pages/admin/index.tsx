@@ -28,7 +28,7 @@ import type {
 } from "./components/types";
 import { UserHeader } from "~/components";
 import api from "~/lib/axios";
-import EditMenuModal from "./components/EditMenuItemModal";
+import EditMenuItemModal from "./components/EditMenuItemModal";
 import EditCategoryModal from "./components/EditCategoryModal";
 
 const sortTablesByNumber = (tables: Table[]): Table[] => {
@@ -99,9 +99,6 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const fetchStaff = async () => {
-      console.log("Fetching staff...");
-      console.log("Restaurant ID:", restaurantId);
-      console.log("Token:", token);
       if (!restaurantId) {
         console.error("No restaurant ID found for user");
         return;
@@ -136,9 +133,8 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     const fetchTables = async () => {
-      console.log("Fetching tables...");
       try {
-        const response = await api.get(`/restaurant/tables/${restaurantId}`, {
+        const response = await api.get(`/restaurant/table/${restaurantId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -153,25 +149,31 @@ const AdminDashboard = () => {
     fetchTables();
   }, [restaurantId, token]);
 
+  const fetchMenu = async () => {
+    try {
+      const response = await api.get(`/restaurant/full-menu/${restaurantId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const menu = response.data.data?.menu || [];
+      // Ensure each item has the correct categoryId from its parent category
+      const categoriesWithIds = menu.map((category: MenuCategory) => ({
+        ...category,
+        items: (category.items || []).map((item: MenuItem) => ({
+          ...item,
+          categoryId: item.categoryId || category.id || "",
+        })),
+      }));
+      setCategories(categoriesWithIds);
+    } catch (error) {
+      console.error("Error fetching menu:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchCategories = async () => {
-      if (activeTab !== "menu") return;
-      try {
-        const response = await api.get(`/menu/categories/${restaurantId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        console.log("Fetching categories...");
-        console.log("Response:", response);
-        const categories = response.data.data?.categories || [];
-        console.log("Categories:", categories);
-        setCategories(categories);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-    fetchCategories();
+    if (activeTab !== "menu") return;
+    fetchMenu();
   }, [restaurantId, token, activeTab]);
 
   // --- HANDLERS ---
@@ -233,7 +235,13 @@ const AdminDashboard = () => {
   };
 
   const handleMenuEditClick = (itemToEdit: MenuItem) => {
-    setEditingMenuItem(itemToEdit);
+    // Ensure categoryId is set correctly from the item's category object if needed
+    const itemWithCategoryId = {
+      ...itemToEdit,
+      categoryId:
+        itemToEdit.categoryId || (itemToEdit as any).category?.id || "",
+    };
+    setEditingMenuItem(itemWithCategoryId);
     setIsEditModalOpen(true);
   };
 
@@ -276,7 +284,6 @@ const AdminDashboard = () => {
 
   const handleDeleteUser = async (id: string) => {
     setUsers(users.filter((u) => u.id !== id));
-    console.log("Deleting user with ID:", id);
 
     if (!restaurantId) {
       console.error("No restaurant ID found for user");
@@ -317,7 +324,7 @@ const AdminDashboard = () => {
     const tableName = `Table ${nextNumber}`;
     try {
       const response = await api.post(
-        "/restaurant/tables",
+        "/restaurant/table",
         {
           name: tableName,
           capacity: newTable.capacity,
@@ -359,7 +366,7 @@ const AdminDashboard = () => {
 
     try {
       const response = await api.put(
-        `/restaurant/tables/${editingTable.id}`,
+        `/restaurant/table/${editingTable.id}`,
         {
           name: editingTable.name,
           capacity: editingTable.capacity,
@@ -391,13 +398,12 @@ const AdminDashboard = () => {
 
   const handleDeleteTable = async (id: number) => {
     setTables(tables.filter((t) => t.id !== id));
-    console.log("Deleting table with ID:", id);
 
     if (!restaurantId) {
       console.error("No restaurant ID found for user");
       return;
     }
-    await api.delete(`/restaurant/tables/${id}`, {
+    await api.delete(`/restaurant/table/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -408,7 +414,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       const response = await api.post(
-        "/menu/categories",
+        "/restaurant/category",
         {
           name: newCategory.name,
           image: newCategory.image,
@@ -423,7 +429,7 @@ const AdminDashboard = () => {
 
       const data = response.data;
       const createdCategory = data?.data?.category;
-      setCategories([...categories, { ...createdCategory, items: [] }]);
+      setCategories((prev) => [...prev, { ...createdCategory, items: [] }]);
       setNewCategory({ name: "", image: "" });
       alert("Category added successfully");
     } catch (error) {
@@ -437,7 +443,7 @@ const AdminDashboard = () => {
 
     try {
       const response = await api.put(
-        `/menu/categories/${editingCategory.id}`,
+        `/restaurant/category/${editingCategory.id}`,
         {
           name: editingCategory.name,
           image: editingCategory.image,
@@ -466,15 +472,13 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteCategory = async (id: string) => {
-    if (!confirm("Are you sure? This will delete all items in this category."))
-      return;
     try {
-      await api.delete(`/menu/categories/${id}`, {
+      await api.delete(`/restaurant/category/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setCategories(categories.filter((c) => c.id !== id));
+      setCategories((prev) => prev.filter((c) => c.id !== id));
     } catch (error) {
       console.error("Error deleting category:", error);
     }
@@ -484,7 +488,7 @@ const AdminDashboard = () => {
     e.preventDefault();
     try {
       const response = await api.post(
-        "/menu/items",
+        "/restaurant/item",
         {
           name: newMenuItem.name,
           price: newMenuItem.price,
@@ -502,13 +506,15 @@ const AdminDashboard = () => {
       const data = response.data;
       const createdItem = data?.data?.menuItem;
 
-      setCategories(
-        categories.map((cat) =>
+      setCategories((prev) =>
+        prev.map((cat) =>
           cat.id === createdItem.categoryId
             ? { ...cat, items: [...(cat?.items || []), createdItem] }
             : cat,
         ),
       );
+
+      await fetchMenu();
 
       setNewMenuItem({
         name: "",
@@ -586,20 +592,20 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteMenuItem = async (id: string, categoryId: string) => {
-    if (!confirm("Are you sure?")) return;
+  const handleDeleteMenuItem = async (id: string) => {
     try {
-      await api.delete(`/menu/items/${id}`, {
+      await api.delete(`/restaurant/item/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setCategories(
-        categories.map((cat) =>
-          cat.id === categoryId
-            ? { ...cat, items: (cat?.items || []).filter((i) => i.id !== id) }
-            : cat,
-        ),
+
+      // Update local state to remove the deleted item from all categories
+      setCategories((prev) =>
+        prev.map((cat) => ({
+          ...cat,
+          items: (cat.items || []).filter((item) => item.id !== id),
+        })),
       );
     } catch (error) {
       console.error("Error deleting menu item:", error);
@@ -693,7 +699,7 @@ const AdminDashboard = () => {
             <EditUserModal
               isOpen={isEditModalOpen && !!editingUser}
               editingUser={editingUser}
-              setEditingUser={setEditingUser as any}
+              setEditingUser={setEditingUser}
               onClose={() => {
                 setIsEditModalOpen(false);
                 setEditingUser(null);
@@ -704,7 +710,7 @@ const AdminDashboard = () => {
             <EditTableModal
               isOpen={isEditModalOpen && !!editingTable}
               editingTable={editingTable}
-              setEditingTable={setEditingTable as any}
+              setEditingTable={setEditingTable}
               onClose={() => {
                 setIsEditModalOpen(false);
                 setEditingTable(null);
@@ -712,10 +718,11 @@ const AdminDashboard = () => {
               onUpdate={handleUpdateTable}
             />
 
-            <EditMenuModal
+            <EditMenuItemModal
               isOpen={isEditModalOpen && !!editingMenuItem}
+              onDelete={handleDeleteMenuItem}
               editingMenuItem={editingMenuItem}
-              setEditingMenuItem={setEditingMenuItem as any}
+              setEditingMenuItem={setEditingMenuItem}
               onClose={() => {
                 setIsEditModalOpen(false);
                 setEditingMenuItem(null);
@@ -727,7 +734,7 @@ const AdminDashboard = () => {
             <EditCategoryModal
               isOpen={isEditModalOpen && !!editingCategory}
               editingCategory={editingCategory}
-              setEditingCategory={setEditingCategory as any}
+              setEditingCategory={setEditingCategory}
               onClose={() => {
                 setIsEditModalOpen(false);
                 setEditingCategory(null);
