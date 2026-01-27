@@ -504,7 +504,8 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                     {category?.items?.map((item) => (
                       <div
                         key={item.id}
-                        className="flex justify-between items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition group"
+                        onClick={() => handleMenuEditClick(item)}
+                        className="hover:cursor-pointer flex justify-between items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition group"
                       >
                         {item.image && (
                           <img
@@ -538,26 +539,6 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                             </div>
                           )}
                         </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => handleMenuEditClick(item)}
-                            className="text-gray-400 hover:text-blue-600 p-2 rounded-lg transition hover:cursor-pointer opacity-0 group-hover:opacity-100"
-                          >
-                            <FiEdit />
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleDeleteItemClick(
-                                item.id,
-                                category?.id || "",
-                                item.name,
-                              )
-                            }
-                            className="text-gray-400 hover:text-red-600 p-2 rounded-lg transition hover:cursor-pointer opacity-0 group-hover:opacity-100"
-                          >
-                            <FiTrash2 />
-                          </button>
-                        </div>
                       </div>
                     ))}
                   </div>
@@ -587,17 +568,6 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
         onConfirm={confirmDeleteCategory}
         title="Delete Category"
         message={`Are you sure you want to delete the category "${categoryToDelete?.name}"? All items in this category will also be deleted. This action cannot be undone.`}
-        icon={FiTrash2}
-        confirmText="Delete"
-        cancelText="Cancel"
-      />
-
-      <ConfirmationPopup
-        isOpen={isDeleteItemPopupOpen}
-        onClose={() => setIsDeleteItemPopupOpen(false)}
-        onConfirm={confirmDeleteItem}
-        title="Delete Menu Item"
-        message={`Are you sure you want to delete "${itemToDelete?.name}"? This action cannot be undone.`}
         icon={FiTrash2}
         confirmText="Delete"
         cancelText="Cancel"

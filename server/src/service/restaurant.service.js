@@ -273,23 +273,40 @@ class RestaurantService {
     return await RestaurantRepository.updateMenuItem(id, data);
   }
 
-  static async deleteMenuItem(id) {
+  static async deleteMenuItem(id, currentUserID) {
+    console.log(
+      "Service deleteMenuItem - id:",
+      id,
+      "currentUserID:",
+      currentUserID,
+    );
+
     const menuItem = await RestaurantRepository.getMenuItemById(id);
+    console.log("Menu item found:", menuItem);
     if (!menuItem) throw new Error("Menu item not found");
 
     const category = await RestaurantRepository.getMenuCategoryById(
-      menuItem.categoryId,
+      menuItem.category_id,
     );
+    console.log("Category found:", category);
     if (!category) throw new Error("Category not found");
 
     const restaurant = await RestaurantRepository.getById(
       category.restaurantId,
     );
+    console.log("Restaurant found:", restaurant);
     if (!restaurant) throw new Error("Restaurant not found");
 
     const currentUser = await UserRepository.getById(currentUserID);
+    console.log("Current user found:", currentUser);
     if (!currentUser) throw new Error("Current user not found");
 
+    console.log(
+      "Checking authorization - user restaurant_id:",
+      currentUser.restaurant_id,
+      "vs restaurant id:",
+      restaurant.id,
+    );
     if (currentUser.restaurant_id !== restaurant.id)
       throw new Error("Unauthorized access");
 

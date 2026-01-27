@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { FiX, FiTrash2, FiAlertCircle } from "react-icons/fi";
 import type { MenuCategory, MenuItem, AddOn, AddOnOption } from "./types";
-import { Button, TextInput, NumInput, ImageInput } from "~/components";
+import {
+  Button,
+  TextInput,
+  NumInput,
+  ImageInput,
+  ConfirmationPopup,
+} from "~/components";
 
 interface EditMenuItemModalProps {
   isOpen: boolean;
@@ -9,6 +15,7 @@ interface EditMenuItemModalProps {
   setEditingMenuItem: (item: MenuItem) => void;
   onClose: () => void;
   onUpdate: (e: React.FormEvent) => void;
+  onDelete: (id: string) => void;
   categories: MenuCategory[];
 }
 
@@ -18,6 +25,7 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
   setEditingMenuItem,
   onClose,
   onUpdate,
+  onDelete,
   categories,
 }) => {
   const [newAddOn, setNewAddOn] = useState<AddOn>({
@@ -36,6 +44,7 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
     category?: string;
     image?: string;
   }>({});
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Reset errors when modal opens with new item
   useEffect(() => {
@@ -101,6 +110,18 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
       onUpdate(e);
       setErrors({});
     }
+  };
+
+  const handleDeleteClick = () => {
+    console.log("Delete button clicked");
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    console.log("Delete confirmed, item:", editingMenuItem);
+    onDelete(editingMenuItem.id);
+    setShowDeleteConfirm(false);
+    onClose();
   };
 
   return (
@@ -407,8 +428,26 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
           <div className="pt-4 flex gap-3">
             <Button type="submit">Save Changes</Button>
           </div>
+          <button
+            type="button"
+            onClick={handleDeleteClick}
+            className="flex justify-center text-red-600 hover:text-red-700 hover:cursor-pointer py-4 w-full"
+          >
+            Delete Menu Item
+          </button>
         </form>
       </div>
+
+      <ConfirmationPopup
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Menu Item"
+        message={`Are you sure you want to delete "${editingMenuItem.name}"? This action cannot be undone.`}
+        icon={FiTrash2}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 };
