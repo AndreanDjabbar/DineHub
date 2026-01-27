@@ -138,7 +138,7 @@ const AdminDashboard = () => {
     const fetchTables = async () => {
       console.log("Fetching tables...");
       try {
-        const response = await api.get(`/restaurant/tables/${restaurantId}`, {
+        const response = await api.get(`/restaurant/table/${restaurantId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -157,11 +157,14 @@ const AdminDashboard = () => {
     const fetchCategories = async () => {
       if (activeTab !== "menu") return;
       try {
-        const response = await api.get(`/menu/categories/${restaurantId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await api.get(
+          `/restaurant/full-menu/${restaurantId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
         console.log("Fetching categories...");
         console.log("Response:", response);
         const categories = response.data.data?.categories || [];
@@ -317,7 +320,7 @@ const AdminDashboard = () => {
     const tableName = `Table ${nextNumber}`;
     try {
       const response = await api.post(
-        "/restaurant/tables",
+        "/restaurant/table",
         {
           name: tableName,
           capacity: newTable.capacity,
@@ -359,7 +362,7 @@ const AdminDashboard = () => {
 
     try {
       const response = await api.put(
-        `/restaurant/tables/${editingTable.id}`,
+        `/restaurant/table/${editingTable.id}`,
         {
           name: editingTable.name,
           capacity: editingTable.capacity,
@@ -397,7 +400,7 @@ const AdminDashboard = () => {
       console.error("No restaurant ID found for user");
       return;
     }
-    await api.delete(`/restaurant/tables/${id}`, {
+    await api.delete(`/restaurant/table/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

@@ -79,7 +79,7 @@ class RestaurantRepository {
 
   static async createTable(restaurantId, data) {
     const [newTable] = await postgreSQL`
-            INSERT INTO public."Table" (id, restaurant_id, name, capacity, "createdAt", "updatedAt")
+            INSERT INTO public."Table" (id, restaurant_id, name, capacity, "created_at", "updated_at")
             VALUES (
               gen_random_uuid(), 
               ${restaurantId}, 
@@ -111,7 +111,7 @@ class RestaurantRepository {
   static async updateTable(id, data) {
     const [updatedTable] = await postgreSQL`
             UPDATE public."Table"
-            SET name = ${data.name}, capacity = ${data.capacity}, "updatedAt" = NOW()
+            SET name = ${data.name}, capacity = ${data.capacity}, "updated_at" = NOW()
             WHERE id = ${id}
             RETURNING id, name, capacity
         `;
