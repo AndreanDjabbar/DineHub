@@ -12,8 +12,8 @@ import {
   NumInput,
   Button,
   ImageInput,
-  ConfirmationPopup,
   SelectInput,
+  ConfirmationPopup,
 } from "~/components";
 
 interface MenuManagementProps {
@@ -217,19 +217,22 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
             </div>
             <div>
               <NumInput
+                label="Price"
+                min="0"
+                required
                 value={newMenuItem.price}
-                onChange={(value) => {
-                  setNewMenuItem({ ...newMenuItem, price: value });
-                  if (menuItemErrors.price) {
-                    setMenuItemErrors({ ...menuItemErrors, price: undefined });
-                  }
+                onChange={(e) => {
+                  setNewMenuItem({
+                    ...newMenuItem,
+                    price: parseInt(e.target.value),
+                  });
+                  if (errors.price) setErrors({ ...errors, price: undefined });
                 }}
               />
-
-              {menuItemErrors.price && (
+              {errors.price && (
                 <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
                   <FiAlertCircle size={14} />
-                  <span>{menuItemErrors.price}</span>
+                  <span>{errors.price}</span>
                 </div>
               )}
             </div>
@@ -254,7 +257,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 options={categories.map((category) => ({
                   id: category.id,
                   name: category.name,
-                  value: category.id
+                  value: category.id,
                 }))}
                 error={errors.category}
                 required
@@ -269,20 +272,14 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
 
             <div>
               <ImageInput
-                value={newMenuItem.image}
+                label="Item Image"
+                required
+                value={newMenuItem.image || null}
                 onChange={(imageUrl) => {
-                  setNewMenuItem({ ...newMenuItem, image: imageUrl || null });
-                  if (menuItemErrors.image) {
-                    setMenuItemErrors({ ...menuItemErrors, image: undefined });
-                  }
+                  setNewMenuItem({ ...newMenuItem, image: imageUrl });
+                  if (errors.image) setErrors({ ...errors, image: undefined });
                 }}
               />
-              {menuItemErrors.image && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <FiAlertCircle size={14} />
-                  <span>{menuItemErrors.image}</span>
-                </div>
-              )}
               {errors.image && (
                 <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
                   <FiAlertCircle size={14} />

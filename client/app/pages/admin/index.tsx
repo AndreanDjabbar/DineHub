@@ -102,6 +102,12 @@ const AdminDashboard = () => {
     image?: string;
     addOns?: string;
   }>({});
+  const [addTableErrors, setAddTableErrors] = useState<{ capacity?: string }>(
+    {},
+  );
+  const [updateTableErrors, setUpdateTableErrors] = useState<{
+    capacity?: string;
+  }>({});
 
   if (!token || !userString) {
     window.location.href = "/login";
@@ -166,6 +172,7 @@ const AdminDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("Menu response:", response);
       const menu = response.data.data?.menu || [];
       // Ensure each item has the correct categoryId from its parent category
       const categoriesWithIds = menu.map((category: MenuCategory) => ({
@@ -173,6 +180,7 @@ const AdminDashboard = () => {
         items: (category.items || []).map((item: MenuItem) => ({
           ...item,
           categoryId: item.categoryId || category.id || "",
+          addOns: item.addOns || [],
         })),
       }));
       setCategories(categoriesWithIds);
@@ -364,9 +372,23 @@ const AdminDashboard = () => {
       setActiveTable(createdTable);
 
       setNewTable({ capacity: 2 });
+      setAddTableErrors({});
       alert("Table added successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding table:", error);
+      const apiError = error?.data;
+
+      if (apiError?.validation_errors) {
+        const fieldErrors: Record<string, string> = {};
+
+        apiError.validation_errors.forEach((msg: string) => {
+          if (msg.toLowerCase().includes("capacity")) {
+            fieldErrors.capacity = msg;
+          }
+        });
+
+        setAddTableErrors(fieldErrors);
+      }
     }
   };
 
@@ -401,8 +423,23 @@ const AdminDashboard = () => {
 
       setEditingTable(null);
       setIsEditModalOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating table:", error);
+
+      console.error("Error adding table:", error);
+      const apiError = error?.data;
+
+      if (apiError?.validation_errors) {
+        const fieldErrors: Record<string, string> = {};
+
+        apiError.validation_errors.forEach((msg: string) => {
+          if (msg.toLowerCase().includes("capacity")) {
+            fieldErrors.capacity = msg;
+          }
+        });
+
+        setUpdateTableErrors(fieldErrors);
+      }
     }
   };
 
@@ -709,6 +746,8 @@ const AdminDashboard = () => {
                 handleDeleteTable={handleDeleteTable}
                 activeTable={activeTable}
                 onTableSelect={setActiveTable}
+                addTableErrors={addTableErrors}
+                setAddTableErrors={setAddTableErrors}
               />
             )}
 
@@ -759,6 +798,8 @@ const AdminDashboard = () => {
                 setEditingTable(null);
               }}
               onUpdate={handleUpdateTable}
+              updateTableErrors={updateTableErrors}
+              setUpdateTableErrors={setUpdateTableErrors}
             />
 
             <EditMenuItemModal
