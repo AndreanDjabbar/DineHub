@@ -40,7 +40,7 @@ export const updateTableSchema = Joi.object({
 export const createMenuCategorySchema = Joi.object({
   restaurantId: Joi.string().uuid().required(),
   name: Joi.string().min(3).max(100).required(),
-  image: Joi.string().uri().optional(),
+  image: Joi.string().uri().allow('', null).optional(),
 });
 
 export const updateMenuCategorySchema = Joi.object({

@@ -132,11 +132,9 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
           <h3 className="text-lg font-bold mb-4">Add Menu Category</h3>
           <form onSubmit={handleAddCategory} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category Name
-              </label>
               <TextInput
                 type="text"
+                label="Category Name"
                 required
                 placeholder="e.g. Main Course"
                 value={newCategory.name}
@@ -148,7 +146,6 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
 
             <ImageInput
               label="Category Image"
-              required
               value={newCategory.image || null}
               onChange={(imageUrl) => {
                 setNewCategory({ ...newCategory, image: imageUrl || "" });
