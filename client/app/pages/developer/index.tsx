@@ -59,7 +59,7 @@ const DeveloperDashboard: React.FC = () => {
   const fetchRestaurants = async () => {
     try {
       const response = await api.get(
-        "/restaurant/restaurants",
+        "/restaurant",
         {
           headers: {
             Authorization: `Bearer ${token}`,

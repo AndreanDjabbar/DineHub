@@ -26,7 +26,7 @@ router.post(
   RestaurantController.onboardTenantController,
 );
 router.get(
-  "/restaurant",
+  "/",
   validateToken,
   authorizedRoles("Developer"),
   RestaurantController.getAllRestaurantController,
