@@ -13,6 +13,7 @@ import {
   Button,
   ImageInput,
   ConfirmationPopup,
+  SelectInput,
 } from "~/components";
 
 interface MenuManagementProps {
@@ -203,11 +204,10 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
-              <select
-                className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white hover:cursor-pointer"
+              <SelectInput
+                label="Category"
+                optionLabel="Select Category"
+                name="categoryId"
                 value={newMenuItem.categoryId}
                 onChange={(e) => {
                   setNewMenuItem({
@@ -217,14 +217,14 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                   if (errors.category)
                     setErrors({ ...errors, category: undefined });
                 }}
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
+                options={categories.map((category) => ({
+                  id: category.id,
+                  name: category.name,
+                  value: category.id
+                }))}
+                error={errors.category}
+                required
+              />
               {errors.category && (
                 <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
                   <FiAlertCircle size={14} />
