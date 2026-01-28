@@ -163,11 +163,10 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
           <h3 className="text-lg font-bold mb-4">Add Menu Item</h3>
           <form onSubmit={validateAndSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Item Name
-              </label>
               <TextInput
                 type="text"
+                label="Item Name"
+                required
                 placeholder="e.g. Fried Rice"
                 value={newMenuItem.name}
                 onChange={(e) => {
@@ -186,6 +185,7 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               <NumInput
                 label="Price"
                 min="0"
+                required
                 value={newMenuItem.price}
                 onChange={(e) => {
                   setNewMenuItem({

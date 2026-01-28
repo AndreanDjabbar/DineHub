@@ -50,7 +50,7 @@ const NumInput: React.FC<NumInputProps> = ({
     <div className={`space-y-2 ${className}`}>
       {label && (
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          {label}
+          {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
       <div className="relative">
