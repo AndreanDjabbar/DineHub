@@ -209,7 +209,16 @@ class RestaurantService {
   }
 
   static async getFullMenuService(restaurantId) {
-    return await RestaurantRepository.getFullMenuByRestaurantId(restaurantId);
+    const menu =
+      await RestaurantRepository.getFullMenuByRestaurantId(restaurantId);
+    return menu.map((category) => ({
+      ...category,
+      items: category.items?.map((item) => ({
+        ...item,
+        isAvailable: item.is_available,
+        addOns: item.add_ons,
+      })),
+    }));
   }
 
   static async deleteCategory(id, currentUserID) {
@@ -253,20 +262,22 @@ class RestaurantService {
       for (const addOn of data.addOns) {
         const newAddOn = await RestaurantRepository.createAddOn({
           ...addOn,
-          menuItemId: newMenuItem.id
+          menuItemId: newMenuItem.id,
         });
-        
+
         if (addOn.options && addOn.options.length > 0) {
           for (const option of addOn.options) {
             await RestaurantRepository.createAddOnOption({
               ...option,
-              addOnId: newAddOn.id
+              addOnId: newAddOn.id,
             });
           }
         }
       }
     }
-    const finalNewMenuItem = await RestaurantRepository.getFullMenuByMenuItemId(newMenuItem.id);
+    const finalNewMenuItem = await RestaurantRepository.getFullMenuByMenuItemId(
+      newMenuItem.id,
+    );
     return finalNewMenuItem;
   }
 

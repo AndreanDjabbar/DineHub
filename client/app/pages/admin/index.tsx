@@ -166,6 +166,7 @@ const AdminDashboard = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("Menu response:", response);
       const menu = response.data.data?.menu || [];
       // Ensure each item has the correct categoryId from its parent category
       const categoriesWithIds = menu.map((category: MenuCategory) => ({
@@ -173,6 +174,7 @@ const AdminDashboard = () => {
         items: (category.items || []).map((item: MenuItem) => ({
           ...item,
           categoryId: item.categoryId || category.id || "",
+          addOns: item.addOns || [],
         })),
       }));
       setCategories(categoriesWithIds);
