@@ -8,6 +8,7 @@ import ImageInput from "./ImageInput";
 import QuantityPicker from "./QuantityPicker";
 import ProfileBadge from "./ProfileBadge";
 import ConfirmationPopup from "./ConfirmationPopup";
+import SelectInput from "./SelectInput";
 
 export {
   BackButton,
@@ -20,4 +21,5 @@ export {
   ProfileBadge,
   QuantityPicker,
   ConfirmationPopup,
+  SelectInput
 };
