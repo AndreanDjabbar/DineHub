@@ -10,6 +10,7 @@ import restaurantRoutes from "./router/restaurant.router.js";
 import subscriptionRoutes from "./router/subscription.router.js";
 import userRoutes from "./router/user.router.js";
 import cors from "cors";
+import { globalLimiter } from "./middleware/limiter.middleware.js";
 
 const app = express();
 
@@ -36,6 +37,7 @@ It tells the browser: "Only talk to me over secure HTTPS" and "Don't try to gues
 // Increase payload size limit to handle base64 images
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(globalLimiter)
 
 app.use("/dinehub/api/auth", authRoutes);
 app.use("/dinehub/api/restaurant", restaurantRoutes);
