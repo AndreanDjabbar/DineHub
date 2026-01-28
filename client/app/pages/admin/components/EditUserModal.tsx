@@ -1,6 +1,7 @@
-import React from 'react';
-import { FiX } from 'react-icons/fi';
-import type { User } from './types';
+import React from "react";
+import { FiAlertCircle, FiX } from "react-icons/fi";
+import type { User } from "./types";
+import { TextInput } from "~/components";
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -8,6 +9,11 @@ interface EditUserModalProps {
   setEditingUser: (user: User) => void;
   onClose: () => void;
   onUpdate: (e: React.FormEvent) => void;
+  updateUserErrors?: {
+    name?: string;
+    email?: string;
+  };
+  setUpdateUserErrors?: (errors: { name?: string; email?: string }) => void;
 }
 
 const EditUserModal: React.FC<EditUserModalProps> = ({
@@ -15,7 +21,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   editingUser,
   setEditingUser,
   onClose,
-  onUpdate
+  onUpdate,
+  updateUserErrors,
+  setUpdateUserErrors,
 }) => {
   if (!isOpen || !editingUser) return null;
 
@@ -25,7 +33,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         {/* Modal Header */}
         <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
           <h3 className="text-lg font-bold text-gray-900">Edit Staff Member</h3>
-          <button 
+          <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition"
           >
@@ -36,36 +44,50 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         {/* Modal Form */}
         <form onSubmit={onUpdate} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-            <input 
-              type="text" 
+            <TextInput
+              type="text"
+              label="Name"
               required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               value={editingUser.name}
-              onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+              onChange={(e) =>
+                setEditingUser({ ...editingUser, name: e.target.value })
+              }
             />
+            {updateUserErrors?.name && (
+              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                <FiAlertCircle size={14} />
+                <span>{updateUserErrors.name}</span>
+              </div>
+            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input 
-              type="email" 
+            <TextInput
+              type="email"
+              label="Email"
               required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               value={editingUser.email}
-              onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
+              onChange={(e) =>
+                setEditingUser({ ...editingUser, email: e.target.value })
+              }
             />
+            {updateUserErrors?.email && (
+              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                <FiAlertCircle size={14} />
+                <span>{updateUserErrors.email}</span>
+              </div>
+            )}
           </div>
 
           <div className="pt-4 flex gap-3">
-            <button 
+            <button
               type="button"
               onClick={onClose}
               className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 font-bold rounded-lg hover:bg-gray-200 transition"
             >
               Cancel
             </button>
-            <button 
+            <button
               type="submit"
               className="flex-1 px-4 py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition shadow-lg shadow-red-200"
             >

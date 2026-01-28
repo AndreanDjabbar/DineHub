@@ -102,6 +102,12 @@ const AdminDashboard = () => {
     image?: string;
     addOns?: string;
   }>({});
+  const [addUserErrors, setAddUserErrors] = useState<Record<string, string>>(
+    {},
+  );
+  const [updateUserErrors, setUpdateUserErrors] = useState<
+    Record<string, string>
+  >({});
   const [addTableErrors, setAddTableErrors] = useState<{ capacity?: string }>(
     {},
   );
@@ -209,8 +215,7 @@ const AdminDashboard = () => {
       restaurantId: restaurantId,
     };
     try {
-      const response = await api.post("/user/create-staff", {
-        payload,
+      const response = await api.post("/user/create-staff", payload, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -231,23 +236,40 @@ const AdminDashboard = () => {
       ]);
 
       setNewUser({ name: "", email: "", password: "", role: "cashier" }); // Reset form
+      setAddUserErrors({});
       alert("Staff created successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding user:", error);
+      const apiError = error?.data;
+      if (apiError?.validation_errors) {
+        const fieldErrors: Record<string, string> = {};
+        apiError.validation_errors.forEach((msg: string) => {
+          if (msg.includes("name")) fieldErrors.name = msg;
+          if (msg.includes("email")) fieldErrors.email = msg;
+          if (msg.includes("password")) fieldErrors.password = msg;
+          if (msg.includes("role")) fieldErrors.role = msg;
+        });
+        setAddUserErrors(fieldErrors);
+      }
     }
   };
 
   const handleUserEditClick = (userToEdit: User) => {
+    setAddUserErrors({});
+    setUpdateUserErrors({});
     setEditingUser(userToEdit);
     setIsEditModalOpen(true);
   };
 
   const handleTableEditClick = (tableToEdit: Table) => {
+    setAddTableErrors({});
+    setUpdateTableErrors({});
     setEditingTable(tableToEdit);
     setIsEditModalOpen(true);
   };
 
   const handleCategoryEditClick = (categoryToEdit: MenuCategory) => {
+    setCategoryErrors({});
     setEditingCategory(categoryToEdit);
     setIsEditModalOpen(true);
   };
@@ -295,8 +317,19 @@ const AdminDashboard = () => {
 
       setEditingUser(null);
       setIsEditModalOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating user:", error);
+      const apiError = error?.data;
+      if (apiError?.validation_errors) {
+        const fieldErrors: Record<string, string> = {};
+        apiError.validation_errors.forEach((msg: string) => {
+          if (msg.includes("name")) fieldErrors.name = msg;
+          if (msg.includes("email")) fieldErrors.email = msg;
+          if (msg.includes("password")) fieldErrors.password = msg;
+          if (msg.includes("role")) fieldErrors.role = msg;
+        });
+        setUpdateUserErrors(fieldErrors);
+      }
     }
   };
 
@@ -732,6 +765,8 @@ const AdminDashboard = () => {
                 handleAddUser={handleAddUser}
                 handleUserEditClick={handleUserEditClick}
                 handleDeleteUser={handleDeleteUser}
+                addUserErrors={addUserErrors}
+                setAddUserErrors={setAddUserErrors}
               />
             )}
 
@@ -787,6 +822,8 @@ const AdminDashboard = () => {
                 setEditingUser(null);
               }}
               onUpdate={handleUpdateUser}
+              updateUserErrors={updateUserErrors}
+              setUpdateUserErrors={setUpdateUserErrors}
             />
 
             <EditTableModal
