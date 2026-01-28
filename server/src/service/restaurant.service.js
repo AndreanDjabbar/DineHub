@@ -247,7 +247,27 @@ class RestaurantService {
     if (currentUser.restaurant_id !== restaurant.id)
       throw new Error("Unauthorized access");
 
-    return await RestaurantRepository.createMenuItem(data);
+    const newMenuItem = await RestaurantRepository.createMenuItem(data);
+
+    if (data.addOns && data.addOns.length > 0) {
+      for (const addOn of data.addOns) {
+        const newAddOn = await RestaurantRepository.createAddOn({
+          ...addOn,
+          menuItemId: newMenuItem.id
+        });
+        
+        if (addOn.options && addOn.options.length > 0) {
+          for (const option of addOn.options) {
+            await RestaurantRepository.createAddOnOption({
+              ...option,
+              addOnId: newAddOn.id
+            });
+          }
+        }
+      }
+    }
+    const finalNewMenuItem = await RestaurantRepository.getFullMenuByMenuItemId(newMenuItem.id);
+    return finalNewMenuItem;
   }
 
   static async updateMenuItem(id, data, currentUserID) {
