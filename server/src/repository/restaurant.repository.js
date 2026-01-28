@@ -201,6 +201,41 @@ class RestaurantRepository {
     return result;
   }
 
+  static async getFullMenuByMenuItemId(menuItemId) {
+    const result = await postgreSQL`
+      SELECT 
+          mi.id,
+          mi.name,
+          mi.price,
+          mi.image,
+          mi.category_id,
+          mi.is_available,
+          mi.created_at,
+          (
+              SELECT json_agg(addon_data)
+              FROM (
+                  SELECT 
+                      ao.id,
+                      ao.name,
+                      ao.min_select,
+                      ao.max_select,
+                      ao.menu_item_id,
+                      ao.created_at,
+                      ao.updated_at,
+                      (
+                          SELECT json_agg(opt) 
+                          FROM "AddOnOption" opt 
+                          WHERE opt.add_on_id = ao.id
+                      ) as options
+                  FROM "AddOn" ao 
+                  WHERE ao.menu_item_id = mi.id
+              ) addon_data
+          ) as add_ons
+      FROM "MenuItem" mi
+      WHERE mi.id = ${menuItemId}`;
+    return result;
+  }
+
   static async getMenuCategoryByRestaurantId(restaurantId) {
     const [categories] = await postgreSQL`
             SELECT 
