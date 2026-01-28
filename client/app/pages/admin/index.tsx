@@ -92,6 +92,16 @@ const AdminDashboard = () => {
     null,
   );
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
+  const [categoryErrors, setCategoryErrors] = useState<Record<string, string>>(
+    {},
+  );
+  const [menuItemErrors, setMenuItemErrors] = useState<{
+    name?: string;
+    price?: string;
+    categoryId?: string;
+    image?: string;
+    addOns?: string;
+  }>({});
 
   if (!token || !userString) {
     window.location.href = "/login";
@@ -432,8 +442,19 @@ const AdminDashboard = () => {
       setCategories((prev) => [...prev, { ...createdCategory, items: [] }]);
       setNewCategory({ name: "", image: "" });
       alert("Category added successfully");
-    } catch (error) {
-      console.error("Error adding category:", error);
+    } catch (error: any) {
+      const apiError = error?.data;
+
+      if (apiError?.validation_errors) {
+        const fieldErrors: Record<string, string> = {};
+
+        apiError.validation_errors.forEach((msg: string) => {
+          if (msg.includes("name")) fieldErrors.name = msg;
+          if (msg.includes("image")) fieldErrors.image = msg;
+        });
+
+        setCategoryErrors(fieldErrors);
+      }
     }
   };
 
@@ -525,8 +546,26 @@ const AdminDashboard = () => {
       });
       setNewAddOn({ name: "", minSelect: 0, maxSelect: 1, options: [] });
       alert("Menu item added successfully");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error adding menu item:", error);
+
+      const apiError = error?.data || error?.response?.data;
+
+      if (apiError?.validation_errors) {
+        const fieldErrors: Record<string, string> = {};
+
+        apiError.validation_errors.forEach((msg: string) => {
+          const lower = msg.toLowerCase();
+
+          if (lower.includes("name")) fieldErrors.name = msg;
+          else if (lower.includes("price")) fieldErrors.price = msg;
+          else if (lower.includes("category")) fieldErrors.categoryId = msg;
+          else if (lower.includes("image")) fieldErrors.image = msg;
+          else if (lower.includes("addon")) fieldErrors.addOns = msg;
+        });
+
+        setMenuItemErrors(fieldErrors);
+      }
     }
   };
 
@@ -693,6 +732,10 @@ const AdminDashboard = () => {
                 handleDeleteMenuItem={handleDeleteMenuItem}
                 handleMenuEditClick={handleMenuEditClick}
                 handleCategoryEditClick={handleCategoryEditClick}
+                categoryErrors={categoryErrors}
+                setCategoryErrors={setCategoryErrors}
+                menuItemErrors={menuItemErrors}
+                setMenuItemErrors={setMenuItemErrors}
               />
             )}
 
