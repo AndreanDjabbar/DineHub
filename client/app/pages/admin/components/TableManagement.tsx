@@ -5,13 +5,12 @@ import {
   FiTrash2,
   FiMousePointer,
   FiCheckCircle,
+  FiAlertCircle,
 } from "react-icons/fi";
 import type { Table } from "./types";
 import { NumInput, Button, ConfirmationPopup } from "~/components";
 import NotificationPopup from "~/components/NotificationPopup";
 import TableQR from "./TableQr";
-import { ImWarning } from "react-icons/im";
-import { CiWarning } from "react-icons/ci";
 import { BsInfoCircle } from "react-icons/bs";
 
 interface TableManagementProps {
@@ -23,6 +22,10 @@ interface TableManagementProps {
   handleDeleteTable: (id: number) => void;
   activeTable: Table | null;
   onTableSelect: (table: Table) => void;
+  addTableErrors?: {
+    capacity?: string;
+  };
+  setAddTableErrors?: (errors: { capacity?: string }) => void;
 }
 
 const TableManagement: React.FC<TableManagementProps> = ({
@@ -34,6 +37,8 @@ const TableManagement: React.FC<TableManagementProps> = ({
   handleDeleteTable,
   activeTable,
   onTableSelect,
+  addTableErrors,
+  setAddTableErrors,
 }) => {
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
@@ -70,13 +75,26 @@ const TableManagement: React.FC<TableManagementProps> = ({
                 required
                 min="1"
                 value={newTable.capacity}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setNewTable({
                     ...newTable,
                     capacity: parseInt(e.target.value),
-                  })
-                }
+                  });
+
+                  if (addTableErrors?.capacity && setAddTableErrors) {
+                    setAddTableErrors({
+                      ...addTableErrors,
+                      capacity: undefined,
+                    });
+                  }
+                }}
               />
+              {addTableErrors?.capacity && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <FiAlertCircle size={14} />
+                  <span>{addTableErrors.capacity}</span>
+                </div>
+              )}
             </div>
             <Button type="submit">Add Table</Button>
           </form>

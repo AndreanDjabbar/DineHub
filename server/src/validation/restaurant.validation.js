@@ -29,18 +29,18 @@ export const updateRestaurantSchema = Joi.object({
 export const createTableSchema = Joi.object({
   restaurantId: Joi.string().uuid().required(),
   name: Joi.string().min(1).max(100).required(),
-  capacity: Joi.number().integer().min(1).required(),
+  capacity: Joi.number().integer().min(1).max(100).required(),
 });
 
 export const updateTableSchema = Joi.object({
   name: Joi.string().min(1).max(100).optional(),
-  capacity: Joi.number().integer().min(1).optional(),
+  capacity: Joi.number().integer().min(1).max(100).optional(),
 });
 
 export const createMenuCategorySchema = Joi.object({
   restaurantId: Joi.string().uuid().required(),
   name: Joi.string().min(3).max(100).required(),
-  image: Joi.string().uri().allow('', null).optional(),
+  image: Joi.string().uri().allow("", null).optional(),
 });
 
 export const updateMenuCategorySchema = Joi.object({

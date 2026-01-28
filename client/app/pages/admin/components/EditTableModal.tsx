@@ -1,5 +1,5 @@
 import React from "react";
-import { FiX } from "react-icons/fi";
+import { FiAlertCircle, FiX } from "react-icons/fi";
 import type { Table } from "./types";
 import { Button } from "~/components";
 
@@ -9,6 +9,10 @@ interface EditTableModalProps {
   setEditingTable: (table: Table) => void;
   onClose: () => void;
   onUpdate: (e: React.FormEvent) => void;
+  updateTableErrors?: {
+    capacity?: string;
+  };
+  setUpdateTableErrors?: (errors: { capacity?: string }) => void;
 }
 
 const EditTableModal: React.FC<EditTableModalProps> = ({
@@ -17,6 +21,8 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
   setEditingTable,
   onClose,
   onUpdate,
+  updateTableErrors,
+  setUpdateTableErrors,
 }) => {
   if (!isOpen || !editingTable) return null;
 
@@ -59,6 +65,12 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
                 })
               }
             />
+            {updateTableErrors?.capacity && (
+              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                <FiAlertCircle size={14} />
+                <span>{updateTableErrors.capacity}</span>
+              </div>
+            )}
           </div>
 
           <div className="pt-4 flex gap-3">
