@@ -3,7 +3,6 @@ import { NODE_ENV } from "../util/env.util.js";
 import { responseError } from "../util/response.util.js";
 
 const errorHandler = (err, req, res, next) => {
-    console.log("ERROR HANDLER TRIGGERED")
     logger.error({
         message: err.message,
         stack: err.stack,
