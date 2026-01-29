@@ -3,6 +3,20 @@ import RestaurantRepository from "../repository/restaurant.repository.js";
 import bcrypt from "bcrypt";
 
 class UserService {
+    static async getProfile(userID) {
+        const user = await UserRepository.getById(userID);
+        if (!user) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
+        }
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        };
+    }
+    
     static async createTenant({ name, slug, address, adminName, adminEmail, adminPassword }) {
         const existingUser = await UserRepository.getByEmail(adminEmail);
         if (existingUser) {

@@ -226,20 +226,6 @@ class AuthService {
         const ttl = Math.floor((expiresAt.getTime() - Date.now()) / 1000);
         await redisClient.expire(blacklistKey, ttl);
     }
-
-    static async getProfile(userID) {
-        const user = await UserRepository.getById(userID);
-        if (!user) {
-            const error = new Error("User not found");
-            error.statusCode = 404;
-            throw error;
-        }
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-        };
-    }
 }
 
 export default AuthService;

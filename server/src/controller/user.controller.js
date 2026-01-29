@@ -1,6 +1,22 @@
-import logger from "../../logs/logger.js";
 import UserService from "../service/user.service.js";
-import { responseSuccess, responseError } from "../util/response.util.js"; 
+import { responseSuccess } from "../util/response.util.js"; 
+
+export const getProfileController = async (req, res) => {  
+    const userID = req.user.userID; 
+    if(!userID) {
+        const error = new Error("User ID not found in token");
+        error.statusCode = 400;
+        throw error;
+    }
+    const result = await AuthService.getProfile(userID);
+    return responseSuccess(
+        res,
+        200,
+        "Profile retrieved successfully",
+        "data",
+        result
+    );
+};
 
 export const createTenantController = async (req, res) => {
     const result = await UserService.createTenant(req.body);
