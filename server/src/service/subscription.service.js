@@ -21,12 +21,16 @@ class SubscriptionService {
 
             const existingEmail = await SubscriptionRepository.getByEmail(email);
             if (existingEmail) {
-                throw new Error("Email already exists");
+                const error = new Error("Email already exists");
+                error.statusCode = 409;
+                throw error;
             }
 
             const existingSlug = await SubscriptionRepository.getByUrlSlug(url_slug);
             if (existingSlug) {
-                throw new Error("URL slug already exists");
+                const error = new Error("URL slug already exists");
+                error.statusCode = 409;
+                throw error;
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -92,7 +96,9 @@ class SubscriptionService {
         } = webhookData;
 
         if (!order_id || !transaction_status || !status_code || !gross_amount || !signature_key) {
-            throw new Error("Missing required fields");
+            const error = new Error("Missing required fields");
+            error.statusCode = 400;
+            throw error;
         }
 
         const expectedSignature = crypto
@@ -108,7 +114,9 @@ class SubscriptionService {
             crypto.timingSafeEqual(signatureBuffer, expectedBuffer);
 
         if (!isSignatureValid) {
-            throw new Error("Invalid signature key");
+            const error = new Error("Invalid signature key");
+            error.statusCode = 401;
+            throw error;
         }
 
         const vaNumbersOBJ = va_numbers && va_numbers.length > 0 ? va_numbers[0] : null;

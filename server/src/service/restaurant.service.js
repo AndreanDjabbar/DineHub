@@ -12,13 +12,25 @@ class RestaurantService {
     adminPassword,
   }) {
     const existingUser = await UserRepository.getByEmail(adminEmail);
-    if (existingUser) throw new Error("Admin email already exists");
+    if (existingUser) {
+      const error = new Error("Admin email already exists");
+      error.statusCode = 409;
+      throw error;
+    }
 
     const existingRestaurant = await RestaurantRepository.getByName(name);
-    if (existingRestaurant) throw new Error("Restaurant name already exists");
+    if (existingRestaurant) {
+      const error = new Error("Restaurant name already exists");
+      error.statusCode = 409;
+      throw error;
+    }
 
     const existingSlug = await RestaurantRepository.getBySlug(slug);
-    if (existingSlug) throw new Error("Restaurant slug already exists");
+    if (existingSlug) {
+      const error = new Error("Restaurant slug already exists");
+      error.statusCode = 409;
+      throw error;
+    }
 
     const newRestaurant = await RestaurantRepository.create({
       name,
@@ -30,7 +42,11 @@ class RestaurantService {
     const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
     const existingAdmin = await UserRepository.getByEmail(adminEmail);
-    if (existingAdmin) throw new Error("Admin email already exists");
+    if (existingAdmin) {
+      const error = new Error("Admin email already exists");
+      error.statusCode = 409;
+      throw error;
+    }
 
     const newAdmin = await UserRepository.create({
       name: adminName,
@@ -46,18 +62,33 @@ class RestaurantService {
 
   static async getRestaurant(id, currentUserID) {
     const restaurant = await RestaurantRepository.getById(id);
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
     return restaurant;
   }
 
   static async updateRestaurant(id, data) {
     const restaurant = await RestaurantRepository.getById(id);
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const restaurantData = {
       name: data.name,
@@ -67,12 +98,16 @@ class RestaurantService {
 
     const existingRestaurant = await RestaurantRepository.getByName(data.name);
     if (existingRestaurant && existingRestaurant.id !== id) {
-      throw new Error("Restaurant name already exists");
+      const error = new Error("Restaurant name already exists");
+      error.statusCode = 409;
+      throw error;
     }
 
     const existingSlug = await RestaurantRepository.getBySlug(data.slug);
     if (existingSlug && existingSlug.id !== id) {
-      throw new Error("Restaurant slug already exists");
+      const error = new Error("Restaurant slug already exists");
+      error.statusCode = 409;
+      throw error;
     }
 
     const updatedRestaurant = await RestaurantRepository.update(
@@ -103,7 +138,11 @@ class RestaurantService {
 
   static async deleteRestaurant(id) {
     const restaurant = await RestaurantRepository.getById(id);
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
     await RestaurantRepository.delete(id);
   }
 
@@ -113,12 +152,23 @@ class RestaurantService {
 
   static async createTable({ restaurantId, name, capacity, currentUserID }) {
     const restaurant = await RestaurantRepository.getById(restaurantId);
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurantId)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurantId) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     const table = await RestaurantRepository.createTable(restaurantId, {
       name,
@@ -129,16 +179,31 @@ class RestaurantService {
 
   static async deleteTable(id, currentUserID) {
     const table = await RestaurantRepository.getTableById(id);
-    if (!table) throw new Error("Table not found");
+    if (!table) {
+      const error = new Error("Table not found");
+      error.statusCode = 404;
+      throw error;
+    }
     const restaurant = await RestaurantRepository.getById(table.restaurant_id);
 
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
     const currentUser = await UserRepository.getById(currentUserID);
 
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurant.id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurant.id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     const deletedTable = await RestaurantRepository.deleteTable(id);
     return deletedTable;
@@ -146,26 +211,52 @@ class RestaurantService {
 
   static async getTablesByRestaurantId(restaurantId, currentUserID) {
     const restaurant = await RestaurantRepository.getById(restaurantId);
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurantId)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurantId) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     return await RestaurantRepository.getTablesByRestaurantId(restaurantId);
   }
 
   static async updateTable(id, currentUserID, data) {
     const table = await RestaurantRepository.getTableById(id);
-    if (!table) throw new Error("Table not found");
+    if (!table) {
+      const error = new Error("Table not found");
+      error.statusCode = 404;
+      throw error;
+    }
     const restaurant = await RestaurantRepository.getById(table.restaurant_id);
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurant.id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurant.id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     const updatedTable = await RestaurantRepository.updateTable(id, data);
     return updatedTable;
@@ -173,37 +264,67 @@ class RestaurantService {
 
   static async getTableById(id) {
     const table = await RestaurantRepository.getTableById(id);
-    if (!table) throw new Error("Table not found");
+    if (!table) {
+      const error = new Error("Table not found");
+      error.statusCode = 404;
+      throw error;
+    }
     return table;
   }
 
   static async createCategory(data, currentUserID) {
     const restaurant = await RestaurantRepository.getById(data.restaurantId);
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurant.id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurant.id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     return await RestaurantRepository.createMenuCategory(data);
   }
 
   static async updateMenuCategory(id, data, currentUserID) {
     const category = await RestaurantRepository.getMenuCategoryById(id);
-    if (!category) throw new Error("Category not found");
+    if (!category) {
+      const error = new Error("Category not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const restaurant = await RestaurantRepository.getById(
       category.restaurantId,
     );
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurant.id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurant.id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     return await RestaurantRepository.updateMenuCategory(id, data);
   }
@@ -223,18 +344,33 @@ class RestaurantService {
 
   static async deleteCategory(id, currentUserID) {
     const category = await RestaurantRepository.getMenuCategoryById(id);
-    if (!category) throw new Error("Category not found");
+    if (!category) {
+      const error = new Error("Category not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const restaurant = await RestaurantRepository.getById(
       category.restaurantId,
     );
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurant.id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurant.id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     return await RestaurantRepository.deleteMenuCategory(id);
   }
@@ -243,18 +379,33 @@ class RestaurantService {
     const category = await RestaurantRepository.getMenuCategoryById(
       data.categoryId,
     );
-    if (!category) throw new Error("Category not found");
+    if (!category) {
+      const error = new Error("Category not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const restaurant = await RestaurantRepository.getById(
       category.restaurantId,
     );
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurant.id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurant.id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     const newMenuItem = await RestaurantRepository.createMenuItem(data);
 
@@ -283,63 +434,87 @@ class RestaurantService {
 
   static async updateMenuItem(id, data, currentUserID) {
     const menuItem = await RestaurantRepository.getMenuItemById(id);
-    if (!menuItem) throw new Error("Menu item not found");
+    if (!menuItem) {
+      const error = new Error("Menu item not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const category = await RestaurantRepository.getMenuCategoryById(
       menuItem.categoryId,
     );
-    if (!category) throw new Error("Category not found");
+    if (!category) {
+      const error = new Error("Category not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const restaurant = await RestaurantRepository.getById(
       category.restaurantId,
     );
-    if (!restaurant) throw new Error("Restaurant not found");
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const currentUser = await UserRepository.getById(currentUserID);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    if (currentUser.restaurant_id !== restaurant.id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurant.id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     return await RestaurantRepository.updateMenuItem(id, data);
   }
 
   static async deleteMenuItem(id, currentUserID) {
-    console.log(
-      "Service deleteMenuItem - id:",
-      id,
-      "currentUserID:",
-      currentUserID,
-    );
-
     const menuItem = await RestaurantRepository.getMenuItemById(id);
-    console.log("Menu item found:", menuItem);
-    if (!menuItem) throw new Error("Menu item not found");
+
+    if (!menuItem) {
+      const error = new Error("Menu item not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const category = await RestaurantRepository.getMenuCategoryById(
       menuItem.category_id,
     );
-    console.log("Category found:", category);
-    if (!category) throw new Error("Category not found");
+
+    if (!category) {
+      const error = new Error("Category not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const restaurant = await RestaurantRepository.getById(
       category.restaurantId,
     );
-    console.log("Restaurant found:", restaurant);
-    if (!restaurant) throw new Error("Restaurant not found");
+
+    if (!restaurant) {
+      const error = new Error("Restaurant not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
     const currentUser = await UserRepository.getById(currentUserID);
-    console.log("Current user found:", currentUser);
-    if (!currentUser) throw new Error("Current user not found");
+    if (!currentUser) {
+      const error = new Error("Current user not found");
+      error.statusCode = 404;
+      throw error;
+    }
 
-    console.log(
-      "Checking authorization - user restaurant_id:",
-      currentUser.restaurant_id,
-      "vs restaurant id:",
-      restaurant.id,
-    );
-    if (currentUser.restaurant_id !== restaurant.id)
-      throw new Error("Unauthorized access");
+    if (currentUser.restaurant_id !== restaurant.id) {
+      const error = new Error("Unauthorized access");
+      error.statusCode = 403;
+      throw error;
+    }
 
     return await RestaurantRepository.deleteMenuItem(id);
   }

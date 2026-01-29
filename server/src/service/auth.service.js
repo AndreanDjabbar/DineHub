@@ -8,12 +8,16 @@ class AuthService {
     static async login(email, password) {
         const user = await UserRepository.getByEmail(email);
         if (!user) {
-            throw new Error("User not found");
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!password || !isPasswordValid) {
-            throw new Error("Invalid email or password");
+            const error = new Error("Invalid email or password");
+            error.statusCode = 400;
+            throw error;
         } 
 
         if (!user.is_verified) {
@@ -31,8 +35,10 @@ class AuthService {
             sendVerificationEmail(email, emailVerificationToken, otpCode);
 
             const error = new Error("Email not verified. Please check your email for OTP verification.");
-
-            error.token = emailVerificationToken;
+            error.statusCode = 403;
+            error.data = {
+                token: emailVerificationToken
+            }
             throw error;
         }
 
@@ -60,7 +66,9 @@ class AuthService {
     static async register(name, email, password) {
         const existingUser = await UserRepository.getByEmail(email);
         if (existingUser) {
-            throw new Error("Email already in use");
+            const error = new Error("Email already in use");
+            error.statusCode = 409;
+            throw error;
         }
         const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = await UserRepository.create({
@@ -90,13 +98,17 @@ class AuthService {
     static async verifyRegisterToken(token, email) {
         const user = await UserRepository.getByEmail(email);
         if (!user) {
-            throw new Error("User not found");
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
         }
         const redisKey = `emailVerification:${user.id}`;
         const redisClient = await getRedisClient();
         const storedToken = await redisClient.hget(redisKey, "emailVerificationToken");
         if (token !== storedToken) {
-            throw new Error("Invalid or expired token");
+            const error = new Error("Invalid or expired token");
+            error.statusCode = 400;
+            throw error;
         }
         return user;
     }
@@ -104,22 +116,30 @@ class AuthService {
     static async verifyRegisterOtp(token, email, otpCode) {
         const user = await UserRepository.getByEmail(email);
         if (!user) {
-            throw new Error("User not found");
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
         }
         const redisKey = `emailVerification:${user.id}`;
         const redisClient = await getRedisClient();
         const cachedData = await redisClient.hgetall(redisKey);
 
         if(!cachedData || Object.keys(cachedData).length === 0) {
-            throw new Error("OTP has expired or is invalid");
+            const error = new Error("OTP has expired or is invalid");
+            error.statusCode = 400;
+            throw error;
         }
 
         if(cachedData.otpCode !== otpCode) {
-            throw new Error("Invalid OTP code");
+            const error = new Error("Invalid OTP code");
+            error.statusCode = 400;
+            throw error;
         }
 
         if (token !== cachedData.emailVerificationToken) {
-            throw new Error("Invalid or expired token");
+            const error = new Error("Invalid or expired token");
+            error.statusCode = 400;
+            throw error;
         }
 
         await UserRepository.updateUser(user.id, { is_verified: true });
@@ -130,7 +150,9 @@ class AuthService {
     static async forgotPasswordEmailVerification(email) {
         const user = await UserRepository.getByEmail(email);
         if (!user) {
-            throw new Error("User not found");
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
         }
 
         const redisClient = await getRedisClient();
@@ -147,41 +169,54 @@ class AuthService {
     static async forgotPasswordLinkVerification(token, email) {
         const user = await UserRepository.getByEmail(email);
         if (!user) {
-            throw new Error("User not found");
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
         }
 
         const redisKey = `forgotPassword:${user.id}`;
         const redisClient = await getRedisClient();
         const storedToken = await redisClient.hget(redisKey, "resetToken");
         if (token !== storedToken) {
-            throw new Error("Invalid or expired token");
+            const error = new Error("Invalid or expired token");
+            error.statusCode = 400;
+            throw error;
         }
     }
 
     static async forgotPasswordReset(token, email, newPassword) {
         const user = await UserRepository.getByEmail(email);
         if (!user) {
-            throw new Error("User not found");
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
         }
 
         if (!user.is_verified) {
-            throw new Error("Email not verified. Please login and verify your email first.");
+            const error = new Error("Email not verified. Please login and verify your email first.");
+            error.statusCode = 403;
+            throw error;
         }
 
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-        await UserRepository.updateUser(user.id, { password: hashedPassword });
         const redisKey = `forgotPassword:${user.id}`;
         const redisClient = await getRedisClient();
         const storedToken = await redisClient.hget(redisKey, "resetToken");
         if (token !== storedToken) {
-            throw new Error("Invalid or expired token");
+            const error = new Error("Invalid or expired token");
+            error.statusCode = 400;
+            throw error;
         }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await UserRepository.updateUser(user.id, { password: hashedPassword });
         await redisClient.del(redisKey);
     }
 
     static async logout(token) {
         if (!token) {
-            throw new Error("Token is required");
+            const error = new Error("Token is required");
+            error.statusCode = 400;
+            throw error;
         }
         const redisClient = await getRedisClient();
         const blacklistKey = `blacklistToken:${token}`;
@@ -195,7 +230,9 @@ class AuthService {
     static async getProfile(userID) {
         const user = await UserRepository.getById(userID);
         if (!user) {
-            throw new Error("User not found");
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
         }
         return {
             id: user.id,
