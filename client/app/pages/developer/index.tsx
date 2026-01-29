@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { FiEdit, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiAlertCircle, FiEdit, FiEye, FiEyeOff } from "react-icons/fi";
 import {
   FiServer,
   FiPlus,
@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import api from "~/lib/axios";
 import { Button, TextInput } from "~/components";
+import { error } from "console";
 
 interface Restaurant {
   id: string;
@@ -30,6 +31,7 @@ const DeveloperDashboard: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // Form State
   const [formData, setFormData] = useState({
@@ -129,6 +131,19 @@ const DeveloperDashboard: React.FC = () => {
       resetForm();
     } catch (err: any) {
       console.error("Failed to create tenant:", err);
+      const apiError = err?.data;
+      if (apiError?.validation_errors) {
+        const fieldErrors: Record<string, string> = {};
+        apiError.validation_errors.forEach((msg: string) => {
+          if (msg.toLowerCase().includes("name")) fieldErrors.name = msg;
+          if (msg.toLowerCase().includes("slug")) fieldErrors.slug = msg;
+          if (msg.toLowerCase().includes("address")) fieldErrors.address = msg;
+          if (msg.toLowerCase().includes("admin name")) fieldErrors.adminName = msg;
+          if (msg.toLowerCase().includes("email")) fieldErrors.adminEmail = msg;
+          if (msg.toLowerCase().includes("password")) fieldErrors.adminPassword = msg;
+        });
+        setFormErrors(fieldErrors);
+      }
     }
   };
 
@@ -155,6 +170,20 @@ const DeveloperDashboard: React.FC = () => {
       resetForm();
     } catch (err: any) {
       console.error("Failed to update tenant:", err);
+
+      const apiError = err?.data;
+      if (apiError?.validation_errors) {
+        const fieldErrors: Record<string, string> = {};
+        apiError.validation_errors.forEach((msg: string) => {
+          if (msg.toLowerCase().includes("name")) fieldErrors.name = msg;
+          if (msg.toLowerCase().includes("slug")) fieldErrors.slug = msg;
+          if (msg.toLowerCase().includes("address")) fieldErrors.address = msg;
+          if (msg.toLowerCase().includes("admin name")) fieldErrors.adminName = msg;
+          if (msg.toLowerCase().includes("email")) fieldErrors.adminEmail = msg;
+          if (msg.toLowerCase().includes("password")) fieldErrors.adminPassword = msg;
+        });
+        setFormErrors(fieldErrors);
+      }
     }
   };
 
@@ -318,6 +347,12 @@ const DeveloperDashboard: React.FC = () => {
                           setFormData({ ...formData, name: e.target.value })
                         }
                       />
+                      {formErrors?.name && (
+                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <FiAlertCircle size={14} />
+                          <span>{formErrors.name}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <TextInput
@@ -329,6 +364,12 @@ const DeveloperDashboard: React.FC = () => {
                           setFormData({ ...formData, slug: e.target.value })
                         }
                       />
+                       {formErrors?.slug && (
+                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <FiAlertCircle size={14} />
+                          <span>{formErrors.slug}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <TextInput
@@ -340,6 +381,12 @@ const DeveloperDashboard: React.FC = () => {
                           setFormData({ ...formData, address: e.target.value })
                         }
                       />
+                       {formErrors?.address && (
+                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <FiAlertCircle size={14} />
+                          <span>{formErrors.address}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -359,6 +406,12 @@ const DeveloperDashboard: React.FC = () => {
                           setFormData({ ...formData, adminName: e.target.value })
                         }
                       />
+                       {formErrors?.adminName && (
+                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <FiAlertCircle size={14} />
+                          <span>{formErrors.adminName}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <TextInput
@@ -371,6 +424,12 @@ const DeveloperDashboard: React.FC = () => {
                           setFormData({ ...formData, adminEmail: e.target.value })
                         }
                       />
+                       {formErrors?.adminEmail && (
+                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <FiAlertCircle size={14} />
+                          <span>{formErrors.adminEmail}</span>
+                        </div>
+                      )}
                     </div>
                     <div className="space-y-2">
                       <div className="relative">
@@ -387,6 +446,12 @@ const DeveloperDashboard: React.FC = () => {
                             })
                           }
                         />
+                         {formErrors?.adminPassword && (
+                            <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                              <FiAlertCircle size={14} />
+                              <span>{formErrors.adminPassword}</span>
+                            </div>
+                          )}
                       </div>
                     </div>
                   </div>
