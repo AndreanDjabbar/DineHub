@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { FiEdit2, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiEdit, FiEye, FiEyeOff } from "react-icons/fi";
 import {
   FiServer,
   FiPlus,
@@ -11,6 +11,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import api from "~/lib/axios";
+import { Button, TextInput } from "~/components";
 
 interface Restaurant {
   id: string;
@@ -220,12 +221,14 @@ const DeveloperDashboard: React.FC = () => {
               Manage all restaurant instances
             </p>
           </div>
-          <button
-            onClick={openCreateModal}
-            className="bg-red-600 hover:bg-red-700 text-white rounded-2xl font-bold flex items-center gap-2 transition shadow-lg shadow-red-100 text-sm px-4 py-3 w-fit hover:cursor-pointer"
+          <div
           >
-            <FiPlus className="w-5 h-5" /> Onboard Restaurant
-          </button>
+            <Button
+              onClick={openCreateModal}
+            >
+              Onboard Restaurant
+            </Button>
+          </div>
         </div>
 
         {/* --- Tenants Grid --- */}
@@ -239,10 +242,10 @@ const DeveloperDashboard: React.FC = () => {
                 <h3 className="text-xl font-bold text-gray-900">{repo.name}</h3>
                 <button
                   onClick={() => handleEditClick(repo)}
-                  className="text-gray-400 hover:text-red-600 transition p-1 bg-gray-50 rounded-lg hover:cursor-pointer"
+                  className="text-gray-400 hover:text-blue-600 transition p-1rounded-lg hover:cursor-pointer"
                   title="Edit Restaurant"
                 >
-                  <FiEdit2 />
+                  <FiEdit />
                 </button>
               </div>
 
@@ -306,12 +309,9 @@ const DeveloperDashboard: React.FC = () => {
                     </h4>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700">
-                        Brand Name
-                      </label>
-                      <input
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                      <TextInput
                         placeholder="e.g. Burger King"
+                        label="Brand Name"
                         value={formData.name}
                         required
                         onChange={(e) =>
@@ -320,11 +320,8 @@ const DeveloperDashboard: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700">
-                        URL Slug
-                      </label>
-                      <input
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                      <TextInput
+                        label="Slug"
                         placeholder="e.g. burger-king-jkt"
                         value={formData.slug}
                         required
@@ -334,14 +331,10 @@ const DeveloperDashboard: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700">
-                        Address
-                      </label>
-                      <textarea
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400 resize-none"
+                      <TextInput
+                        label="Address"
                         placeholder="Full Address..."
                         value={formData.address}
-                        rows={2}
                         required
                         onChange={(e) =>
                           setFormData({ ...formData, address: e.target.value })
@@ -357,11 +350,8 @@ const DeveloperDashboard: React.FC = () => {
                     </h4>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700">
-                        Admin Name
-                      </label>
-                      <input
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                      <TextInput
+                        label="Admin Name"
                         placeholder="Full Name"
                         value={formData.adminName}
                         required
@@ -371,11 +361,8 @@ const DeveloperDashboard: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700">
-                        Email Address
-                      </label>
-                      <input
-                        className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                      <TextInput
+                        label="Admin Email"
                         placeholder="admin@brand.com"
                         value={formData.adminEmail}
                         type="email"
@@ -386,12 +373,9 @@ const DeveloperDashboard: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-gray-700">
-                        Password
-                      </label>
                       <div className="relative">
-                        <input
-                          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-200 transition placeholder:text-gray-400"
+                        <TextInput
+                          label="Admin Password"
                           placeholder="••••••••"
                           value={formData.adminPassword}
                           type={showPassword ? "text" : "password"}
@@ -403,36 +387,17 @@ const DeveloperDashboard: React.FC = () => {
                             })
                           }
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
-                        >
-                          {showPassword ? (
-                            <FiEyeOff className="w-5 h-5" />
-                          ) : (
-                            <FiEye className="w-5 h-5" />
-                          )}
-                        </button>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="pt-6 border-t border-gray-50 flex justify-end gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-6 py-3 rounded-2xl font-bold text-gray-500 hover:bg-gray-100 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
+                  <Button
                     type="submit"
-                    className="px-8 py-3 rounded-2xl font-bold bg-red-600 text-white hover:bg-red-700 transition shadow-lg shadow-red-100 active:scale-[0.98]"
-                  >
+                   >
                     {isEditing ? "Update Tenant" : "Create Tenant"}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </form>
