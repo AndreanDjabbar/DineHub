@@ -11,6 +11,7 @@ import subscriptionRoutes from "./router/subscription.router.js";
 import userRoutes from "./router/user.router.js";
 import cors from "cors";
 import { globalLimiter } from "./middleware/limiter.middleware.js";
+import errorHandler from "./middleware/errorHandler.middleware.js";
 
 const app = express();
 
@@ -39,10 +40,6 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(globalLimiter)
 
-app.use("/dinehub/api/auth", authRoutes);
-app.use("/dinehub/api/restaurant", restaurantRoutes);
-app.use("/dinehub/api/user", userRoutes);
-app.use("/dinehub/api/subscription", subscriptionRoutes);
 
 const morganFormat = (tokens, req, res) => {
   try {
@@ -70,5 +67,12 @@ NODE_ENV === "development"
         },
       })
     );
+
+app.use("/dinehub/api/auth", authRoutes);
+app.use("/dinehub/api/restaurant", restaurantRoutes);
+app.use("/dinehub/api/user", userRoutes);
+app.use("/dinehub/api/subscription", subscriptionRoutes);
+
+app.use(errorHandler)
 
 export default app;
