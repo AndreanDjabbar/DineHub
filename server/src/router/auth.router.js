@@ -7,8 +7,7 @@ import {
     forgotPasswordEmailVerificationController,
     forgotPasswordLinkVerificationController,
     ForgotPasswordResetController,
-    logoutController,
-    getProfileController
+    logoutController
 } from "../controller/auth.controller.js";
 
 import { 
@@ -22,19 +21,60 @@ import {
 import validateToken from "../middleware/jwt.middleware.js";
 import validateSchema from "../middleware/schema.middleware.js";
 import catchAsync from "../middleware/catchAsync.middleware.js";
+import { userLimiter } from "../middleware/limiter.middleware.js";
 
 const router = express.Router();
 
-router.post("/register", validateSchema(registerSchema), catchAsync(registerController));
-router.post("/login", validateSchema(loginSchema), catchAsync(loginController));
-router.post("/verify/register-token", catchAsync(verifyRegisterTokenController));
-router.post("/verify/register-otp", validateSchema(registerOTPCodeSchema), catchAsync(verifyRegisterOtpController));
-router.post("/forgot-password/email-verification", validateSchema(forgotPasswordEmailSchema), catchAsync(forgotPasswordEmailVerificationController));
-router.post("/forgot-password/link-verification", catchAsync(forgotPasswordLinkVerificationController));
-router.post("/forgot-password/reset-password", validateSchema(forgotPasswordResetSchema), catchAsync(ForgotPasswordResetController));
-
-router.post("/logout", validateToken, catchAsync(logoutController));
-router.get("/verify-jwt-token", validateToken, catchAsync((req, res) => {return res.status(200).json({status: "success", message: "Token is valid"});}));
-router.get("/profile", validateToken, catchAsync(getProfileController));
+router.post(
+    "/register", 
+    userLimiter(10, 6, "register"), 
+    validateSchema(registerSchema),
+    catchAsync(registerController)
+);
+router.post(
+    "/login", 
+    userLimiter(10, 6, "login"), 
+    validateSchema(loginSchema),
+    catchAsync(loginController)
+);
+router.post(
+    "/verify/register-token", 
+    userLimiter(10, 6, "verify_register_token"),
+    catchAsync(verifyRegisterTokenController)
+);
+router.post(
+    "/verify/register-otp", 
+    userLimiter(10, 6, "verify_register_otp"),
+    validateSchema(registerOTPCodeSchema), 
+    catchAsync(verifyRegisterOtpController)
+);
+router.post(
+    "/forgot-password/email-verification", 
+    userLimiter(10, 6, "forgot_password_email_verification"),
+    validateSchema(forgotPasswordEmailSchema), 
+    catchAsync(forgotPasswordEmailVerificationController)
+);
+router.post(
+    "/forgot-password/link-verification", 
+    userLimiter(10, 6, "forgot_password_link_verification"),
+    catchAsync(forgotPasswordLinkVerificationController)
+);
+router.post(
+    "/forgot-password/reset-password",
+    userLimiter(10, 6, "forgot_password_reset_password"), 
+    validateSchema(forgotPasswordResetSchema), 
+    catchAsync(ForgotPasswordResetController)
+);
+router.post(
+    "/logout", 
+    userLimiter(10, 5, "logout"),
+    validateToken, 
+    catchAsync(logoutController)
+);
+// router.get(
+//     "/verify-jwt-token", 
+//     validateToken, 
+//     catchAsync((req, res) => {return res.status(200).json({status: "success", message: "Token is valid"});})
+// );
 
 export default router;

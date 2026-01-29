@@ -10,9 +10,16 @@ import {
   createTenantAdminSchema,
   updateStaffSchema
 } from "../validation/user.validation.js";
+import { userLimiter } from "../middleware/limiter.middleware.js";
 
 const router = express.Router();
 
+router.get(
+  "/profile", 
+  userLimiter(5, 30, "get_profile"),
+  validateToken, 
+  catchAsync(UserController.getProfileController)
+);
 router.post(
   "/create-tenant",
   validateToken,
@@ -22,26 +29,31 @@ router.post(
 );
 router.post("/create-staff", 
   validateToken,
+  userLimiter(10, 15, "create_staff"),
   validateSchema(createStaffSchema),
   authorizedRoles("ADMIN", "Developer"), 
   catchAsync(UserController.createStaffController)
 );
-router.post("/delete-staff/:id", 
+router.post("/delete-staff/:id",
+  userLimiter(10, 10, "delete_staff"), 
   validateToken,
   authorizedRoles("ADMIN", "Developer"), 
   catchAsync(UserController.deleteStaffController)
 );
-router.put("/update-staff/:id", 
+router.put("/update-staff/:id",
+  userLimiter(10, 10, "update_staff"), 
   validateToken, 
   validateSchema(updateStaffSchema),
   authorizedRoles("ADMIN", "Developer"), 
   catchAsync(UserController.updateStaffController)
 );
 router.get("/cashier/:restaurantId", 
+  userLimiter(5, 35, "get_cashier_staff_by_restaurant_id"),
   validateToken, 
   catchAsync(UserController.getCashierStaffByRestaurantIdController)
 );
 router.get("/kitchen/:restaurantId", 
+  userLimiter(5, 35, "get_kitchen_staff_by_restaurant_id"),
   validateToken, 
   catchAsync(UserController.getKitchenStaffByRestaurantIdController)
 );

@@ -16,11 +16,13 @@ import {
   createMenuCategorySchema,
   updateMenuCategorySchema,
 } from "../validation/restaurant.validation.js";
+import { userLimiter } from "../middleware/limiter.middleware.js";
 
 const router = express.Router();
 
 router.post(
   "/onboard",
+  userLimiter(10, 5, "onboard"),
   validateToken,
   validateSchema(createRestaurantSchema),
   authorizedRoles("Developer"),
@@ -28,18 +30,21 @@ router.post(
 );
 router.get(
   "/",
+  userLimiter(5, 30, "get_all_restaurant"),
   validateToken,
   authorizedRoles("Developer"),
   catchAsync(RestaurantController.getAllRestaurantController),
 );
 router.get(
   "/:id",
+  userLimiter(5, 30, "get_restaurant"),
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
   catchAsync(RestaurantController.getRestaurantController),
 );
 router.put(
   "/:id",
+  userLimiter(10, 5, "update_restaurant"),
   validateToken,
   validateSchema(updateRestaurantSchema),
   authorizedRoles("Developer"),
@@ -47,19 +52,26 @@ router.put(
 );
 router.delete(
   "/:id",
+  userLimiter(10, 5, "delete_restaurant"),
   validateToken,
   authorizedRoles("Developer"),
   catchAsync(RestaurantController.deleteRestaurantController),
 );
 router.get(
   "/table/:restaurantId",
+  userLimiter(5, 30, "get_table_by_restaurant_id"),
   validateToken,
   authorizedRoles("Developer", "ADMIN", "CASHIER"),
   catchAsync(RestaurantController.getTableByRestaurantIdController),
 );
-router.get("/table/:id", catchAsync(RestaurantController.getTableByIdController));
+router.get(
+  "/table/:id",
+  userLimiter(5, 30, "get_table"), 
+  catchAsync(RestaurantController.getTableByIdController)
+);
 router.post(
   "/table",
+  userLimiter(10, 5, "create_table"),
   validateToken,
   validateSchema(createTableSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -67,12 +79,14 @@ router.post(
 );
 router.delete(
   "/table/:id",
+  userLimiter(10, 5, "delete_table"),
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
   catchAsync(RestaurantController.deleteTableController),
 );
 router.put(
   "/table/:id",
+  userLimiter(10, 5, "update_table"),
   validateToken,
   validateSchema(updateTableSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -80,6 +94,7 @@ router.put(
 );
 router.post(
   "/category",
+  userLimiter(10, 5, "create_menu_category"),
   validateToken,
   validateSchema(createMenuCategorySchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -87,6 +102,7 @@ router.post(
 );
 router.put(
   "/category/:id",
+  userLimiter(10, 5, "update_menu_category"),
   validateToken,
   validateSchema(updateMenuCategorySchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -94,16 +110,19 @@ router.put(
 );
 router.get(
   "/full-menu/:restaurantId",
+  userLimiter(5, 35, "get_full_menu"),
   catchAsync(RestaurantController.getFullMenuController),
 );
 router.delete(
   "/category/:id",
+  userLimiter(10, 5, "delete_menu_category"),
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
   catchAsync(RestaurantController.deleteCategoryController),
 );
 router.post(
   "/item",
+  userLimiter(10, 8, "create_menu_item"),
   validateToken,
   validateSchema(createMenuItemSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -111,6 +130,7 @@ router.post(
 );
 router.put(
   "/item/:id",
+  userLimiter(10, 8, "update_menu_item"),
   validateToken,
   validateSchema(updateMenuItemSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -118,6 +138,7 @@ router.put(
 );
 router.delete(
   "/item/:id",
+  userLimiter(10, 8, "delete_menu_item"),
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
   catchAsync(RestaurantController.deleteMenuItemController),
