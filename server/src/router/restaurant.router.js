@@ -4,6 +4,7 @@ import validateToken from "../middleware/jwt.middleware.js";
 import authorizedRoles from "../middleware/role.middleware.js";
 validateToken;
 import validateSchema from "../middleware/schema.middleware.js";
+import catchAsync from "../middleware/catchAsync.middleware.js";
 
 import {
   createRestaurantSchema,
@@ -23,103 +24,103 @@ router.post(
   validateToken,
   validateSchema(createRestaurantSchema),
   authorizedRoles("Developer"),
-  RestaurantController.onboardTenantController,
+  catchAsync(RestaurantController.onboardTenantController),
 );
 router.get(
   "/",
   validateToken,
   authorizedRoles("Developer"),
-  RestaurantController.getAllRestaurantController,
+  catchAsync(RestaurantController.getAllRestaurantController),
 );
 router.get(
   "/:id",
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.getRestaurantController,
+  catchAsync(RestaurantController.getRestaurantController),
 );
 router.put(
   "/:id",
   validateToken,
   validateSchema(updateRestaurantSchema),
   authorizedRoles("Developer"),
-  RestaurantController.updateRestaurantController,
+  catchAsync(RestaurantController.updateRestaurantController),
 );
 router.delete(
   "/:id",
   validateToken,
   authorizedRoles("Developer"),
-  RestaurantController.deleteRestaurantController,
+  catchAsync(RestaurantController.deleteRestaurantController),
 );
 router.get(
   "/table/:restaurantId",
   validateToken,
   authorizedRoles("Developer", "ADMIN", "CASHIER"),
-  RestaurantController.getTableByRestaurantIdController,
+  catchAsync(RestaurantController.getTableByRestaurantIdController),
 );
-router.get("/table/:id", RestaurantController.getTableByIdController);
+router.get("/table/:id", catchAsync(RestaurantController.getTableByIdController));
 router.post(
   "/table",
   validateToken,
   validateSchema(createTableSchema),
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.createTableController,
+  catchAsync(RestaurantController.createTableController),
 );
 router.delete(
   "/table/:id",
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.deleteTableController,
+  catchAsync(RestaurantController.deleteTableController),
 );
 router.put(
   "/table/:id",
   validateToken,
   validateSchema(updateTableSchema),
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.updateTableController,
+  catchAsync(RestaurantController.updateTableController),
 );
 router.post(
   "/category",
   validateToken,
   validateSchema(createMenuCategorySchema),
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.createMenuCategoryController,
+  catchAsync(RestaurantController.createMenuCategoryController),
 );
 router.put(
   "/category/:id",
   validateToken,
   validateSchema(updateMenuCategorySchema),
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.updateMenuCategoryController,
+  catchAsync(RestaurantController.updateMenuCategoryController),
 );
 router.get(
   "/full-menu/:restaurantId",
-  RestaurantController.getFullMenuController,
+  catchAsync(RestaurantController.getFullMenuController),
 );
 router.delete(
   "/category/:id",
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.deleteCategoryController,
+  catchAsync(RestaurantController.deleteCategoryController),
 );
 router.post(
   "/item",
   validateToken,
   validateSchema(createMenuItemSchema),
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.createMenuItemController,
+  catchAsync(RestaurantController.createMenuItemController),
 );
 router.put(
   "/item/:id",
   validateToken,
   validateSchema(updateMenuItemSchema),
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.updateMenuItemController,
+  catchAsync(RestaurantController.updateMenuItemController),
 );
 router.delete(
   "/item/:id",
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
-  RestaurantController.deleteMenuItemController,
+  catchAsync(RestaurantController.deleteMenuItemController),
 );
 
 export default router;

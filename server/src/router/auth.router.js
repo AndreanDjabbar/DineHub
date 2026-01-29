@@ -21,19 +21,20 @@ import {
 
 import validateToken from "../middleware/jwt.middleware.js";
 import validateSchema from "../middleware/schema.middleware.js";
+import catchAsync from "../middleware/catchAsync.middleware.js";
 
 const router = express.Router();
 
-router.post("/register", validateSchema(registerSchema), registerController);
-router.post("/login", validateSchema(loginSchema), loginController);
-router.post("/verify/register-token", verifyRegisterTokenController)
-router.post("/verify/register-otp", validateSchema(registerOTPCodeSchema), verifyRegisterOtpController)
-router.post("/forgot-password/email-verification", validateSchema(forgotPasswordEmailSchema), forgotPasswordEmailVerificationController)
-router.post("/forgot-password/link-verification", forgotPasswordLinkVerificationController);
-router.post("/forgot-password/reset-password", validateSchema(forgotPasswordResetSchema), ForgotPasswordResetController);
+router.post("/register", validateSchema(registerSchema), catchAsync(registerController));
+router.post("/login", validateSchema(loginSchema), catchAsync(loginController));
+router.post("/verify/register-token", catchAsync(verifyRegisterTokenController));
+router.post("/verify/register-otp", validateSchema(registerOTPCodeSchema), catchAsync(verifyRegisterOtpController));
+router.post("/forgot-password/email-verification", validateSchema(forgotPasswordEmailSchema), catchAsync(forgotPasswordEmailVerificationController));
+router.post("/forgot-password/link-verification", catchAsync(forgotPasswordLinkVerificationController));
+router.post("/forgot-password/reset-password", validateSchema(forgotPasswordResetSchema), catchAsync(ForgotPasswordResetController));
 
-router.post("/logout", validateToken, logoutController);
-router.get("/verify-jwt-token", validateToken, (req, res) => {return res.status(200).json({status: "success", message: "Token is valid"});});
-router.get("/profile", validateToken, getProfileController);
+router.post("/logout", validateToken, catchAsync(logoutController));
+router.get("/verify-jwt-token", validateToken, catchAsync((req, res) => {return res.status(200).json({status: "success", message: "Token is valid"});}));
+router.get("/profile", validateToken, catchAsync(getProfileController));
 
 export default router;
