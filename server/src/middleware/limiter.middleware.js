@@ -1,4 +1,4 @@
-import { rateLimit } from 'express-rate-limit';
+import { rateLimit, ipKeyGenerator } from 'express-rate-limit';
 import { RedisStore } from 'rate-limit-redis';
 import { getRedisClient } from '../config/redis.config.js';
 import { GLOBAL_RATE_LIMITER_REQ, GLOBAL_RATE_LIMITER_TIME } from '../util/env.util.js';
@@ -33,7 +33,7 @@ export const userLimiter = (minuteTime, requestAmount, prefix = 'user') => {
         standardHeaders: true,
         legacyHeaders: false,
         keyGenerator: (req) => {
-            return req.user?.id || req.ip; 
+            return req.user?.id || ipKeyGenerator(req);
         },
         store: new RedisStore({
             sendCommand: async (...args) => {
@@ -42,13 +42,14 @@ export const userLimiter = (minuteTime, requestAmount, prefix = 'user') => {
             },
             prefix: `limit:${prefix}:`,
         }),
-        handler: (req, res) => {
-            return responseError(
-                res, 
-                429,
-                'You have reached your request limit. Please try again later.', 
-                'rateLimitInfo',
-            );
+        handler: (req, res, next, options) => {
+            const error = new Error('You have reached your request limit. Please try again later.');
+            
+            error.statusCode = 429;
+            error.data = {
+                retryAfter: res.getHeader('Retry-After')
+            }
+            throw error; 
         },
     });
 };
