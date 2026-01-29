@@ -12,7 +12,6 @@ import {
 } from "react-icons/fi";
 import api from "~/lib/axios";
 import { Button, TextInput } from "~/components";
-import { error } from "console";
 
 interface Restaurant {
   id: string;
