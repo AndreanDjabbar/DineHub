@@ -12,6 +12,8 @@ import userRoutes from "./router/user.router.js";
 import cors from "cors";
 import { globalLimiter } from "./middleware/limiter.middleware.js";
 import errorHandler from "./middleware/errorHandler.middleware.js";
+import timeout from "connect-timeout";
+import haltTimeoutMiddleware from "./middleware/halt.middleware.js";
 
 const app = express();
 
@@ -21,7 +23,6 @@ app.use(
     credentials: true,
   })
 );
-
 app.use(helmet())
 // When a browser (the user) talks to your server (the API), they exchange a lot of "metadata" called HTTP Headers. By default, Express is very "talkative" and leaves certain security doors wide open. Helmet automatically tightens those headers to make your site much harder to attack.
 /*
@@ -36,6 +37,9 @@ It tells the browser: "Only talk to me over secure HTTPS" and "Don't try to gues
 */
 
 // Increase payload size limit to handle base64 images
+
+app.use(timeout("7s"))
+app.use(haltTimeoutMiddleware)
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(globalLimiter)
