@@ -5,6 +5,7 @@ import authorizedRoles from "../middleware/role.middleware.js";
 validateToken;
 import validateSchema from "../middleware/schema.middleware.js";
 import catchAsync from "../middleware/catchAsync.middleware.js";
+import timeout from "connect-timeout";
 
 import {
   createRestaurantSchema,
@@ -23,6 +24,7 @@ const router = express.Router();
 router.post(
   "/onboard",
   userLimiter(10, 5, "onboard"),
+  timeout('15s'),
   validateToken,
   validateSchema(createRestaurantSchema),
   authorizedRoles("Developer"),
@@ -31,6 +33,7 @@ router.post(
 router.get(
   "/",
   userLimiter(5, 30, "get_all_restaurant"),
+  timeout('5s'),
   validateToken,
   authorizedRoles("Developer"),
   catchAsync(RestaurantController.getAllRestaurantController),
@@ -38,6 +41,7 @@ router.get(
 router.get(
   "/:id",
   userLimiter(5, 30, "get_restaurant"),
+  timeout('3s'),
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
   catchAsync(RestaurantController.getRestaurantController),
@@ -45,6 +49,7 @@ router.get(
 router.put(
   "/:id",
   userLimiter(10, 5, "update_restaurant"),
+  timeout('8s'),
   validateToken,
   validateSchema(updateRestaurantSchema),
   authorizedRoles("Developer"),
@@ -53,6 +58,7 @@ router.put(
 router.delete(
   "/:id",
   userLimiter(10, 5, "delete_restaurant"),
+  timeout('8s'),
   validateToken,
   authorizedRoles("Developer"),
   catchAsync(RestaurantController.deleteRestaurantController),
@@ -60,18 +66,21 @@ router.delete(
 router.get(
   "/table/:restaurantId",
   userLimiter(5, 30, "get_table_by_restaurant_id"),
+  timeout('3s'),
   validateToken,
   authorizedRoles("Developer", "ADMIN", "CASHIER"),
   catchAsync(RestaurantController.getTableByRestaurantIdController),
 );
 router.get(
   "/table/:id",
-  userLimiter(5, 30, "get_table"), 
+  userLimiter(5, 30, "get_table"),
+  timeout('3s'),
   catchAsync(RestaurantController.getTableByIdController)
 );
 router.post(
   "/table",
   userLimiter(10, 5, "create_table"),
+  timeout('5s'),
   validateToken,
   validateSchema(createTableSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -80,6 +89,7 @@ router.post(
 router.delete(
   "/table/:id",
   userLimiter(10, 5, "delete_table"),
+  timeout('5s'),
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
   catchAsync(RestaurantController.deleteTableController),
@@ -87,6 +97,7 @@ router.delete(
 router.put(
   "/table/:id",
   userLimiter(10, 5, "update_table"),
+  timeout('5s'),
   validateToken,
   validateSchema(updateTableSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -95,6 +106,7 @@ router.put(
 router.post(
   "/category",
   userLimiter(10, 5, "create_menu_category"),
+  timeout('5s'),
   validateToken,
   validateSchema(createMenuCategorySchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -103,6 +115,7 @@ router.post(
 router.put(
   "/category/:id",
   userLimiter(10, 5, "update_menu_category"),
+  timeout('5s'),
   validateToken,
   validateSchema(updateMenuCategorySchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -111,11 +124,13 @@ router.put(
 router.get(
   "/full-menu/:restaurantId",
   userLimiter(5, 35, "get_full_menu"),
+  timeout('5s'),
   catchAsync(RestaurantController.getFullMenuController),
 );
 router.delete(
   "/category/:id",
   userLimiter(10, 5, "delete_menu_category"),
+  timeout('5s'),
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
   catchAsync(RestaurantController.deleteCategoryController),
@@ -123,6 +138,7 @@ router.delete(
 router.post(
   "/item",
   userLimiter(10, 8, "create_menu_item"),
+  timeout('8s'),
   validateToken,
   validateSchema(createMenuItemSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -131,6 +147,7 @@ router.post(
 router.put(
   "/item/:id",
   userLimiter(10, 8, "update_menu_item"),
+  timeout('8s'),
   validateToken,
   validateSchema(updateMenuItemSchema),
   authorizedRoles("Developer", "ADMIN"),
@@ -139,6 +156,7 @@ router.put(
 router.delete(
   "/item/:id",
   userLimiter(10, 8, "delete_menu_item"),
+  timeout('5s'),
   validateToken,
   authorizedRoles("Developer", "ADMIN"),
   catchAsync(RestaurantController.deleteMenuItemController),
