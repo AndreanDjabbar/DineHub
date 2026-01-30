@@ -4,6 +4,7 @@ export const PORT = Number(process.env.PORT) || 3000;
 export const HOST = process.env.HOST || "0.0.0.0";
 export const NODE_ENV = process.env.NODE_ENV || "development";
 export const JWT_SECRET = process.env.JWT_SECRET || "default_secret_key";
+export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
 export const REDIS_HOST = process.env.REDIS_HOST || "localhost";
 export const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 export const REDIS_PASSWORD = process.env.REDIS_PASSWORD || "";

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { JWT_SECRET } from './env.util.js';
+import { JWT_SECRET, JWT_EXPIRES_IN } from './env.util.js';
 
 export const generateJWTToken = ({
     userID, 
@@ -13,7 +13,7 @@ export const generateJWTToken = ({
     };
     const options = {
         algorithm: 'HS256',
-        expiresIn: '24h',
+        expiresIn: JWT_EXPIRES_IN,
     };
     return jwt.sign(payload, JWT_SECRET, options);
 };
