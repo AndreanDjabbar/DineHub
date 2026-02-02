@@ -4,11 +4,10 @@ import logger from "../../logs/logger.js";
 import { getRedisClient } from "../config/redis.config.js";
 
 const validateToken = async(req, res, next) => {
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
+    const token = req.cookies.token; 
 
     if (!token) {
-        logger.warn("No token provided in request");
+        logger.warn("No token provided in cookies");
         return responseError(res, 401, "Access token is required", "error", "UNAUTHORIZED");
     }
 
@@ -16,7 +15,7 @@ const validateToken = async(req, res, next) => {
     const blacklistKey = `blacklistToken:${token}`;
     const isBlacklisted = await redisClient.get(blacklistKey);
 
-    if (isBlacklisted && isBlacklisted === "blacklisted") {
+    if (isBlacklisted === "blacklisted") {
         logger.warn("Blacklisted token attempt detected");
         return responseError(res, 401, "Token has been revoked", "error", "TOKEN_REVOKED");
     }
@@ -34,7 +33,7 @@ const validateToken = async(req, res, next) => {
     } catch (error) {
         logger.error(`Token verification failed: ${error.message}`);
         
-        if (error.message === 'Token has expired') {
+        if (error.message === 'jwt expired' || error.name === 'TokenExpiredError') {
             return responseError(res, 401, "Token has expired", "error", "TOKEN_EXPIRED");
         }
         
