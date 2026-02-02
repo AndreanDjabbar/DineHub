@@ -17,10 +17,17 @@ const router = express.Router();
 
 router.get(
   "/profile", 
-  userLimiter(5, 30, "get_profile"),
+  userLimiter(5, 50, "get_profile"),
   timeout('3s'),
   validateToken, 
   catchAsync(UserController.getProfileController)
+);
+router.get(
+  "/me", 
+  userLimiter(5, 50, "me"),
+  timeout('3s'),
+  validateToken, 
+  catchAsync(UserController.getMyUserDataController)
 );
 router.post(
   "/create-tenant",
