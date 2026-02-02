@@ -1,5 +1,6 @@
 import { responseSuccess, responseError } from "../util/response.util.js";
 import AuthService from "../service/auth.service.js";
+import { COOKIE_TOKEN_EXPIRES_HOURS, NODE_ENV } from "../util/env.util.js";
 
 export const registerController = async (req, res) => {
   const { name, email, password } = req.body;
@@ -23,7 +24,17 @@ export const registerController = async (req, res) => {
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
   const result = await AuthService.login(email, password);
-  return responseSuccess(res, 200, "Login successful", "data", result);
+  const token = result.token;
+  
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: NODE_ENV === "production",
+    sameSite: "Lax",
+    maxAge: COOKIE_TOKEN_EXPIRES_HOURS * 60 * 60 * 1000,
+  });
+  return responseSuccess(res, 200, "Login successful", "data", {
+    user: result.user,
+  });
 };
 
 export const verifyRegisterTokenController = async (req, res) => {
