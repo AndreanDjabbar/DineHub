@@ -18,3 +18,4 @@ export const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY || "";
 export const MIDTRANS_CLIENT_KEY = process.env.MIDTRANS_CLIENT_KEY || "";
 export const GLOBAL_RATE_LIMITER_TIME = Number(process.env.GLOBAL_RATE_LIMITER_TIME) || 30
 export const GLOBAL_RATE_LIMITER_REQ = Number(process.env.GLOBAL_RATE_LIMITER_REQ) || 300
+export const COOKIE_TOKEN_EXPIRES_HOURS = Number(process.env.COOKIE_TOKEN_EXPIRES_HOURS) || 24
