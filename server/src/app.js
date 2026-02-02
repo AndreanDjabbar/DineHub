@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import logger from "../logs/logger.js";
 import prisma from "./config/postgres.config.js";
 import { getRedisClient } from "./config/redis.config.js";
@@ -42,6 +43,7 @@ app.use(timeout("7s"))
 app.use(haltTimeoutMiddleware)
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(cookieParser());
 app.use(globalLimiter)
 
 
