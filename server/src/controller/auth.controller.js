@@ -115,9 +115,13 @@ export const ForgotPasswordResetController = async (req, res) => {
 };
 
 export const logoutController = async (req, res) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = req.cookies.token;
   await AuthService.logout(token);
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: NODE_ENV === "production",
+    sameSite: "Lax",
+  });
   return responseSuccess(
     res,
     200,
