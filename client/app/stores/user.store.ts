@@ -36,7 +36,7 @@ const useUserStore = create<UserStore>((set) => ({
         try {
             const response = await api.get("/user/me");
             const data = response.data;
-            
+
             if (data.success) {
                 const user = data.data.user;
                 set({ 
@@ -62,7 +62,8 @@ const useUserStore = create<UserStore>((set) => ({
             userID: null, 
             name: null, 
             role: null, 
-            email: null 
+            email: null,
+            userData: null
         }),
     userData: null,
 }));
