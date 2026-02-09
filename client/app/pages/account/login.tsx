@@ -5,6 +5,7 @@ import { BiLoader } from "react-icons/bi";
 import { BottomNavigation, TextInput, Button } from "~/components";
 import NotificationPopup from "~/components/NotificationPopup";
 import api from "~/lib/axios";
+import { useUserStore } from "~/stores";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const Login: React.FC = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationTitle, setNotificationTitle] = useState("Error");
+  const loadUserData = useUserStore((state) => state.loadUserData);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -45,9 +47,7 @@ const Login: React.FC = () => {
 
       const data = response.data;
       if (data.success) {
-        console.log("Login successful!, Data: ", data);
-        localStorage.setItem("token", data.data.token);
-        localStorage.setItem("user", JSON.stringify(data.data.user));
+        await loadUserData();
 
         setNotificationTitle("Login Successful");
         setNotificationMessage("Welcome back! Redirecting...");
@@ -58,10 +58,12 @@ const Login: React.FC = () => {
           const routeMapping: Record<any, string> = {
             ADMIN: "/admin",
             CASHIER: "/cashier",
+            USER: "/menu",
             KITCHEN: "/kitchen",
-            Developer: "/developer",
+            DEVELOPER: "/developer",
           };
-          const redirectRoute = routeMapping[role] || "/";
+
+          const redirectRoute = routeMapping[role!] || "/";
           navigate(redirectRoute);
         }, 1500);
       }
