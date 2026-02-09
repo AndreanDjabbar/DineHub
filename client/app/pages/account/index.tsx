@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import { BottomNavigation, ProfileBadge } from "~/components";
 import api from "~/lib/axios";
+import useUserStore from "~/stores/user.store";
 
 interface User {
   id: string;
@@ -20,25 +21,15 @@ interface User {
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
+  const clearUserData = useUserStore(state => state.clearUserData);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<User>({ id: "", name: "", email: "" });
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      const token = localStorage.getItem("token");
-      if(!token) {
-        setIsLoggedIn(false);
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        const response = await api.get("/auth/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await api.get("/auth/profile");
         const data = response.data;
         console.log("User Profile Data: ", data);
         setUser({ id: data.data.id, name: data.data.name, email: data.data.email });
@@ -54,21 +45,14 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-    if(token){
-      try{
-        await api.post("/auth/logout", {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      } catch (error) {
-        console.error("Failed to logout:", error);
-      }
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      setIsLoggedIn(false);
+    try{
+      await api.post("/auth/logout");
+      clearUserData();
       navigate("/login");
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    } finally {
+      setIsLoggedIn(false);
     }
   };
 

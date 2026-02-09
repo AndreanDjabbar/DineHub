@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import api from "~/lib/axios";
 import { Button, TextInput } from "~/components";
+import useUserStore from "~/stores/user.store";
 
 interface Restaurant {
   id: string;
@@ -24,7 +25,6 @@ interface Restaurant {
 }
 
 const DeveloperDashboard: React.FC = () => {
-  const token = localStorage.getItem("token");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -197,20 +197,12 @@ const DeveloperDashboard: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        await api.post("/auth/logout", {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      } catch (error) {
-        console.error("Failed to logout:", error);
-      }
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    try {
+      await api.post("/auth/logout");
+      useUserStore.getState().clearUserData();
       navigate("/login");
+    } catch (error) {
+      console.error("Failed to logout:", error);
     }
   };
 

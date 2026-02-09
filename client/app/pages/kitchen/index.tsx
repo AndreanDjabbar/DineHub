@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { FiCheckCircle, FiClock, FiLogOut, FiCheckSquare, FiSquare } from "react-icons/fi";
 import api from "~/lib/axios";
+import useUserStore from "~/stores/user.store";
 
 const KitchenDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -51,21 +52,13 @@ const KitchenDashboard: React.FC = () => {
   };
 
   const handleLogout = async () => {
-    const token = localStorage.getItem("token");
-    if(token){
-      try{
-        await api.post("/auth/logout", {}, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      } catch (error) {
-        console.error("Failed to logout:", error);
-      }
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+    try{
+      await api.post("/auth/logout");
+      useUserStore.getState().clearUserData();
       navigate("/login");
-    }
+    } catch (error) {
+      console.error("Failed to logout:", error);
+    } 
   };
 
   return (

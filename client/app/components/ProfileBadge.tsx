@@ -2,49 +2,33 @@ import React, { useState } from 'react';
 import { FiLogOut, FiUser, FiX } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import api from '~/lib/axios';
+import useUserStore from '~/stores/user.store';
 
 interface ProfileBadgeProps {
-}
-
-interface User {
-    name?: string;
-    email: string;
 }
 
 const ProfileBadge: React.FC<ProfileBadgeProps> = () => {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const navigate = useNavigate();
+    const userData = useUserStore(state => state.userData);
+    const clearUserData = useUserStore(state => state.clearUserData);
 
-    const getUser = (): User | null => {
-        try {
-        const userString = localStorage.getItem("user");
-        return userString ? JSON.parse(userString) : null;
-        } catch (error) {
-        console.error("Failed to parse user data:", error);
-        return null;
-        }
-    };
-
-    const user = getUser();
+    const user = userData ? {
+        name: userData.name,
+        email: userData.email
+    } : null;
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
-        const token = localStorage.getItem("token");
-
-        if (token) {
-            try {
-                await api.post("/auth/logout", {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-                });
-            } catch (error) {
-                console.error("Failed to logout:", error);
-            }
+        try {
+            await api.post("/auth/logout");
+            clearUserData();
+            navigate("/login");
+        } catch (error) {
+            console.error("Failed to logout:", error);
+        } finally {
+            setIsLoggingOut(false);
         }
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        navigate("/login");
     };
 
     if (!user) {
