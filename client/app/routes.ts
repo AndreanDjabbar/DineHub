@@ -6,6 +6,25 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
+  index("./pages/home/index.tsx"),
+
+  layout("./layouts/PublicLayout.tsx", [
+    route("login", "./pages/account/login.tsx"),
+    route("signup", "./pages/account/signup.tsx"),
+    route("forgot-password", "./pages/forgot-password/index.tsx"),
+    route("reset-password", "./pages/reset-password/index.tsx"),
+    route("", "./pages/account/landingpage.tsx"),
+    route("menu", "./pages/menu/index.tsx"),
+    route("menu/details", "./pages/menu/details.tsx"),
+    route("cart", "./pages/cart/index.tsx"),
+    route("orders", "./pages/orders/index.tsx"),
+    route("verify-otp", "./pages/account/verifyotp.tsx"),
+    route("register-tenant", "./pages/register-tenant/index.tsx"),
+    route("partner", "./pages/partner/index.tsx"),
+    route("partner-payment", "./pages/partner-payment/index.tsx"),
+  ]),
+
+
   layout("./layouts/ProtectedLayout.tsx", [
     route("account", "./pages/account/index.tsx"),
     route("settings", "./pages/settings/index.tsx"),
@@ -23,21 +42,4 @@ export default [
       route("cashier", "./pages/cashier/index.tsx"),
     ]),
   ]),
-
-  layout("./layouts/PublicLayout.tsx", [
-    route("login", "./pages/account/login.tsx"),
-    route("signup", "./pages/account/signup.tsx"),
-    route("forgot-password", "./pages/forgot-password/index.tsx"),
-    route("reset-password", "./pages/reset-password/index.tsx"),
-    route("", "./pages/account/landingpage.tsx"),
-  ]),
-
-  route("menu", "./pages/menu/index.tsx"),
-  route("menu/details", "./pages/menu/details.tsx"),
-  route("cart", "./pages/cart/index.tsx"),
-  route("orders", "./pages/orders/index.tsx"),
-  route("verify-otp", "./pages/account/verifyotp.tsx"),
-  route("register-tenant", "./pages/register-tenant/index.tsx"),
-  route("partner", "./pages/partner/index.tsx"),
-  route("partner-payment", "./pages/partner-payment/index.tsx"),
 ] satisfies RouteConfig;
