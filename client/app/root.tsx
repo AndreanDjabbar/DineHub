@@ -5,11 +5,13 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useNavigation,
 } from "react-router";
+import { VscLoading } from "react-icons/vsc";
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useUserStore } from "./stores";
 
 export const links: Route.LinksFunction = () => [
@@ -43,14 +45,35 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => setMounted(true), []);
+  
+  return mounted ? (
+  <>{children}</>
+  ) : (
+    <div className="bg-white h-screen flex flex-col p-4 space-y-4">
+      <VscLoading size={50} className="animate-spin text-red-600 fixed inset-1/2" />
+    </div>
+  );
+}
+
 export default function App() {
   const loadUserData = useUserStore((state) => state.loadUserData);
-  
+  const navigation = useNavigation();
+  const isNavigating = Boolean(navigation.location);
+
   useEffect(() => {
     loadUserData(); 
   }, [])
-
-  return <Outlet />;
+  return (
+    <>
+    {isNavigating && <div className="fixed top-0 left-0 right-0 h-1 bg-red-600 animate-pulse" />}
+    <ClientOnly>
+      <Outlet />
+    </ClientOnly>
+    </>
+  )
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
