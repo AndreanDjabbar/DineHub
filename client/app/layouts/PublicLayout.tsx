@@ -15,7 +15,16 @@ export default function PublicLayout() {
   const isProhibitedRoute = prohibitedRoutes.includes(route);
 
   if (userData && isProhibitedRoute) {
-    return <Navigate to="/account" replace />;
+    const routeMapping: Record<string, string> = {
+      ADMIN: "/admin",
+      CASHIER: "/cashier",
+      USER: "/menu",
+      KITCHEN: "/kitchen",
+      DEVELOPER: "/developer",
+    };
+    
+    const redirectRoute = routeMapping[userData.role] || "/account";
+    return <Navigate to={redirectRoute} replace />;
   }
 
   return <Outlet />;
