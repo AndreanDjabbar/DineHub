@@ -13,7 +13,7 @@ export default [
     route("signup", "./pages/account/signup.tsx"),
     route("forgot-password", "./pages/forgot-password/index.tsx"),
     route("reset-password", "./pages/reset-password/index.tsx"),
-    route("", "./pages/account/landingpage.tsx"),
+    route("dinehub", "./pages/account/landingpage.tsx"),
     route("menu", "./pages/menu/index.tsx"),
     route("menu/details", "./pages/menu/details.tsx"),
     route("cart", "./pages/cart/index.tsx"),
