@@ -4,18 +4,18 @@ import { FiUser } from "react-icons/fi";
 import { MdReceipt } from "react-icons/md";
 import { LuChefHat, LuHandshake } from "react-icons/lu";
 import { useNavigate } from "react-router";
+import useUserStore from "~/stores/user.store";
 
 const BottomNavigation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const tableId = searchParams.get("table");
+  const userData = useUserStore(state => state.userData);
 
   const handleAccountClick = (e: React.MouseEvent) => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
+    if (!userData) {
       e.preventDefault();
-      navigate("/");
+      navigate("/dinehub");
     }
   };
 
