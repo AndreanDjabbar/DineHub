@@ -13,6 +13,7 @@ interface UserStore {
     loadUserData: () => Promise<void>;
     clearUserData: () => void;
     userData: User | null;
+    isAuthLoading: boolean;
 }
 
 interface User {
@@ -32,7 +33,9 @@ const useUserStore = create<UserStore>((set) => ({
     setRole: (role) => set({ role }),
     email: null,
     setEmail: (email) => set({ email }),
+    isAuthLoading: true,
     loadUserData: async () => {
+        set({ isAuthLoading: true });
         try {
             const response = await api.get("/user/me");
             const data = response.data;
@@ -55,6 +58,8 @@ const useUserStore = create<UserStore>((set) => ({
             }
         } catch(err) {
             console.error("Failed to load user data:", err);
+        } finally {
+            set({ isAuthLoading: false });
         }
     },
     clearUserData: () => 
@@ -63,7 +68,8 @@ const useUserStore = create<UserStore>((set) => ({
             name: null, 
             role: null, 
             email: null,
-            userData: null
+            userData: null,
+            isAuthLoading: false
         }),
     userData: null,
 }));
