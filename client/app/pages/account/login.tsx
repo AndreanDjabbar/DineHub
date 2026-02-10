@@ -47,24 +47,12 @@ const Login: React.FC = () => {
 
       const data = response.data;
       if (data.success) {
-        await loadUserData();
-
         setNotificationTitle("Login Successful");
         setNotificationMessage("Welcome back! Redirecting...");
         setIsNotificationOpen(true);
 
-        setTimeout(() => {
-          const role = data.data.user.role;
-          const routeMapping: Record<any, string> = {
-            ADMIN: "/admin",
-            CASHIER: "/cashier",
-            USER: "/menu",
-            KITCHEN: "/kitchen",
-            DEVELOPER: "/developer",
-          };
-
-          const redirectRoute = routeMapping[role!] || "/";
-          navigate(redirectRoute);
+        setTimeout(async () => {
+          await loadUserData();
         }, 1500);
       }
     } catch (error) {
