@@ -1,20 +1,22 @@
+import { VscLoading } from "react-icons/vsc";
 import { Outlet, Navigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useUserStore } from "~/stores";
 
 export default function ProtectedLayout() {
-  const [isMounted, setIsMounted] = useState(false);
+  const userData = useUserStore((state) => state.userData);
+  const isAuthLoading = useUserStore((state) => state.isAuthLoading);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null; 
+  if (isAuthLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <VscLoading size={50} className="animate-spin text-red-600" />
+        </div>
+      </div>
+    );
   }
-  
-  const token = localStorage.getItem("token");
 
-  if (!token) {
+  if (!userData) {
     return <Navigate to="/login" replace />;
   }
 

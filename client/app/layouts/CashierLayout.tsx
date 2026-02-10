@@ -1,15 +1,14 @@
 import { Outlet, Navigate } from "react-router";
 import { useEffect, useState } from "react";
+import { useUserStore } from "~/stores";
 
 export default function CashierLayout() {
   const [isMounted, setIsMounted] = useState(false);
+  const userData = useUserStore(state => state.userData);
   useEffect(() => setIsMounted(true), []);
   if (!isMounted) return null;
 
-  const userString = localStorage.getItem("user");
-  const user = userString ? JSON.parse(userString) : null;
-
-  if (user?.role !== "CASHIER") {
+  if (userData?.role !== "CASHIER") {
     return <Navigate to="/menu" replace />;
   }
 

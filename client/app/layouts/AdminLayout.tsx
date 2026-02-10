@@ -1,17 +1,16 @@
 import { Outlet, Navigate } from "react-router";
 import { useEffect, useState } from "react";
+import { useUserStore } from "~/stores";
 
 export default function AdminLayout() {
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => setIsMounted(true), []);
+  const role = useUserStore((state) => state.role);
   
-  if (!isMounted) return null;
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
 
-  const userString = localStorage.getItem("user");
-  const user = userString ? JSON.parse(userString) : null;
-
-  if (user?.role !== "ADMIN") {
-    return <Navigate to="/menu" replace />;
+  if (role !== "ADMIN") {
+    return <Navigate to="/account" replace />;
   }
 
   return <Outlet />;

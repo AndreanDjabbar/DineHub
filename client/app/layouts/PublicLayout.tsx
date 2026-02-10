@@ -1,41 +1,21 @@
 import { Outlet, Navigate } from "react-router";
 import { useEffect, useState } from "react";
+import { useUserStore } from "~/stores";
 
 export default function PublicLayout() {
-  const [isMounted, setIsMounted] = useState(false);
+  const userData = useUserStore((state) => state.userData);
+  const route = window.location.pathname;
+  const prohibitedRoutes = [
+    "/login", 
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "verify-otp"
+  ];
+  const isProhibitedRoute = prohibitedRoutes.includes(route);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
-
-  const token = localStorage.getItem("token");
-  const userString = localStorage.getItem("user");
-
-  if (token) {
-    let redirectPath = "/menu";
-
-    if (userString) {
-      try {
-        const user = JSON.parse(userString);
-        const role = user.role;
-        if (role === "ADMIN") {
-          redirectPath = "/admin";
-        } else if (role === "CASHIER") {
-          redirectPath = "/cashier";
-        } else if (role === "KITCHEN") {
-          redirectPath = "/kitchen";
-        } else if (role === "Developer") {
-          redirectPath = "/developer";
-        }
-      } catch (error) {
-        console.error("Error parsing user from localStorage:", error);
-      }
-    }
-    return <Navigate to={redirectPath} replace />;
+  if (userData && isProhibitedRoute) {
+    return <Navigate to="/account" replace />;
   }
 
   return <Outlet />;
