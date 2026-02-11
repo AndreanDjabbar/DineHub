@@ -14,6 +14,8 @@ class UserService {
             id: user.id,
             name: user.name,
             email: user.email,
+            role: user.role,
+            restaurantId: user.restaurant_id,
         };
     }
 
@@ -29,6 +31,7 @@ class UserService {
             name: user.name,
             role: user.role,
             email: user.email,
+            restaurantId: user.restaurant_id,
         };
     }
     
