@@ -30,6 +30,7 @@ import { UserHeader } from "~/components";
 import api from "~/lib/axios";
 import EditMenuItemModal from "./components/EditMenuItemModal";
 import EditCategoryModal from "./components/EditCategoryModal";
+import { useUserStore } from "~/stores";
 
 const sortTablesByNumber = (tables: Table[]): Table[] => {
   return [...tables].sort((a, b) => {
@@ -40,13 +41,11 @@ const sortTablesByNumber = (tables: Table[]): Table[] => {
 };
 
 const AdminDashboard = () => {
-  const token = localStorage.getItem("token");
-  const userString = localStorage.getItem("user");
   const [activeTab, setActiveTab] = useState<"staff" | "tables" | "menu">(
     "staff",
   );
-  const user = userString ? JSON.parse(userString) : null;
-  const restaurantId = user?.restaurantId;
+  const userData = useUserStore((state) => state.userData);
+  const restaurantId = userData?.restaurantId;
 
   // --- MOCK STATE (Replace with API data) ---
   const [users, setUsers] = useState<User[]>([]);
@@ -115,10 +114,6 @@ const AdminDashboard = () => {
     capacity?: string;
   }>({});
 
-  if (!token || !userString) {
-    window.location.href = "/login";
-  }
-
   useEffect(() => {
     const fetchStaff = async () => {
       if (!restaurantId) {
@@ -127,16 +122,8 @@ const AdminDashboard = () => {
       }
       try {
         const [cashierRes, kitchenRes] = await Promise.all([
-          api.get(`/user/cashier/${restaurantId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-          api.get(`/user/kitchen/${restaurantId}`, {
-            headers: {
-              authorization: `Bearer ${token}`,
-            },
-          }),
+          api.get(`/user/cashier/${restaurantId}`),
+          api.get(`/user/kitchen/${restaurantId}`),
         ]);
         const cashierData = await cashierRes.data;
         const kitchenData = await kitchenRes.data;
@@ -151,16 +138,12 @@ const AdminDashboard = () => {
       }
     };
     fetchStaff();
-  }, [restaurantId, token]);
+  }, [restaurantId]);
 
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const response = await api.get(`/restaurant/table/${restaurantId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await api.get(`/restaurant/table/${restaurantId}`);
         const data = response.data;
         const tables = data?.data?.tables || [];
         setTables(tables);
@@ -169,16 +152,11 @@ const AdminDashboard = () => {
       }
     };
     fetchTables();
-  }, [restaurantId, token]);
+  }, [restaurantId]);
 
   const fetchMenu = async () => {
     try {
-      const response = await api.get(`/restaurant/full-menu/${restaurantId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log("Menu response:", response);
+      const response = await api.get(`/restaurant/full-menu/${restaurantId}`);
       const menu = response.data.data?.menu || [];
       // Ensure each item has the correct categoryId from its parent category
       const categoriesWithIds = menu.map((category: MenuCategory) => ({
@@ -198,7 +176,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (activeTab !== "menu") return;
     fetchMenu();
-  }, [restaurantId, token, activeTab]);
+  }, [restaurantId, activeTab]);
 
   // --- HANDLERS ---
   const handleAddUser = async (e: React.FormEvent) => {
@@ -215,11 +193,7 @@ const AdminDashboard = () => {
       restaurantId: restaurantId,
     };
     try {
-      const response = await api.post("/user/create-staff", payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.post("/user/create-staff", payload);
 
       const data = response.data;
 
@@ -298,11 +272,6 @@ const AdminDashboard = () => {
           email: editingUser.email,
           role: editingUser.role,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
 
       const data = response.data;
@@ -340,15 +309,7 @@ const AdminDashboard = () => {
       console.error("No restaurant ID found for user");
       return;
     }
-    await api.post(
-      `/user/delete-staff/${id}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
+    await api.post(`/user/delete-staff/${id}`,);
   };
 
   const getNextTableNumber = (tables: Table[]) => {
@@ -380,11 +341,6 @@ const AdminDashboard = () => {
           name: tableName,
           capacity: newTable.capacity,
           restaurantId: restaurantId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
 
@@ -436,11 +392,6 @@ const AdminDashboard = () => {
           name: editingTable.name,
           capacity: editingTable.capacity,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
 
       const data = response.data;
@@ -483,11 +434,7 @@ const AdminDashboard = () => {
       console.error("No restaurant ID found for user");
       return;
     }
-    await api.delete(`/restaurant/table/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await api.delete(`/restaurant/table/${id}`);
   };
 
   const handleAddCategory = async (e: React.FormEvent) => {
@@ -499,11 +446,6 @@ const AdminDashboard = () => {
           name: newCategory.name,
           image: newCategory.image,
           restaurantId: restaurantId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
 
@@ -539,11 +481,6 @@ const AdminDashboard = () => {
           name: editingCategory.name,
           image: editingCategory.image,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
 
       const data = response.data;
@@ -564,11 +501,7 @@ const AdminDashboard = () => {
 
   const handleDeleteCategory = async (id: string) => {
     try {
-      await api.delete(`/restaurant/category/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.delete(`/restaurant/category/${id}`);
       setCategories((prev) => prev.filter((c) => c.id !== id));
     } catch (error) {
       console.error("Error deleting category:", error);
@@ -586,11 +519,6 @@ const AdminDashboard = () => {
           categoryId: newMenuItem.categoryId,
           image: newMenuItem.image,
           addOns: newMenuItem.addOns,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         },
       );
 
@@ -671,11 +599,6 @@ const AdminDashboard = () => {
           image: editingMenuItem.image,
           addOns: editingMenuItem.addOns,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
       );
 
       const data = response.data;
@@ -703,11 +626,7 @@ const AdminDashboard = () => {
 
   const handleDeleteMenuItem = async (id: string) => {
     try {
-      await api.delete(`/restaurant/item/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await api.delete(`/restaurant/item/${id}`);
 
       // Update local state to remove the deleted item from all categories
       setCategories((prev) =>

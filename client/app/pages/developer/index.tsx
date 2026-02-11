@@ -62,11 +62,6 @@ const DeveloperDashboard: React.FC = () => {
     try {
       const response = await api.get(
         "/restaurant",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
       const data = response.data;
       console.log("Fetched Restaurants: ", data);
@@ -119,11 +114,6 @@ const DeveloperDashboard: React.FC = () => {
       const response = await api.post(
         "/restaurant/onboard",
         formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
       await fetchRestaurants();
       setShowModal(false);
@@ -159,11 +149,7 @@ const DeveloperDashboard: React.FC = () => {
       if (formData.adminPassword) {
         updateBody.adminPassword = formData.adminPassword;
       }
-      const response = await api.put(`/restaurant/${id}`, updateBody, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.put(`/restaurant/${id}`, updateBody);
       await fetchRestaurants();
       setShowModal(false);
       resetForm();

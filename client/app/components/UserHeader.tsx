@@ -3,41 +3,25 @@ import { MdMenu } from 'react-icons/md';
 import ProfileBadge from './ProfileBadge';
 import { BiX } from 'react-icons/bi';
 import api from '~/lib/axios';
+import useUserStore from '~/stores/user.store';
 
 const UserHeader = () => {
     const [restaurantName, setRestaurantName] = React.useState<string>("");
     const [isMenuOpen, setIsMenuOpen] = React.useState<boolean>(false);
     const [isLoading, setIsLoading] = React.useState<boolean>(true);
     const menuRef = useRef<HTMLDivElement>(null);
-
-    const getUser = () => {
-        try {
-            const userString = localStorage.getItem("user");
-            return userString ? JSON.parse(userString) : null;
-        } catch (error) {
-            console.error("Failed to parse user data:", error);
-            return null;
-        }
-    };
-
-    const user = getUser();
-    const token = localStorage.getItem("token");
-    const restaurantId = user?.restaurantId;
+    const userData = useUserStore(state => state.userData);
+    const restaurantId = userData?.restaurantId;
 
     const fetchRestaurantDetails = async () => {
-        if (!restaurantId || !token) {
+        if (!restaurantId) {
             setIsLoading(false);
             return;
         }
 
         try {
             const response = await api.get(
-                `http://localhost:4000/dinehub/api/restaurant/${restaurantId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
+                `http://localhost:4000/dinehub/api/restaurant/${restaurantId}`
             );
             const data = response.data;
             setRestaurantName(data.data.name);

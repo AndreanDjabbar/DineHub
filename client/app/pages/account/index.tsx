@@ -26,23 +26,6 @@ const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<User>({ id: "", name: "", email: "" });
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await api.get("/auth/profile");
-        const data = response.data;
-        console.log("User Profile Data: ", data);
-        setUser({ id: data.data.id, name: data.data.name, email: data.data.email });
-        setIsLoggedIn(true);
-      } catch (error) {
-        console.error("Failed to fetch user profile:", error);
-        setIsLoggedIn(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUserProfile();
-  }, []);
 
   const handleLogout = async () => {
     try{

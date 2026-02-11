@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { FiGrid, FiLogOut, FiCreditCard, FiPrinter } from "react-icons/fi";
 import { UserHeader } from "~/components";
 import api from "~/lib/axios";
+import useUserStore from "~/stores/user.store";
 
 interface Table {
   id: number;
@@ -12,10 +13,9 @@ interface Table {
 }
 
 const CashierDashboard: React.FC = () => {
-  const userString = localStorage.getItem("user");  
+  const userData = useUserStore(state => state.userData);
   const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const user = userString ? JSON.parse(userString) : null;
-  const restaurantId = user?.restaurantId;
+  const restaurantId = userData?.restaurantId;
   const [tables, setTables] = useState<Table[]>([])
 
   useEffect(() => {
@@ -24,11 +24,7 @@ const CashierDashboard: React.FC = () => {
 
     const fetchTables = async () => {
         try{
-            const response = await api.get(`/restaurant/tables/${restaurantId}`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-            });
+            const response = await api.get(`/restaurant/tables/${restaurantId}`);
             const data = response.data;
             const tables = data?.data?.tables || [];
             console.log("All Tables: ", tables); 
