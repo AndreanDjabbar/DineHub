@@ -8,7 +8,7 @@ import {
   FiAlertCircle,
 } from "react-icons/fi";
 import type { Table } from "./types";
-import { NumInput, Button, ConfirmationPopup } from "~/components";
+import { NumInput, Button, ConfirmationPopup, TextInput } from "~/components";
 import NotificationPopup from "~/components/NotificationPopup";
 import TableQR from "./TableQr";
 import { BsInfoCircle } from "react-icons/bs";
@@ -67,6 +67,32 @@ const TableManagement: React.FC<TableManagementProps> = ({
         <div>
           <h3 className="text-lg font-bold mb-4">Add a Table</h3>
           <form onSubmit={handleAddTable} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Table Name
+              </label>
+              <TextInput 
+              value={newTable.name} 
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                setNewTable({
+                  ...newTable,
+                  name: e.target.value,
+                });
+
+                if (addTableErrors?.capacity && setAddTableErrors) {
+                  setAddTableErrors({
+                    ...addTableErrors,
+                    capacity: undefined,
+                  });
+                }
+              }}              />
+              {addTableErrors?.capacity && (
+                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <FiAlertCircle size={14} />
+                  <span>{addTableErrors.capacity}</span>
+                </div>
+              )}
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Capacity (Seats)
