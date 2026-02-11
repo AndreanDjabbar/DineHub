@@ -50,8 +50,27 @@ const AdminDashboard = () => {
   // --- MOCK STATE (Replace with API data) ---
   const [users, setUsers] = useState<User[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
+  const [nextTableNumber, setNextTableNumber] = useState<number>(1);
   const [activeTable, setActiveTable] = useState<Table | null>(null);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
+
+  const getNextTableNumber = (tables: Table[]) => {
+    const numbers = tables
+      .map((t) => {
+        const match = t.name?.match(/\d+/);
+        return match ? Number(match[0]) : null;
+      })
+      .filter((n): n is number => n !== null)
+      .sort((a, b) => a - b);
+
+    let next = 1;
+    for (const n of numbers) {
+      if (n === next) next++;
+      else if (n > next) break;
+    }
+
+    return next;
+  };
 
   // --- FORM STATES ---
   const [newUser, setNewUser] = useState({
@@ -60,7 +79,10 @@ const AdminDashboard = () => {
     password: "",
     role: "cashier",
   });
-  const [newTable, setNewTable] = useState({ capacity: 2 });
+  const [newTable, setNewTable] = useState({ 
+    name: `Table ${nextTableNumber}`,
+    capacity: 2 
+  });
   const [newCategory, setNewCategory] = useState<MenuCategory>({
     name: "",
     image: "",
@@ -147,12 +169,22 @@ const AdminDashboard = () => {
         const data = response.data;
         const tables = data?.data?.tables || [];
         setTables(tables);
+        setNextTableNumber(getNextTableNumber(tables));
       } catch (error) {
         console.error("Error fetching tables data:", error);
       }
     };
     fetchTables();
   }, [restaurantId]);
+
+  useEffect(() => {
+    const newNextTableNumber = getNextTableNumber(tables);
+    setNextTableNumber(newNextTableNumber);
+    setNewTable({ 
+      name: `Table ${newNextTableNumber}`,
+      capacity: 2 
+    });
+  }, [tables]);
 
   const fetchMenu = async () => {
     try {
@@ -312,33 +344,13 @@ const AdminDashboard = () => {
     await api.post(`/user/delete-staff/${id}`,);
   };
 
-  const getNextTableNumber = (tables: Table[]) => {
-    const numbers = tables
-      .map((t) => {
-        const match = t.name?.match(/\d+/);
-        return match ? Number(match[0]) : null;
-      })
-      .filter((n): n is number => n !== null)
-      .sort((a, b) => a - b);
-
-    let next = 1;
-    for (const n of numbers) {
-      if (n === next) next++;
-      else if (n > next) break;
-    }
-
-    return next;
-  };
-
   const handleAddTable = async (e: React.FormEvent) => {
     e.preventDefault();
-    const nextNumber = getNextTableNumber(tables);
-    const tableName = `Table ${nextNumber}`;
     try {
       const response = await api.post(
         "/restaurant/table",
         {
-          name: tableName,
+          name: newTable.name,
           capacity: newTable.capacity,
           restaurantId: restaurantId,
         },
@@ -359,8 +371,6 @@ const AdminDashboard = () => {
       );
 
       setActiveTable(createdTable);
-
-      setNewTable({ capacity: 2 });
       setAddTableErrors({});
       alert("Table added successfully");
     } catch (error: any) {
