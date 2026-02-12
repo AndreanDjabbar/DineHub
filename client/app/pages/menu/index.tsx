@@ -16,7 +16,7 @@ interface MenuItem {
   name: string;
   price: number;
   image: string | null;
-  categoryId: string;
+  category_id: string;
   isAvailable: boolean;
 }
 
@@ -100,11 +100,11 @@ const Menu: React.FC = () => {
 
       try {
         const response = await api.get(
-          `/menu/categories/${tableInfo.restaurant_id}`,
+          `/restaurant/full-menu/${tableInfo.restaurant_id}`,
         );
 
         const data = response.data;
-        setCategories(data.data.categories || []);
+        setCategories(data.data.menu || []);
       } catch (err: any) {
         console.error("Error fetching menu:", err);
       }
@@ -162,6 +162,7 @@ const Menu: React.FC = () => {
   }, 0);
 
   // Filter categories and items based on search query and selected category
+  console.log("CATEGORIES:", categories);
   const filteredCategories = categories
     .map((category) => {
       const filteredItems = category.items.filter((item) => {
@@ -170,7 +171,7 @@ const Menu: React.FC = () => {
           : true;
 
         const matchesCategory = selectedCategoryId
-          ? item.categoryId === selectedCategoryId
+          ? item.category_id === selectedCategoryId
           : true;
 
         return matchesSearch && matchesCategory;
@@ -182,6 +183,7 @@ const Menu: React.FC = () => {
       };
     })
     .filter((category) => category.items.length > 0);
+  console.log(`Filtered categoried with categoryId=${selectedCategoryId} and search="${searchQuery}":`, filteredCategories);
 
   if (loading) {
     return (
