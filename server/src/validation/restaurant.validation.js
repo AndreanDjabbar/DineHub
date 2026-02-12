@@ -45,7 +45,7 @@ export const createMenuCategorySchema = Joi.object({
 
 export const updateMenuCategorySchema = Joi.object({
   name: Joi.string().min(3).max(100).optional(),
-  image: Joi.string().uri().optional(),
+  image: Joi.string().uri().allow("", null).optional(),
 });
 
 export const createMenuItemSchema = Joi.object({
