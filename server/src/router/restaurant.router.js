@@ -64,7 +64,7 @@ router.delete(
   catchAsync(RestaurantController.deleteRestaurantController),
 );
 router.get(
-  "/table/:restaurantId",
+  "/table/restaurant/:restaurantId",
   userLimiter(5, 30, "get_table_by_restaurant_id"),
   timeout('3s'),
   validateToken,
