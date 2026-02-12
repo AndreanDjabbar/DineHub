@@ -14,15 +14,22 @@ export default function PublicLayout() {
   ];
   const isProhibitedRoute = prohibitedRoutes.includes(route);
 
+  const routeMapping: Record<string, string> = {
+    ADMIN: "/admin",
+    CASHIER: "/cashier",
+    USER: "/menu",
+    KITCHEN: "/kitchen",
+    DEVELOPER: "/developer",
+  };
+
+  const prohibitedRoles = ["ADMIN", "CASHIER", "KITCHEN"];
+
   if (userData && isProhibitedRoute) {
-    const routeMapping: Record<string, string> = {
-      ADMIN: "/admin",
-      CASHIER: "/cashier",
-      USER: "/menu",
-      KITCHEN: "/kitchen",
-      DEVELOPER: "/developer",
-    };
-    
+    const redirectRoute = routeMapping[userData.role] || "/account";
+    return <Navigate to={redirectRoute} replace />;
+  }
+
+  if ((prohibitedRoles.includes(userData?.role || "")) && userData) {
     const redirectRoute = routeMapping[userData.role] || "/account";
     return <Navigate to={redirectRoute} replace />;
   }
