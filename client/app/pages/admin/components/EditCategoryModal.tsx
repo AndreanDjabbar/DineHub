@@ -39,12 +39,8 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
     if (!editingCategory.name.trim()) {
       newErrors.name = "Category name is required";
     }
-    if (!editingCategory.image) {
-      newErrors.image = "Image is required";
-    }
-
     setErrors(newErrors);
-
+    
     if (Object.keys(newErrors).length === 0) {
       onUpdate(e);
       setErrors({});
@@ -94,7 +90,6 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
           <div>
             <ImageInput
               label="Category Image"
-              required
               value={editingCategory.image || null}
               onChange={(imageUrl) => {
                 setEditingCategory({
