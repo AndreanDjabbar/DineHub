@@ -10,6 +10,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import { BottomNavigation, QuantityPicker } from "~/components";
 import { useNavigate, useSearchParams } from "react-router";
 import api from "~/lib/axios";
+import defaultCategoryImage from "~/assets/image/default-category.png";
 
 interface MenuItem {
   id: string;
@@ -256,7 +257,7 @@ const Menu: React.FC = () => {
                 <div className="w-14 h-14 rounded-full overflow-hidden shadow-sm flex items-center justify-center">
                   <span className="text-white font-bold text-lg">
                     <img
-                      src={cat.image}
+                      src={cat.image || defaultCategoryImage}
                       alt={cat.name}
                       className="w-14 h-14 object-cover rounded-full border border-gray-200 mr-4"
                     />
