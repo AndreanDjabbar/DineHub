@@ -7,8 +7,11 @@ const validateSchema = (schema) => {
         });
 
         if (error) {
-            const errorDetails = error.details.map((detail) => detail.message);
-            return responseError(res, 400, "Validation Error", "validation_errors", errorDetails);
+            const errorObject = {};
+            error.details.forEach((err) => {
+                errorObject[err.path.join('.')] = err.message;
+            });
+            return responseError(res, 400, "Validation Error", "validationErrors", errorObject);
         }
 
         next();
