@@ -21,7 +21,7 @@ const errorHandler = (err, req, res, next) => {
         statusCode,
         message,
         stackKey, 
-        err.data ? err.data : (NODE_ENV === "development" ? err.stack : null)
+        err.data ? err.data : (NODE_ENV === "development" ? "Failed to process request" : null)
     );
 }
 
