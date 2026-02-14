@@ -15,6 +15,8 @@ const Signup: React.FC = () => {
     isSuccess,
     validationErrors: registrationValidationErrors,
     data: registerData,
+    error: registerError,
+    isError: isRegisterError,
     isLoading: registerLoading,
   } = useRequest();
   
@@ -50,6 +52,12 @@ const Signup: React.FC = () => {
       navigate(`/verify-otp?email=${formData.email}&token=${token}`);
     }
   }, [isSuccess, formData.email, navigate]);
+
+  useEffect(() => {
+    if (isRegisterError) {
+      alert(registerError?.data?.message || "An error occurred during registration. Please try again.");
+    }
+  }, [isRegisterError, registerError]);
 
   return (
     <div className="h-screen">
@@ -136,6 +144,10 @@ const Signup: React.FC = () => {
                 />
               </div>
             </div>
+
+            {registerError ? (
+              <div className="text-red-600 text-sm font-medium">{registerError?.data?.message || "An error occurred during registration. Please try again."}</div>
+            ) : null}
 
             <Button 
             type="submit" 
