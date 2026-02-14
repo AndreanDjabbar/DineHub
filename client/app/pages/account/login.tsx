@@ -1,16 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router";
 import { FiMail, FiLock, FiCheckCircle } from "react-icons/fi";
-import { BiLoader } from "react-icons/bi";
 import { BottomNavigation, TextInput, Button } from "~/components";
 import NotificationPopup from "~/components/NotificationPopup";
-import api from "~/lib/axios";
 import { useUserStore } from "~/stores";
+import { useRequest } from "~/hooks";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { 
+    makeRequest,
+    isSuccess,
+    isError,
+    error: requestError,
+    isLoading: loginLoading,
+  } = useRequest();
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
   const [notificationTitle, setNotificationTitle] = useState("Error");
@@ -21,6 +26,31 @@ const Login: React.FC = () => {
     password: "",
   });
 
+  useEffect(() => {
+    if (isSuccess) {
+      setNotificationTitle("Login Successful");
+      setNotificationMessage("Welcome back! Redirecting...");
+      setIsNotificationOpen(true);
+      setTimeout(async () => {
+        await loadUserData();
+      }, 1500);
+    }
+  }, [isSuccess, loadUserData]);
+
+  useEffect(() => {
+    if (isError) {
+      const data = requestError?.data;
+      if (data?.message?.includes("Email not verified")) {
+        alert("Please verify your email before logging in.");
+        navigate("/verify-otp", {
+          state: { email: formData.email, token: data.data.token },
+        });
+      } else {
+        setError(data?.message);
+      }
+    }
+  }, [isError, requestError]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -28,47 +58,15 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true);
 
-    try {
-      const response = await api.post(
-        "/auth/login",
-        {
-          email: formData.email,
-          password: formData.password,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        },
-      );
-
-      const data = response.data;
-      if (data.success) {
-        setNotificationTitle("Login Successful");
-        setNotificationMessage("Welcome back! Redirecting...");
-        setIsNotificationOpen(true);
-
-        setTimeout(async () => {
-          await loadUserData();
-        }, 1500);
+    await makeRequest({
+      method: "POST",
+      url: "http://localhost:4000/dinehub/api/auth/login",
+      payload: {
+        email: formData.email,
+        password: formData.password,
       }
-    } catch (error) {
-      const data = (error as any)?.data;
-      console.error("Login failed:", error);
-      if (data?.message?.includes("Email not verified")) {
-        alert("Please verify your email before logging in.");
-        navigate("/verify-otp", {
-          state: { email: formData.email, token: data.data.token },
-        });
-      } else {
-        setError("Incorrect email or password. Please try again.");
-      }
-    } finally {
-      setIsLoading(false);
-    }
+    })
   };
 
   return (
@@ -120,16 +118,13 @@ const Login: React.FC = () => {
         ) : null}
 
         {/* Submit Button */}
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? (
-            <div className="text-bold flex items-center justify-center gap-2">
-              <BiLoader size={30} className="animate-spin" />
-              Signing In...
-            </div>
-          ) : (
-            "Sign In"
-          )}
-        </Button>
+        <Button 
+        type="submit" 
+        disabled={loginLoading}
+        text="Sign In"
+        isLoading={loginLoading}
+        isLoadingText="Signing In..."
+        />
       </form>
 
       {/* --- Footer: Sign Up Link --- */}
