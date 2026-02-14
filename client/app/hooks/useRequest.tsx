@@ -19,6 +19,7 @@ export default function useRequest() {
     const makeRequest = useCallback(async (options: RequestOptions) => {
         setIsLoading(true);
         setError(null);
+        setValidationErrors({});
 
         try {
             const response = await api.request({
@@ -32,12 +33,13 @@ export default function useRequest() {
             return { ok: true, data: response.data };
         } catch (err: any) {
             const errorData = err?.response?.data || err;
-            setError(errorData);
             setIsError(true);
             if (errorData?.data?.validationErrors) {
                 setValidationErrors(errorData.data.validationErrors);
             }
-            return { ok: false, error: errorData };
+            if (errorData?.data?.message !== "Validation Error") {
+                setError(errorData || err);
+            }
         } finally {
             setIsLoading(false);
         }
