@@ -1,7 +1,5 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import { LuChefHat } from "react-icons/lu"; // Using ChefHat as a logo placeholder
-import { FaFire } from "react-icons/fa"; // Or a fire icon for the logo
 import { BottomNavigation, Button } from "~/components";
 
 const LandingPage: React.FC = () => {
@@ -26,7 +24,9 @@ const LandingPage: React.FC = () => {
 
         {/* Buttons Area */}
         <div className="w-full max-w-xs flex flex-col gap-3">
-          <Button onClick={() => navigate("/login")}>Log In</Button>
+          <Button 
+          onClick={() => navigate("/login")} 
+          text="Log In" />
         </div>
       </div>
       <BottomNavigation />
