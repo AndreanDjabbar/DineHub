@@ -1,5 +1,4 @@
 import React, { use } from "react";
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 // Import icons
 import {
@@ -22,10 +21,6 @@ interface User {
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const clearUserData = useUserStore(state => state.clearUserData);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<User>({ id: "", name: "", email: "" });
-  const [isLoading, setIsLoading] = useState(true);
-
 
   const handleLogout = async () => {
     try{
@@ -34,8 +29,6 @@ const ProfilePage: React.FC = () => {
       navigate("/login");
     } catch (error) {
       console.error("Failed to logout:", error);
-    } finally {
-      setIsLoggedIn(false);
     }
   };
 
