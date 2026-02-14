@@ -12,6 +12,7 @@ const Login: React.FC = () => {
     makeRequest,
     isSuccess,
     isError,
+    validationErrors,
     error: requestError,
     isLoading: loginLoading,
   } = useRequest();
@@ -46,7 +47,7 @@ const Login: React.FC = () => {
           state: { email: formData.email, token: data.data.token },
         });
       } else {
-        setError(data?.message);
+        setError(data?.message || "");
       }
     }
   }, [isError, requestError]);
@@ -85,6 +86,7 @@ const Login: React.FC = () => {
           label="Email"
           type="email"
           name="email"
+          error={validationErrors?.email || ""}
           value={formData.email}
           onChange={handleChange}
           placeholder="user@example.com"
@@ -95,6 +97,7 @@ const Login: React.FC = () => {
           label="Password"
           type="password"
           name="password"
+          error={validationErrors?.password || ""}
           value={formData.password}
           onChange={handleChange}
           placeholder="••••••••"
