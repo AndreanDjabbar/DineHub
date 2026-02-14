@@ -5,6 +5,7 @@ import type { IconType } from "react-icons";
 interface TextInputProps {
   label?: string;
   type?: "text" | "email" | "password";
+  error?: string;
   name?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -23,6 +24,7 @@ const TextInput: React.FC<TextInputProps> = ({
   placeholder,
   required = false,
   icon: Icon,
+  error,
   className = "",
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -30,7 +32,7 @@ const TextInput: React.FC<TextInputProps> = ({
   const inputType = type === "password" && showPassword ? "text" : type;
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`space-y-1 ${className}`}>
       {label && (
         <label className="block text-sm font-medium text-gray-700 mb-1">
           {label} {required && <span className="text-red-500">*</span>}
@@ -65,6 +67,9 @@ const TextInput: React.FC<TextInputProps> = ({
           </button>
         )}
       </div>
+      {error ? (
+        <div className="text-red-600 text-sm font-medium">{error}</div>
+      ) : null}
     </div>
   );
 };
