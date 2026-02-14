@@ -12,6 +12,7 @@ export default function useRequest() {
     const [data, setData] = useState<any>(null);
     const [error, setError] = useState<any>(null);
     const [isSuccess, setIsSuccess] = useState<boolean>(false);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [isError, setIsError] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -33,6 +34,9 @@ export default function useRequest() {
             const errorData = err?.response?.data || err;
             setError(errorData);
             setIsError(true);
+            if (errorData?.data?.validationErrors) {
+                setValidationErrors(errorData.data.validationErrors);
+            }
             return { ok: false, error: errorData };
         } finally {
             setIsLoading(false);
@@ -45,6 +49,7 @@ export default function useRequest() {
         error, 
         isSuccess,
         isError,
+        validationErrors,
         isLoading 
     };
 }
