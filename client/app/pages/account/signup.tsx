@@ -52,113 +52,113 @@ const Signup: React.FC = () => {
   }, [isSuccess, formData.email, navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 px-6 py-6 flex flex-col pb-20">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-gray-900">
-          Create Account
-        </h1>
-        <p className="text-gray-500">Sign up to get started!</p>
-      </div>
+    <div className="h-screen">
+      <div className="h-[90vh] bg-gray-50 overflow-auto font-sans text-gray-900 px-6 py-6 flex flex-col ">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-gray-900">
+            Create Account
+          </h1>
+          <p className="text-gray-500">Sign up to get started!</p>
+        </div>
 
-      <div className="">
-        <form className="flex-col flex gap-5" onSubmit={handleSubmit}>
-          {/* Name Field */}
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-700 ml-1">
-              Full Name
-            </label>
-            <div className="relative">
-              <TextInput
-                type="text"
-                name="name"
-                error={registrationValidationErrors?.name}
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Your Name"
-                required
-                icon={FiUser}
-              />
+        <div className="">
+          <form className="flex-col flex gap-5" onSubmit={handleSubmit}>
+            {/* Name Field */}
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Full Name
+              </label>
+              <div className="relative">
+                <TextInput
+                  type="text"
+                  name="name"
+                  error={registrationValidationErrors?.name}
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Your Name"
+                  required
+                  icon={FiUser}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Email Field */}
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-700 ml-1">Email</label>
-            <div className="relative">
-              <TextInput
-                type="email"
-                name="email"
-                value={formData.email}
-                error={registrationValidationErrors?.email}
-                onChange={handleChange}
-                placeholder="user@example.com"
-                required
-                icon={FiMail}
-              />
+            {/* Email Field */}
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 ml-1">Email</label>
+              <div className="relative">
+                <TextInput
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  error={registrationValidationErrors?.email}
+                  onChange={handleChange}
+                  placeholder="user@example.com"
+                  required
+                  icon={FiMail}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Password Field */}
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-700 ml-1">
-              Password
-            </label>
-            <div className="relative">
-              <TextInput
-                type={"password"}
-                name="password"
-                error={registrationValidationErrors?.password}
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                required
-                icon={FiLock}
-              />
+            {/* Password Field */}
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Password
+              </label>
+              <div className="relative">
+                <TextInput
+                  type={"password"}
+                  name="password"
+                  error={registrationValidationErrors?.password}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                  icon={FiLock}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* Confirm Password Field */}
-          <div className="space-y-2">
-            <label className="text-sm font-bold text-gray-700 ml-1">
-              Confirm Password
-            </label>
-            <div className="relative">
-              <TextInput
-                type={"password"}
-                error={registrationValidationErrors?.confirmPassword}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                required
-                icon={FiLock}
-              />
+            {/* Confirm Password Field */}
+            <div className="space-y-2">
+              <label className="text-sm font-bold text-gray-700 ml-1">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <TextInput
+                  type={"password"}
+                  error={registrationValidationErrors?.confirmPassword}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                  icon={FiLock}
+                />
+              </div>
             </div>
+
+            <Button 
+            type="submit" 
+            isLoading={registerLoading} 
+            isLoadingText="Signing Up..."
+            text="Sign Up" />
+          </form>
+
+          {/* --- Footer: Login Link --- */}
+          <div className="grow flex justify-center pb-4 mt-6">
+            <p className="text-sm font-medium text-gray-500">
+              Already have an account?{" "}
+              <NavLink
+                to="/login"
+                className="text-red-600 font-bold hover:underline"
+              >
+                Login
+              </NavLink>
+            </p>
           </div>
-
-          <Button 
-          type="submit" 
-          isLoading={registerLoading} 
-          isLoadingText="Signing Up..."
-          text="Sign Up" />
-        </form>
-
-        {/* --- Footer: Login Link --- */}
-        <div className="grow flex justify-center pb-4 mt-6">
-          <p className="text-sm font-medium text-gray-500">
-            Already have an account?{" "}
-            <NavLink
-              to="/login"
-              className="text-red-600 font-bold hover:underline"
-            >
-              Login
-            </NavLink>
-          </p>
         </div>
       </div>
-
       <BottomNavigation />
-
     </div>
   );
 };
