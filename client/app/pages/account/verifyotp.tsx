@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router";
-import { BackButton } from "~/components";
-import api from "~/lib/axios";
+import { BackButton, Button } from "~/components";
+import { useRequest } from "~/hooks";
 
 const VerifyOtp: React.FC = () => {
   const navigate = useNavigate();
@@ -10,9 +10,22 @@ const VerifyOtp: React.FC = () => {
   const email = queryParams.get("email") || (location.state as any)?.email || "";
   const token = queryParams.get("token") || (location.state as any)?.token || "";
 
+  const {
+    makeRequest: verifyToken,
+    isError: isTokenError,
+    error: tokenError,
+  } = useRequest();
+
+  const {
+    makeRequest: verifyOtp,
+    isSuccess: isOtpSuccess,
+    isError: isOtpError,
+    error: otpError,
+    isLoading: isOtpLoading,
+  } = useRequest();
+
   const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
   const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [timer, setTimer] = useState(30);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -62,38 +75,20 @@ const VerifyOtp: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setIsLoading(true); 
 
     const otpCode = otp.join("");
-    console.log("Sending to backend : ", { email, otp: otpCode });
     if (otpCode.length < 6) {
       setError("Please enter the complete 6-digit code");
-      setIsLoading(false);
       return;
     }
 
-    try {
-      await api.post(
-        `http://localhost:4000/dinehub/api/auth/verify/register-otp?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
-        {
-          otpCode: otpCode
-        }
-      );
-      alert("Email verified successfully!");
-      navigate("/login");
-    } catch (err: any) {
-      setError(err.data.message || "Invalid OTP code");
-        const msg = err.data.message.toLowerCase();
-        if (msg.includes("expired")) {
-          alert("Your OTP has expired. Please sign up again.");
-          navigate("/signup");
-        } else {
-          setError(err.data.message || "OTP verification failed");
-          alert(err.data.message || "OTP verification failed");
-        }
-    } finally {
-      setIsLoading(false);
-    }
+    await verifyOtp({
+      method: "POST",
+      url: `http://localhost:4000/dinehub/api/auth/verify/register-otp?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
+      payload: {
+        otpCode: otpCode
+      }
+    });
   };
 
   useEffect(() => {
@@ -103,18 +98,43 @@ const VerifyOtp: React.FC = () => {
         navigate("/signup");
         return;
       }
-      try {
-        await api.post(
-          `http://localhost:4000/dinehub/api/auth/verify/register-token?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
-        );
-      } catch (error) {
-        console.error("Token verification failed:", error);
-        alert("Token verification failed. Please sign up again.");
-        navigate("/signup");
-      }
+      await verifyToken({
+        method: "POST",
+        url: `http://localhost:4000/dinehub/api/auth/verify/register-token?email=${encodeURIComponent(email)}&token=${encodeURIComponent(token)}`,
+      });
     }
     verifyRegisterToken();
   }, []);
+
+  useEffect(() => {
+    if (isTokenError) {
+      const errorMessage = tokenError?.data?.message || "Token verification failed";
+      alert(errorMessage);
+      navigate("/signup");
+    }
+  }, [isTokenError, tokenError]);
+
+  useEffect(() => {
+    if (isOtpSuccess) {
+      alert("Email verified successfully!");
+      navigate("/login");
+    }
+  }, [isOtpSuccess, navigate]);
+
+  useEffect(() => {
+    if (isOtpError) {
+      const errorMessage = otpError?.data?.message || "Invalid OTP code";
+      console.error("OTP verification failed:", errorMessage);
+      setError(errorMessage);
+      const msg = errorMessage.toLowerCase();
+      if (msg.includes("expired")) {
+        alert("Your OTP has expired. Please sign up again.");
+        navigate("/signup");
+      } else {
+        alert(errorMessage);
+      }
+    }
+  }, [isOtpError, otpError, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 px-6 py-6 flex flex-col">
@@ -147,7 +167,7 @@ const VerifyOtp: React.FC = () => {
               onChange={(e) => handleChange(e.target, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={index === 0 ? handlePaste : undefined}
-              className="w-16 h-18 border border-gray-200 rounded-xl text-center text-2xl font-bold focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition bg-gray-50"
+              className="w-16 h-18 border-3 border-gray-300 rounded-xl text-center text-2xl font-bold focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition bg-gray-50"
             />
           ))}
         </div>  
@@ -179,14 +199,13 @@ const VerifyOtp: React.FC = () => {
           )}
         </div>
 
-        {/* Verify Button */}
-        <button
+        <Button
           type="submit"
-          disabled={isLoading}
-          className="w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 transition-colors shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isLoading ? "Verifying..." : "Verify"}
-        </button>
+          disabled={isOtpLoading}
+          isLoadingText="Verifying..."
+          isLoading={isOtpLoading}
+          text="Verify"
+        />
       </form>
     </div>
   );
