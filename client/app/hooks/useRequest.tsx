@@ -18,8 +18,13 @@ export default function useRequest() {
 
     const makeRequest = useCallback(async (options: RequestOptions) => {
         setIsLoading(true);
+
         setError(null);
+        setData(null);
         setValidationErrors({});
+
+        setIsSuccess(false);
+        setIsError(false);
 
         try {
             const response = await api.request({
