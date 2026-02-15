@@ -73,18 +73,16 @@ const Signup: React.FC = () => {
           <form className="flex-col flex gap-5" onSubmit={handleSubmit}>
             {/* Name Field */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">
-                Full Name
-              </label>
               <div className="relative">
                 <TextInput
                   type="text"
                   name="name"
+                  label="Full Name"
                   error={registrationValidationErrors?.name}
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Your Name"
-                  required
+                  required={true}
                   icon={FiUser}
                 />
               </div>
@@ -92,11 +90,11 @@ const Signup: React.FC = () => {
 
             {/* Email Field */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">Email</label>
               <div className="relative">
                 <TextInput
                   type="email"
                   name="email"
+                  label="Email"
                   value={formData.email}
                   error={registrationValidationErrors?.email}
                   onChange={handleChange}
@@ -109,14 +107,12 @@ const Signup: React.FC = () => {
 
             {/* Password Field */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">
-                Password
-              </label>
               <div className="relative">
                 <TextInput
                   type={"password"}
                   name="password"
                   error={registrationValidationErrors?.password}
+                  label="Password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
@@ -128,13 +124,11 @@ const Signup: React.FC = () => {
 
             {/* Confirm Password Field */}
             <div className="space-y-2">
-              <label className="text-sm font-bold text-gray-700 ml-1">
-                Confirm Password
-              </label>
               <div className="relative">
                 <TextInput
                   type={"password"}
                   error={registrationValidationErrors?.confirmPassword}
+                  label="Confirm Password"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
