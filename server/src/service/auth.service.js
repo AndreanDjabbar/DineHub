@@ -31,7 +31,7 @@ class AuthService {
                 otpCode,
                 emailVerificationToken
             });
-            await redisClient.expire(redisKey, 15 * 60);
+            await redisClient.expire(redisKey, 5 * 60);
             sendVerificationEmail(email, emailVerificationToken, otpCode);
 
             const error = new Error("Email not verified. Please check your email for OTP verification.");
