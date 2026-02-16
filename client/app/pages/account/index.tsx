@@ -1,36 +1,43 @@
-import React, { use } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router";
-// Import icons
 import {
   FiSettings,
-  FiHelpCircle,
   FiLogOut,
   FiChevronRight,
-  FiUser,
 } from "react-icons/fi";
 import { BottomNavigation, ProfileBadge } from "~/components";
-import api from "~/lib/axios";
 import useUserStore from "~/stores/user.store";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { useRequest } from "~/hooks";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const clearUserData = useUserStore(state => state.clearUserData);
+  const {
+    makeRequest: logout,
+    isError: isLogoutError,
+    isSuccess: isLogoutSuccess,
+    error: logoutError,
+  } = useRequest();
 
   const handleLogout = async () => {
-    try{
-      await api.post("/auth/logout");
+    logout({
+      method: "POST",
+      url: "/auth/logout",
+    })
+  };
+
+  useEffect(() => {
+    if (isLogoutSuccess) {
       clearUserData();
       navigate("/login");
-    } catch (error) {
-      console.error("Failed to logout:", error);
     }
-  };
+  }, [isLogoutSuccess]);
+
+  useEffect(() => {
+    if (isLogoutError) {
+      console.error("Failed to logout:", logoutError);
+    }
+  }, [isLogoutError]);
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-24">
