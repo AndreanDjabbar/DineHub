@@ -17,7 +17,6 @@ import {
   EditTableModal,
 } from "./components";
 
-// Import Types
 import type {
   User,
   Table,
@@ -27,18 +26,10 @@ import type {
   MenuItem,
 } from "./components/types";
 import { UserHeader } from "~/components";
-import api from "~/lib/axios";
 import EditMenuItemModal from "./components/EditMenuItemModal";
 import EditCategoryModal from "./components/EditCategoryModal";
 import { useUserStore } from "~/stores";
-
-const sortTablesByNumber = (tables: Table[]): Table[] => {
-  return [...tables].sort((a, b) => {
-    const getNum = (name: string) => Number(name.match(/\d+/)?.[0] ?? 0);
-
-    return getNum(a.name) - getNum(b.name);
-  });
-};
+import { useRequest } from "~/hooks";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<"staff" | "tables" | "menu">(
@@ -91,9 +82,9 @@ const AdminDashboard = () => {
     name: string;
     price: number;
     categoryId: string;
-    image: string | null;
+    image: string;
     addOns: AddOn[];
-  }>({ name: "", price: 0, categoryId: "", image: null, addOns: [] });
+  }>({ name: "", price: 0, categoryId: "", image: "", addOns: [] });
 
   const [newAddOn, setNewAddOn] = useState<AddOn>({
     name: "",
@@ -106,6 +97,98 @@ const AdminDashboard = () => {
     price: 0,
   });
 
+  // Staff operations
+  const { 
+    makeRequest: fetchCashierRequest, 
+    data: cashierData, 
+    isSuccess: isCashierSuccess 
+  } = useRequest();
+  const { 
+    makeRequest: fetchKitchenRequest, 
+    data: kitchenData, 
+    isSuccess: isKitchenSuccess 
+  } = useRequest();
+  const { 
+    makeRequest: addUserRequest, 
+    isSuccess: isAddUserSuccess, 
+    isError: isAddUserError, 
+    error: addUserError, 
+    validationErrors: addUserValidationErrors 
+  } = useRequest();
+  const { 
+    makeRequest: updateUserRequest, 
+    isSuccess: isUpdateUserSuccess, 
+    isError: isUpdateUserError, 
+    error: updateUserError, 
+    validationErrors: updateUserValidationErrors 
+  } = useRequest();
+  const { 
+    makeRequest: deleteUserRequest 
+  } = useRequest();
+
+  // Table operations
+  const { 
+    makeRequest: fetchTablesRequest, 
+    data: tablesData, 
+    isSuccess: isTablesSuccess 
+  } = useRequest();
+  const { 
+    makeRequest: addTableRequest, 
+    isSuccess: isAddTableSuccess, 
+    isError: isAddTableError, 
+    error: addTableError, 
+    validationErrors: addTableValidationErrors 
+  } = useRequest();
+  const { 
+    makeRequest: updateTableRequest, 
+    isSuccess: isUpdateTableSuccess, 
+    isError: isUpdateTableError, 
+    error: updateTableError, 
+    validationErrors: updateTableValidationErrors 
+  } = useRequest();
+  const { makeRequest: deleteTableRequest } = useRequest();
+
+  // Menu operations
+  const { 
+    makeRequest: fetchMenuRequest, 
+    data: menuData, 
+    isSuccess: isMenuSuccess 
+  } = useRequest();
+  const { 
+    makeRequest: addCategoryRequest, 
+    isSuccess: isAddCategorySuccess, 
+    isError: isAddCategoryError, 
+    error: addCategoryError, 
+    validationErrors: addCategoryValidationErrors 
+  } = useRequest();
+  const { 
+    makeRequest: updateCategoryRequest, 
+    isSuccess: isUpdateCategorySuccess,
+    isError: isUpdateCategoryError,
+    error: updateCategoryError,
+    validationErrors: updateCategoryValidationErrors,
+  } = useRequest();
+  const { 
+    makeRequest: deleteCategoryRequest 
+  } = useRequest();
+  const { 
+    makeRequest: addMenuItemRequest, 
+    isSuccess: isAddMenuItemSuccess, 
+    isError: isAddMenuItemError, 
+    error: addMenuItemError, 
+    validationErrors: addMenuItemValidationErrors 
+  } = useRequest();
+  const { 
+    makeRequest: updateMenuItemRequest, 
+    isSuccess: isUpdateMenuItemSuccess,
+    isError: isUpdateMenuItemError,
+    error: updateMenuItemError,
+    validationErrors: updateMenuItemValidationErrors,
+  } = useRequest();
+  const { 
+    makeRequest: deleteMenuItemRequest,
+  } = useRequest();
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [editingTable, setEditingTable] = useState<Table | null>(null);
@@ -114,16 +197,6 @@ const AdminDashboard = () => {
   );
   const [editingMenuItem, setEditingMenuItem] = useState<MenuItem | null>(null);
   const [categoryErrors, setCategoryErrors] = useState<Record<string, string>>(
-    {},
-  );
-  const [menuItemErrors, setMenuItemErrors] = useState<{
-    name?: string;
-    price?: string;
-    categoryId?: string;
-    image?: string;
-    addOns?: string;
-  }>({});
-  const [addUserErrors, setAddUserErrors] = useState<Record<string, string>>(
     {},
   );
   const [updateUserErrors, setUpdateUserErrors] = useState<
@@ -142,40 +215,45 @@ const AdminDashboard = () => {
         console.error("No restaurant ID found for user");
         return;
       }
-      try {
-        const [cashierRes, kitchenRes] = await Promise.all([
-          api.get(`/user/cashier/${restaurantId}`),
-          api.get(`/user/kitchen/${restaurantId}`),
-        ]);
-        const cashierData = await cashierRes.data;
-        const kitchenData = await kitchenRes.data;
-
-        const cashiers = cashierData.data?.cashier || [];
-        const kitchenStaff = kitchenData.data?.kitchen || [];
-
-        const allStaff = [...cashiers, ...kitchenStaff];
-        setUsers(allStaff);
-      } catch (error) {
-        console.error("Error fetching staff data:", error);
-      }
+      await fetchCashierRequest({
+        method: "GET",
+        url: `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
+      });
+      await fetchKitchenRequest({
+        method: "GET",
+        url: `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
+      });
     };
     fetchStaff();
   }, [restaurantId]);
 
   useEffect(() => {
+    if (isCashierSuccess && isKitchenSuccess && cashierData && kitchenData) {
+      const cashiers = cashierData?.data?.cashier || [];
+      const kitchenStaff = kitchenData?.data?.kitchen || [];
+      const allStaff = [...cashiers, ...kitchenStaff];
+      setUsers(allStaff);
+    }
+  }, [isCashierSuccess, isKitchenSuccess, cashierData, kitchenData]);
+
+  useEffect(() => {
     const fetchTables = async () => {
-      try {
-        const response = await api.get(`/restaurant/table/${restaurantId}`);
-        const data = response.data;
-        const tables = data?.data?.tables || [];
-        setTables(tables);
-        setNextTableNumber(getNextTableNumber(tables));
-      } catch (error) {
-        console.error("Error fetching tables data:", error);
-      }
+      if (!restaurantId) return;
+      await fetchTablesRequest({
+        method: "GET",
+        url: `http://localhost:4000/dinehub/api/restaurant/table/restaurant/${restaurantId}`,
+      });
     };
     fetchTables();
   }, [restaurantId]);
+
+  useEffect(() => {
+    if (isTablesSuccess && tablesData) {
+      const fetchedTables = tablesData?.data?.tables || [];
+      setTables(fetchedTables);
+      setNextTableNumber(getNextTableNumber(fetchedTables));
+    }
+  }, [isTablesSuccess, tablesData]);
 
   useEffect(() => {
     const newNextTableNumber = getNextTableNumber(tables);
@@ -187,10 +265,15 @@ const AdminDashboard = () => {
   }, [tables]);
 
   const fetchMenu = async () => {
-    try {
-      const response = await api.get(`/restaurant/full-menu/${restaurantId}`);
-      const menu = response.data.data?.menu || [];
-      // Ensure each item has the correct categoryId from its parent category
+    await fetchMenuRequest({
+      method: "GET",
+      url: `http://localhost:4000/dinehub/api/restaurant/full-menu/${restaurantId}`,
+    });
+  };
+
+  useEffect(() => {
+    if (isMenuSuccess && menuData) {
+      const menu = menuData?.data?.menu || [];
       const categoriesWithIds = menu.map((category: MenuCategory) => ({
         ...category,
         items: (category.items || []).map((item: MenuItem) => ({
@@ -200,17 +283,14 @@ const AdminDashboard = () => {
         })),
       }));
       setCategories(categoriesWithIds);
-    } catch (error) {
-      console.error("Error fetching menu:", error);
     }
-  };
+  }, [isMenuSuccess, menuData]);
 
   useEffect(() => {
     if (activeTab !== "menu") return;
     fetchMenu();
   }, [restaurantId, activeTab]);
 
-  // --- HANDLERS ---
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!restaurantId) {
@@ -224,44 +304,34 @@ const AdminDashboard = () => {
       role: newUser.role.toUpperCase(),
       restaurantId: restaurantId,
     };
-    try {
-      const response = await api.post("/user/create-staff", payload);
-
-      const data = response.data;
-
-      const createdUser = data.data;
-
-      setUsers([
-        ...users,
-        {
-          id: createdUser.id,
-          name: createdUser.name,
-          email: createdUser.email,
-          role: createdUser.role,
-        },
-      ]);
-
-      setNewUser({ name: "", email: "", password: "", role: "cashier" }); // Reset form
-      setAddUserErrors({});
-      alert("Staff created successfully");
-    } catch (error: any) {
-      console.error("Error adding user:", error);
-      const apiError = error?.data;
-      if (apiError?.validation_errors) {
-        const fieldErrors: Record<string, string> = {};
-        apiError.validation_errors.forEach((msg: string) => {
-          if (msg.includes("name")) fieldErrors.name = msg;
-          if (msg.includes("email")) fieldErrors.email = msg;
-          if (msg.includes("password")) fieldErrors.password = msg;
-          if (msg.includes("role")) fieldErrors.role = msg;
-        });
-        setAddUserErrors(fieldErrors);
-      }
-    }
+    
+    await addUserRequest({
+      method: "POST",
+      url: "http://localhost:4000/dinehub/api/user/create-staff",
+      payload: payload,
+    });
   };
 
+  useEffect(() => {
+    if (isAddUserSuccess) {
+      const fetchStaff = async () => {
+        await fetchCashierRequest({
+          method: "GET",
+          url: `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
+        });
+        await fetchKitchenRequest({
+          method: "GET",
+          url: `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
+        });
+      };
+      fetchStaff();
+      setNewUser({ name: "", email: "", password: "", role: "cashier" });
+      alert("Staff created successfully");
+    }
+  }, [isAddUserSuccess]);
+
+
   const handleUserEditClick = (userToEdit: User) => {
-    setAddUserErrors({});
     setUpdateUserErrors({});
     setEditingUser(userToEdit);
     setIsEditModalOpen(true);
@@ -281,7 +351,6 @@ const AdminDashboard = () => {
   };
 
   const handleMenuEditClick = (itemToEdit: MenuItem) => {
-    // Ensure categoryId is set correctly from the item's category object if needed
     const itemWithCategoryId = {
       ...itemToEdit,
       categoryId:
@@ -296,286 +365,240 @@ const AdminDashboard = () => {
 
     if (!editingUser) return;
 
-    try {
-      const response = await api.put(
-        `/user/update-staff/${editingUser.id}`,
-        {
-          name: editingUser.name,
-          email: editingUser.email,
-          role: editingUser.role,
-        },
-      );
-
-      const data = response.data;
-
-      const updatedUser = data?.data?.user;
-
-      setUsers(
-        users.map((u) =>
-          u.id === updatedUser.id ? { ...u, ...updatedUser } : u,
-        ),
-      );
-
-      setEditingUser(null);
-      setIsEditModalOpen(false);
-    } catch (error: any) {
-      console.error("Error updating user:", error);
-      const apiError = error?.data;
-      if (apiError?.validation_errors) {
-        const fieldErrors: Record<string, string> = {};
-        apiError.validation_errors.forEach((msg: string) => {
-          if (msg.includes("name")) fieldErrors.name = msg;
-          if (msg.includes("email")) fieldErrors.email = msg;
-          if (msg.includes("password")) fieldErrors.password = msg;
-          if (msg.includes("role")) fieldErrors.role = msg;
-        });
-        setUpdateUserErrors(fieldErrors);
-      }
-    }
+    await updateUserRequest({
+      method: "PUT",
+      url: `http://localhost:4000/dinehub/api/user/update-staff/${editingUser.id}`,
+      payload: {
+        name: editingUser.name,
+        email: editingUser.email,
+        role: editingUser.role,
+      },
+    });
   };
 
-  const handleDeleteUser = async (id: string) => {
-    setUsers(users.filter((u) => u.id !== id));
+  useEffect(() => {
+    if (isUpdateUserSuccess) {
+      const fetchStaff = async () => {
+        await fetchCashierRequest({
+          method: "GET",
+          url: `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
+        });
+        await fetchKitchenRequest({
+          method: "GET",
+          url: `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
+        });
+      };
+      fetchStaff();
+      setEditingUser(null);
+      setIsEditModalOpen(false);
+    }
+  }, [isUpdateUserSuccess]);
 
+  useEffect(() => {
+    if (isUpdateUserError && updateUserValidationErrors) {
+      const fieldErrors: Record<string, string> = {};
+      Object.entries(updateUserValidationErrors).forEach(([field, messages]) => {
+        if (Array.isArray(messages) && messages.length > 0) {
+          fieldErrors[field] = messages[0];
+        }
+      });
+      setUpdateUserErrors(fieldErrors);
+    }
+  }, [isUpdateUserError, updateUserValidationErrors]);
+
+  const handleDeleteUser = async (id: string) => {
     if (!restaurantId) {
       console.error("No restaurant ID found for user");
       return;
     }
-    await api.post(`/user/delete-staff/${id}`,);
+    await deleteUserRequest({
+      method: "POST",
+      url: `http://localhost:4000/dinehub/api/user/delete-staff/${id}`,
+    });
+    await fetchCashierRequest({
+      method: "GET",
+      url: `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
+    });
+    await fetchKitchenRequest({
+      method: "GET",
+      url: `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
+    });
   };
 
   const handleAddTable = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await api.post(
-        "/restaurant/table",
-        {
-          name: newTable.name,
-          capacity: newTable.capacity,
-          restaurantId: restaurantId,
-        },
-      );
+    await addTableRequest({
+      method: "POST",
+      url: "http://localhost:4000/dinehub/api/restaurant/table",
+      payload: {
+        name: newTable.name,
+        capacity: newTable.capacity,
+        restaurantId: restaurantId,
+      },
+    });
+  };
 
-      const data = response.data;
-      const createdTable = data?.data?.table;
-
-      setTables((prev) =>
-        sortTablesByNumber([
-          ...prev,
-          {
-            id: createdTable.id,
-            name: createdTable.name,
-            capacity: createdTable.capacity,
-          },
-        ]),
-      );
-
-      setActiveTable(createdTable);
+  useEffect(() => {
+    if (isAddTableSuccess) {
+      const refetchTables = async () => {
+        await fetchTablesRequest({
+          method: "GET",
+          url: `http://localhost:4000/dinehub/api/restaurant/table/${restaurantId}`,
+        });
+      };
+      refetchTables();
       setAddTableErrors({});
       alert("Table added successfully");
-    } catch (error: any) {
-      console.error("Error adding table:", error);
-      const apiError = error?.data;
-
-      if (apiError?.validation_errors) {
-        const fieldErrors: Record<string, string> = {};
-
-        apiError.validation_errors.forEach((msg: string) => {
-          if (msg.toLowerCase().includes("capacity")) {
-            fieldErrors.capacity = msg;
-          }
-        });
-
-        setAddTableErrors(fieldErrors);
-      }
     }
-  };
+  }, [isAddTableSuccess]);
+
+  useEffect(() => {
+    if (isAddTableError && addTableValidationErrors) {
+      const fieldErrors: Record<string, string> = {};
+      Object.entries(addTableValidationErrors).forEach(([field, messages]) => {
+        if (Array.isArray(messages) && messages.length > 0) {
+          fieldErrors[field] = messages[0];
+        }
+      });
+      setAddTableErrors(fieldErrors);
+    }
+  }, [isAddTableError, addTableValidationErrors]);
 
   const handleUpdateTable = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingTable) return;
 
-    try {
-      const response = await api.put(
-        `/restaurant/table/${editingTable.id}`,
-        {
-          name: editingTable.name,
-          capacity: editingTable.capacity,
-        },
-      );
-
-      const data = response.data;
-      const updatedTable = data.data.table;
-
-      setTables((prev) =>
-        sortTablesByNumber(
-          prev.map((t) =>
-            t.id === updatedTable.id ? { ...t, ...updatedTable } : t,
-          ),
-        ),
-      );
-
-      setEditingTable(null);
-      setIsEditModalOpen(false);
-    } catch (error: any) {
-      console.error("Error updating table:", error);
-
-      console.error("Error adding table:", error);
-      const apiError = error?.data;
-
-      if (apiError?.validation_errors) {
-        const fieldErrors: Record<string, string> = {};
-
-        apiError.validation_errors.forEach((msg: string) => {
-          if (msg.toLowerCase().includes("capacity")) {
-            fieldErrors.capacity = msg;
-          }
-        });
-
-        setUpdateTableErrors(fieldErrors);
-      }
-    }
+    await updateTableRequest({
+      method: "PUT",
+      url: `http://localhost:4000/dinehub/api/restaurant/table/${editingTable.id}`,
+      payload: {
+        name: editingTable.name,
+        capacity: editingTable.capacity,
+      },
+    });
   };
 
-  const handleDeleteTable = async (id: number) => {
-    setTables(tables.filter((t) => t.id !== id));
+  useEffect(() => {
+    if (isUpdateTableSuccess) {
+      const refetchTables = async () => {
+        await fetchTablesRequest({
+          method: "GET",
+          url: `http://localhost:4000/dinehub/api/restaurant/table/${restaurantId}`,
+        });
+      };
+      refetchTables();
+      setEditingTable(null);
+      setIsEditModalOpen(false);
+    }
+  }, [isUpdateTableSuccess]);
 
+  useEffect(() => {
+    if (isUpdateTableError && updateTableValidationErrors) {
+      const fieldErrors: Record<string, string> = {};
+      Object.entries(updateTableValidationErrors).forEach(([field, messages]) => {
+        if (Array.isArray(messages) && messages.length > 0) {
+          fieldErrors[field] = messages[0];
+        }
+      });
+      setUpdateTableErrors(fieldErrors);
+    }
+  }, [isUpdateTableError, updateTableValidationErrors]);
+
+  const handleDeleteTable = async (id: number) => {
     if (!restaurantId) {
       console.error("No restaurant ID found for user");
       return;
     }
-    await api.delete(`/restaurant/table/${id}`);
+    await deleteTableRequest({
+      method: "DELETE",
+      url: `http://localhost:4000/dinehub/api/restaurant/table/${id}`,
+    });
+    await fetchTablesRequest({
+      method: "GET",
+      url: `http://localhost:4000/dinehub/api/restaurant/table/${restaurantId}`,
+    });
   };
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await api.post(
-        "/restaurant/category",
-        {
-          name: newCategory.name,
-          image: newCategory.image,
-          restaurantId: restaurantId,
-        },
-      );
+    await addCategoryRequest({
+      method: "POST",
+      url: "http://localhost:4000/dinehub/api/restaurant/category",
+      payload: {
+        name: newCategory.name,
+        image: newCategory.image,
+        restaurantId: restaurantId,
+      },
+    });
+  };
 
-      const data = response.data;
-      const createdCategory = data?.data?.category;
-      setCategories((prev) => [...prev, { ...createdCategory, items: [] }]);
+  useEffect(() => {
+    if (isAddCategorySuccess) {
+      fetchMenu();
       setNewCategory({ name: "", image: "" });
       alert("Category added successfully");
-    } catch (error: any) {
-      const apiError = error?.data;
-
-      if (apiError?.validation_errors) {
-        const fieldErrors: Record<string, string> = {};
-
-        apiError.validation_errors.forEach((msg: string) => {
-          if (msg.includes("name")) fieldErrors.name = msg;
-          if (msg.includes("image")) fieldErrors.image = msg;
-        });
-
-        setCategoryErrors(fieldErrors);
-      }
     }
-  };
+  }, [isAddCategorySuccess]);
 
   const handleUpdateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingCategory) return;
 
-    try {
-      const response = await api.put(
-        `/restaurant/category/${editingCategory.id}`,
-        {
-          name: editingCategory.name,
-          image: editingCategory.image,
-        },
-      );
-
-      const data = response.data;
-      const updatedCategory = data.data.category;
-
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === updatedCategory.id ? { ...c, ...updatedCategory } : c,
-        ),
-      );
-
-      setEditingCategory(null);
-      setIsEditModalOpen(false);
-    } catch (error) {
-      console.error("Error updating category:", error);
-    }
+    await updateCategoryRequest({
+      method: "PUT",
+      url: `http://localhost:4000/dinehub/api/restaurant/category/${editingCategory.id}`,
+      payload: {
+        name: editingCategory.name,
+        image: editingCategory.image,
+      },
+    });
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    try {
-      await api.delete(`/restaurant/category/${id}`);
-      setCategories((prev) => prev.filter((c) => c.id !== id));
-    } catch (error) {
-      console.error("Error deleting category:", error);
+  useEffect(() => {
+    if (isUpdateCategorySuccess) {
+      fetchMenu();
+      setEditingCategory(null);
+      setIsEditModalOpen(false);
     }
+  }, [isUpdateCategorySuccess]);
+
+  const handleDeleteCategory = async (id: string) => {
+    await deleteCategoryRequest({
+      method: "DELETE",
+      url: `http://localhost:4000/dinehub/api/restaurant/category/${id}`,
+    });
+    fetchMenu();
   };
 
   const handleAddMenuItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await api.post(
-        "/restaurant/item",
-        {
-          name: newMenuItem.name,
-          price: newMenuItem.price,
-          categoryId: newMenuItem.categoryId,
-          image: newMenuItem.image,
-          addOns: newMenuItem.addOns,
-        },
-      );
+    await addMenuItemRequest({
+      method: "POST",
+      url: "http://localhost:4000/dinehub/api/restaurant/item",
+      payload: {
+        name: newMenuItem.name,
+        price: newMenuItem.price,
+        categoryId: newMenuItem.categoryId,
+        image: newMenuItem.image,
+        addOns: newMenuItem.addOns,
+      },
+    });
+  };
 
-      const data = response.data;
-      const createdItem = data?.data?.menuItem;
-
-      setCategories((prev) =>
-        prev.map((cat) =>
-          cat.id === createdItem.categoryId
-            ? { ...cat, items: [...(cat?.items || []), createdItem] }
-            : cat,
-        ),
-      );
-
-      await fetchMenu();
-
+  useEffect(() => {
+    if (isAddMenuItemSuccess) {
+      fetchMenu();
       setNewMenuItem({
         name: "",
         price: 0,
         categoryId: "",
-        image: null,
+        image: "",
         addOns: [],
       });
       setNewAddOn({ name: "", minSelect: 0, maxSelect: 1, options: [] });
       alert("Menu item added successfully");
-    } catch (error: any) {
-      console.error("Error adding menu item:", error);
-
-      const apiError = error?.data || error?.response?.data;
-
-      if (apiError?.validation_errors) {
-        const fieldErrors: Record<string, string> = {};
-
-        apiError.validation_errors.forEach((msg: string) => {
-          const lower = msg.toLowerCase();
-
-          if (lower.includes("name")) fieldErrors.name = msg;
-          else if (lower.includes("price")) fieldErrors.price = msg;
-          else if (lower.includes("category")) fieldErrors.categoryId = msg;
-          else if (lower.includes("image")) fieldErrors.image = msg;
-          else if (lower.includes("addon")) fieldErrors.addOns = msg;
-        });
-
-        setMenuItemErrors(fieldErrors);
-      }
     }
-  };
+  }, [isAddMenuItemSuccess]);
 
   const handleAddAddOnToItem = () => {
     if (!newAddOn.name) return;
@@ -599,55 +622,33 @@ const AdminDashboard = () => {
     e.preventDefault();
     if (!editingMenuItem) return;
 
-    try {
-      const response = await api.put(
-        `/menu/items/${editingMenuItem.id}`,
-        {
-          name: editingMenuItem.name,
-          price: editingMenuItem.price,
-          categoryId: editingMenuItem.categoryId,
-          image: editingMenuItem.image,
-          addOns: editingMenuItem.addOns,
-        },
-      );
-
-      const data = response.data;
-      const updatedItem = data.data.menuItem;
-
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === updatedItem.categoryId
-            ? {
-                ...c,
-                items: (c.items || []).map((i) =>
-                  i.id === updatedItem.id ? { ...i, ...updatedItem } : i,
-                ),
-              }
-            : c,
-        ),
-      );
-
-      setEditingMenuItem(null);
-      setIsEditModalOpen(false);
-    } catch (error) {
-      console.error("Error updating menu item:", error);
-    }
+    await updateMenuItemRequest({
+      method: "PUT",
+      url: `http://localhost:4000/dinehub/api/menu/items/${editingMenuItem.id}`,
+      payload: {
+        name: editingMenuItem.name,
+        price: editingMenuItem.price,
+        categoryId: editingMenuItem.categoryId,
+        image: editingMenuItem.image,
+        addOns: editingMenuItem.addOns,
+      },
+    });
   };
 
-  const handleDeleteMenuItem = async (id: string) => {
-    try {
-      await api.delete(`/restaurant/item/${id}`);
-
-      // Update local state to remove the deleted item from all categories
-      setCategories((prev) =>
-        prev.map((cat) => ({
-          ...cat,
-          items: (cat.items || []).filter((item) => item.id !== id),
-        })),
-      );
-    } catch (error) {
-      console.error("Error deleting menu item:", error);
+  useEffect(() => {
+    if (isUpdateMenuItemSuccess) {
+      fetchMenu();
+      setEditingMenuItem(null);
+      setIsEditModalOpen(false);
     }
+  }, [isUpdateMenuItemSuccess]);
+
+  const handleDeleteMenuItem = async (id: string) => {
+    await deleteMenuItemRequest({
+      method: "DELETE",
+      url: `http://localhost:4000/dinehub/api/restaurant/item/${id}`,
+    });
+    fetchMenu();
   };
 
   return (
@@ -691,11 +692,10 @@ const AdminDashboard = () => {
                 users={users}
                 newUser={newUser}
                 setNewUser={setNewUser}
+                validationErrors={addUserValidationErrors}
                 handleAddUser={handleAddUser}
                 handleUserEditClick={handleUserEditClick}
                 handleDeleteUser={handleDeleteUser}
-                addUserErrors={addUserErrors}
-                setAddUserErrors={setAddUserErrors}
               />
             )}
 
@@ -710,8 +710,6 @@ const AdminDashboard = () => {
                 handleDeleteTable={handleDeleteTable}
                 activeTable={activeTable}
                 onTableSelect={setActiveTable}
-                addTableErrors={addTableErrors}
-                setAddTableErrors={setAddTableErrors}
               />
             )}
 
@@ -732,13 +730,10 @@ const AdminDashboard = () => {
                 handleAddAddOnToItem={handleAddAddOnToItem}
                 handleAddOptionToAddOn={handleAddOptionToAddOn}
                 handleDeleteCategory={handleDeleteCategory}
-                handleDeleteMenuItem={handleDeleteMenuItem}
                 handleMenuEditClick={handleMenuEditClick}
                 handleCategoryEditClick={handleCategoryEditClick}
-                categoryErrors={categoryErrors}
-                setCategoryErrors={setCategoryErrors}
-                menuItemErrors={menuItemErrors}
-                setMenuItemErrors={setMenuItemErrors}
+                addCategoryValidationErrors={addCategoryValidationErrors}
+                addMenuItemValidationErrors={addMenuItemValidationErrors}
               />
             )}
 
@@ -751,8 +746,7 @@ const AdminDashboard = () => {
                 setEditingUser(null);
               }}
               onUpdate={handleUpdateUser}
-              updateUserErrors={updateUserErrors}
-              setUpdateUserErrors={setUpdateUserErrors}
+              updateUserValidationErrors={updateUserValidationErrors}
             />
 
             <EditTableModal
@@ -764,8 +758,7 @@ const AdminDashboard = () => {
                 setEditingTable(null);
               }}
               onUpdate={handleUpdateTable}
-              updateTableErrors={updateTableErrors}
-              setUpdateTableErrors={setUpdateTableErrors}
+              updateTableValidationErrors={updateTableValidationErrors}
             />
 
             <EditMenuItemModal
@@ -777,6 +770,7 @@ const AdminDashboard = () => {
                 setIsEditModalOpen(false);
                 setEditingMenuItem(null);
               }}
+              updateMenuItemValidationErrors={updateMenuItemValidationErrors}
               onUpdate={handleUpdateMenuItem}
               categories={categories}
             />
@@ -789,6 +783,7 @@ const AdminDashboard = () => {
                 setIsEditModalOpen(false);
                 setEditingCategory(null);
               }}
+              updateCategoryValidationErrors={updateCategoryValidationErrors}
               onUpdate={handleUpdateCategory}
             />
           </div>
