@@ -154,7 +154,7 @@ const VerifyOtp: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-8">
         {/* OTP Inputs */}
-        <div className="flex justify-between gap-2">
+        <div className="flex justify-center gap-2 sm:gap-3 md:gap-4">
           {otp.map((data, index) => (
             <input
               key={index}
@@ -167,7 +167,7 @@ const VerifyOtp: React.FC = () => {
               onChange={(e) => handleChange(e.target, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               onPaste={index === 0 ? handlePaste : undefined}
-              className="w-16 h-18 border-3 border-gray-300 rounded-xl text-center text-2xl font-bold focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition bg-gray-50"
+              className="w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 shrink-0 border-3 border-gray-300 rounded-lg sm:rounded-xl text-center text-xl sm:text-2xl font-bold focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition bg-gray-50"
             />
           ))}
         </div>  
