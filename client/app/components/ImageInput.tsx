@@ -7,11 +7,13 @@ interface ImageInputProps {
   onChange: (imageUrl: string | null) => void;
   className?: string;
   required?: boolean;
+  error?: string;
 }
 
 const ImageInput: React.FC<ImageInputProps> = ({
   label,
   value,
+  error,
   onChange,
   className = "",
   required = false,
@@ -157,6 +159,9 @@ const ImageInput: React.FC<ImageInputProps> = ({
           </div>
         )}
       </div>
+      {error ? (
+        <div className="text-red-600 text-sm font-medium">{error}</div>
+      ) : null}
     </div>
   );
 };

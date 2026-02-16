@@ -65,7 +65,9 @@ const SelectInput: React.FC<SelectInputProps> = ({
             ))}
             </select>
         </div>
-        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+        {error ? (
+            <div className="text-red-600 text-sm font-medium">{error}</div>
+        ) : null}
         </div>
     );
 };

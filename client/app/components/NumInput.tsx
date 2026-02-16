@@ -6,6 +6,7 @@ interface NumInputProps {
   label?: string;
   name?: string;
   value: number | string;
+  error?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   placeholder?: string;
@@ -21,6 +22,7 @@ const NumInput: React.FC<NumInputProps> = ({
   value,
   onChange,
   onKeyDown,
+  error,
   placeholder,
   required = false,
   min = "0",
@@ -101,6 +103,9 @@ const NumInput: React.FC<NumInputProps> = ({
           </button>
         </div>
       </div>
+      {error ? (
+        <div className="text-red-600 text-sm font-medium">{error}</div>
+      ) : null}
     </div>
   );
 };
