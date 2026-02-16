@@ -125,14 +125,16 @@ export const createTableSchema = Joi.object({
 });
 
 export const updateTableSchema = Joi.object({
-  name: Joi.string().min(1).max(100).optional()
+  name: Joi.string().min(1).max(100).required()
   .messages({
+    'string.empty': 'Name is required',
     'string.base': 'Name must be a string',
     'string.min': 'Name should have a minimum length of {#limit}',
     'string.max': 'Name should have a maximum length of {#limit}',
   }),
-  capacity: Joi.number().integer().min(1).max(100).optional()
+  capacity: Joi.number().integer().min(1).max(100).required()
   .messages({
+    'number.empty': 'Capacity is required',
     'number.base': 'Capacity must be a number',
     'number.integer': 'Capacity must be an integer',
     'number.min': 'Capacity must be at least {#limit}',
@@ -199,8 +201,9 @@ export const createMenuItemSchema = Joi.object({
     'number.min': 'Price must be at least {#limit}',
     'any.required': 'Price is required',
   }),
-  image: Joi.string().uri().optional()
+  image: Joi.string().uri().required()
   .messages({
+    'string.empty': 'Image is required',
     'string.base': 'Image must be a string',
     'string.uri': 'Image must be a valid URI',
   }),
