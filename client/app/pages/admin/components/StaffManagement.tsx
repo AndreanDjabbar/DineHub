@@ -5,7 +5,6 @@ import {
   FiEdit,
   FiTrash2,
   FiUsers,
-  FiAlertCircle,
 } from "react-icons/fi";
 import type { User } from "./types";
 import { TextInput, Button, ConfirmationPopup } from "~/components";
@@ -17,29 +16,17 @@ interface StaffManagementProps {
   handleAddUser: (e: React.FormEvent) => void;
   handleUserEditClick: (user: User) => void;
   handleDeleteUser: (id: string) => void;
-  addUserErrors?: {
-    name?: string;
-    email?: string;
-    password?: string;
-    role?: string;
-  };
-  setAddUserErrors?: (errors: {
-    name?: string;
-    email?: string;
-    password?: string;
-    role?: string;
-  }) => void;
+  validationErrors?: Record<string, string>;
 }
 
 const StaffManagement: React.FC<StaffManagementProps> = ({
   users,
   newUser,
   setNewUser,
+  validationErrors,
   handleAddUser,
   handleUserEditClick,
   handleDeleteUser,
-  addUserErrors,
-  setAddUserErrors,
 }) => {
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -66,45 +53,33 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
             type="text"
             required
             placeholder="e.g. cashier_morning"
+            error={validationErrors?.name || ""}
             value={newUser.name}
             onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
           />
-          {addUserErrors?.name && (
-            <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-              <FiAlertCircle size={14} />
-              <span>{addUserErrors.name}</span>
-            </div>
-          )}
+
           <TextInput
             label="Email"
             type="email"
             required
+            error={validationErrors?.email || ""}
             placeholder="e.g. cashier@your-restaurant.com"
             value={newUser.email}
             onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
           />
-          {addUserErrors?.email && (
-            <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-              <FiAlertCircle size={14} />
-              <span>{addUserErrors.email}</span>
-            </div>
-          )}
+
           <TextInput
             label="Password"
             type="password"
             required
             placeholder="••••••••"
+            error={validationErrors?.password || ""}
             value={newUser.password}
             onChange={(e) =>
               setNewUser({ ...newUser, password: e.target.value })
             }
           />
-          {addUserErrors?.password && (
-            <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-              <FiAlertCircle size={14} />
-              <span>{addUserErrors.password}</span>
-            </div>
-          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Role

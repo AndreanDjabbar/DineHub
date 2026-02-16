@@ -3,7 +3,6 @@ import {
   FiTrash2,
   FiX,
   FiBookOpen,
-  FiAlertCircle,
   FiEdit,
 } from "react-icons/fi";
 import type { MenuCategory, AddOn, AddOnOption, MenuItem } from "./types";
@@ -31,22 +30,10 @@ interface MenuManagementProps {
   handleAddAddOnToItem: () => void;
   handleAddOptionToAddOn: () => void;
   handleDeleteCategory: (id: string) => void;
-  handleDeleteMenuItem: (id: string, categoryId: string) => void;
   handleMenuEditClick: (menu: MenuItem) => void;
   handleCategoryEditClick: (category: MenuCategory) => void;
-  categoryErrors: {
-    name?: string;
-    image?: string;
-  };
-  setCategoryErrors: (errors: any) => void;
-  menuItemErrors: {
-    name?: string;
-    price?: string;
-    categoryId?: string;
-    image?: string;
-    addOns?: string;
-  };
-  setMenuItemErrors: (errors: any) => void;
+  addCategoryValidationErrors?: Record<string, string>;
+  addMenuItemValidationErrors?: Record<string, string>;
 }
 
 const MenuManagement: React.FC<MenuManagementProps> = ({
@@ -64,55 +51,20 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
   handleAddAddOnToItem,
   handleAddOptionToAddOn,
   handleDeleteCategory,
-  handleDeleteMenuItem,
+  addCategoryValidationErrors,
+  addMenuItemValidationErrors,
   handleMenuEditClick,
   handleCategoryEditClick,
-  categoryErrors,
-  setCategoryErrors,
-  menuItemErrors,
-  setMenuItemErrors,
 }) => {
-  const [errors, setErrors] = useState<{
-    name?: string;
-    price?: string;
-    category?: string;
-    image?: string;
-  }>({});
   const [isDeleteCategoryPopupOpen, setIsDeleteCategoryPopupOpen] =
     useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<MenuCategory | null>(
     null,
   );
-  const [isDeleteItemPopupOpen, setIsDeleteItemPopupOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<{
-    id: string;
-    categoryId: string;
-    name: string;
-  } | null>(null);
 
-  const validateAndSubmit = (e: React.FormEvent) => {
+  const submitMenuItem = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: typeof errors = {};
-
-    if (!newMenuItem.name.trim()) {
-      newErrors.name = "Item name is required";
-    }
-    if (!newMenuItem.price || newMenuItem.price <= 0) {
-      newErrors.price = "Price must be greater than 0";
-    }
-    if (!newMenuItem.categoryId) {
-      newErrors.category = "Please select a category";
-    }
-    if (!newMenuItem.image) {
-      newErrors.image = "Image is required";
-    }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      handleAddMenuItem(e);
-      setErrors({});
-    }
+    handleAddMenuItem(e);
   };
 
   const handleDeleteCategoryClick = (category: MenuCategory) => {
@@ -123,21 +75,6 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
   const confirmDeleteCategory = () => {
     if (categoryToDelete) {
       handleDeleteCategory(categoryToDelete.id || "");
-    }
-  };
-
-  const handleDeleteItemClick = (
-    itemId: string,
-    categoryId: string,
-    itemName: string,
-  ) => {
-    setItemToDelete({ id: itemId, categoryId, name: itemName });
-    setIsDeleteItemPopupOpen(true);
-  };
-
-  const confirmDeleteItem = () => {
-    if (itemToDelete) {
-      handleDeleteMenuItem(itemToDelete.id, itemToDelete.categoryId);
     }
   };
 
@@ -155,19 +92,12 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 label="Category Name"
                 required
                 placeholder="e.g. Main Course"
+                error={addCategoryValidationErrors?.name}
                 value={newCategory.name}
                 onChange={(e) => {
                   setNewCategory({ ...newCategory, name: e.target.value });
-                  if (categoryErrors.name)
-                    setCategoryErrors({ ...categoryErrors, name: undefined });
                 }}
               />
-              {categoryErrors.name && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <FiAlertCircle size={14} />
-                  <span>{categoryErrors.name}</span>
-                </div>
-              )}
             </div>
 
             <ImageInput
@@ -175,16 +105,8 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               value={newCategory.image || null}
               onChange={(imageUrl) => {
                 setNewCategory({ ...newCategory, image: imageUrl || "" });
-                if (categoryErrors.image)
-                  setCategoryErrors({ ...categoryErrors, image: undefined });
               }}
             />
-            {categoryErrors.image && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{categoryErrors.image}</span>
-              </div>
-            )}
             <Button type="submit">Add Category</Button>
           </form>
         </div>
@@ -194,26 +116,20 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
         {/* Add Menu Item Form */}
         <div>
           <h3 className="text-lg font-bold mb-4">Add Menu Item</h3>
-          <form onSubmit={validateAndSubmit} className="space-y-4">
+          <form onSubmit={submitMenuItem} className="space-y-4">
             <div>
               <TextInput
                 type="text"
                 label="Item Name"
                 required
                 placeholder="e.g. Fried Rice"
+                error={addMenuItemValidationErrors?.name}
                 value={newMenuItem.name}
                 onChange={(e) => {
                   setNewMenuItem({ ...newMenuItem, name: e.target.value });
-                  if (menuItemErrors.name)
-                    setMenuItemErrors({ ...menuItemErrors, name: undefined });
                 }}
               />
-              {menuItemErrors.name && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <FiAlertCircle size={14} />
-                  <span>{menuItemErrors.name}</span>
-                </div>
-              )}
+
             </div>
             <div>
               <NumInput
@@ -221,20 +137,15 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 min="0"
                 required
                 value={newMenuItem.price}
+                error={addMenuItemValidationErrors?.price}
                 onChange={(e) => {
                   setNewMenuItem({
                     ...newMenuItem,
                     price: parseInt(e.target.value),
                   });
-                  if (errors.price) setErrors({ ...errors, price: undefined });
                 }}
               />
-              {errors.price && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <FiAlertCircle size={14} />
-                  <span>{errors.price}</span>
-                </div>
-              )}
+
             </div>
             <div>
               <SelectInput
@@ -247,45 +158,27 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                     ...newMenuItem,
                     categoryId: e.target.value,
                   });
-                  if (menuItemErrors.categoryId) {
-                    setMenuItemErrors({
-                      ...menuItemErrors,
-                      categoryId: undefined,
-                    });
-                  }
                 }}
                 options={categories.map((category) => ({
                   id: category.id,
                   name: category.name,
                   value: category.id,
                 }))}
-                error={errors.category}
+                error={addMenuItemValidationErrors?.category}
                 required
               />
-              {errors.category && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <FiAlertCircle size={14} />
-                  <span>{errors.category}</span>
-                </div>
-              )}
             </div>
 
             <div>
               <ImageInput
                 label="Item Image"
                 required
+                error={addMenuItemValidationErrors?.image}
                 value={newMenuItem.image || null}
                 onChange={(imageUrl) => {
                   setNewMenuItem({ ...newMenuItem, image: imageUrl });
-                  if (errors.image) setErrors({ ...errors, image: undefined });
                 }}
               />
-              {errors.image && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <FiAlertCircle size={14} />
-                  <span>{errors.image}</span>
-                </div>
-              )}
             </div>
 
             {/* Add-ons Section */}

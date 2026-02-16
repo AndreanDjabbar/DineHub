@@ -8,12 +8,8 @@ interface EditUserModalProps {
   editingUser: User | null;
   setEditingUser: (user: User) => void;
   onClose: () => void;
+  updateUserValidationErrors?: Record<string, string>;
   onUpdate: (e: React.FormEvent) => void;
-  updateUserErrors?: {
-    name?: string;
-    email?: string;
-  };
-  setUpdateUserErrors?: (errors: { name?: string; email?: string }) => void;
 }
 
 const EditUserModal: React.FC<EditUserModalProps> = ({
@@ -21,9 +17,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   editingUser,
   setEditingUser,
   onClose,
+  updateUserValidationErrors,
   onUpdate,
-  updateUserErrors,
-  setUpdateUserErrors,
 }) => {
   if (!isOpen || !editingUser) return null;
 
@@ -48,17 +43,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               type="text"
               label="Name"
               required
+              error={updateUserValidationErrors?.name || ""}
               value={editingUser.name}
               onChange={(e) =>
                 setEditingUser({ ...editingUser, name: e.target.value })
               }
             />
-            {updateUserErrors?.name && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{updateUserErrors.name}</span>
-              </div>
-            )}
           </div>
 
           <div>
@@ -66,17 +56,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
               type="email"
               label="Email"
               required
+              error={updateUserValidationErrors?.email || ""}
               value={editingUser.email}
               onChange={(e) =>
                 setEditingUser({ ...editingUser, email: e.target.value })
               }
             />
-            {updateUserErrors?.email && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{updateUserErrors.email}</span>
-              </div>
-            )}
           </div>
 
           <div className="pt-4 flex gap-3">

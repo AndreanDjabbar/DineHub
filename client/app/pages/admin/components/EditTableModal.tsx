@@ -1,7 +1,7 @@
 import React from "react";
-import { FiAlertCircle, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 import type { Table } from "./types";
-import { Button } from "~/components";
+import { Button, NumInput, TextInput } from "~/components";
 
 interface EditTableModalProps {
   isOpen: boolean;
@@ -9,10 +9,7 @@ interface EditTableModalProps {
   setEditingTable: (table: Table) => void;
   onClose: () => void;
   onUpdate: (e: React.FormEvent) => void;
-  updateTableErrors?: {
-    capacity?: string;
-  };
-  setUpdateTableErrors?: (errors: { capacity?: string }) => void;
+  updateTableValidationErrors?: Record<string, string>;
 }
 
 const EditTableModal: React.FC<EditTableModalProps> = ({
@@ -21,8 +18,7 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
   setEditingTable,
   onClose,
   onUpdate,
-  updateTableErrors,
-  setUpdateTableErrors,
+  updateTableValidationErrors,
 }) => {
   if (!isOpen || !editingTable) return null;
 
@@ -43,34 +39,36 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
         {/* Modal Form */}
         <form onSubmit={onUpdate} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name
-            </label>
-            <span>{editingTable.name}</span>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Capacity
-            </label>
-            <input
-              type="number"
+            <TextInput 
+              label="Table Name"
               required
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              value={editingTable.capacity}
-              onChange={(e) =>
+              value={editingTable.name || ""}
+              onChange={(e) => {
                 setEditingTable({
                   ...editingTable,
-                  capacity: parseInt(e.target.value),
-                })
-              }
+                  name: e.target.value,
+                });
+              }}
+              error={updateTableValidationErrors?.name || ""}
             />
-            {updateTableErrors?.capacity && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{updateTableErrors.capacity}</span>
-              </div>
-            )}
+          </div>
+          <div>
+            <NumInput 
+            label="Capacity"
+            min={0}
+            required
+            value={editingTable.capacity} 
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              if (!isNaN(value)) {
+                setEditingTable({
+                  ...editingTable,
+                  capacity: value,
+                });
+              }
+            }}
+            error={updateTableValidationErrors?.capacity || ""}
+            />
           </div>
 
           <div className="pt-4 flex gap-3">

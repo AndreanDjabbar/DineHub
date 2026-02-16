@@ -3,9 +3,7 @@ import {
   FiLayers,
   FiEdit,
   FiTrash2,
-  FiMousePointer,
   FiCheckCircle,
-  FiAlertCircle,
 } from "react-icons/fi";
 import type { Table } from "./types";
 import { NumInput, Button, ConfirmationPopup, TextInput } from "~/components";
@@ -22,10 +20,7 @@ interface TableManagementProps {
   handleDeleteTable: (id: number) => void;
   activeTable: Table | null;
   onTableSelect: (table: Table) => void;
-  addTableErrors?: {
-    capacity?: string;
-  };
-  setAddTableErrors?: (errors: { capacity?: string }) => void;
+  addTableValidationErrors?: Record<string, string>;
 }
 
 const TableManagement: React.FC<TableManagementProps> = ({
@@ -37,8 +32,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
   handleDeleteTable,
   activeTable,
   onTableSelect,
-  addTableErrors,
-  setAddTableErrors,
+  addTableValidationErrors,
 }) => {
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [tableToDelete, setTableToDelete] = useState<Table | null>(null);
@@ -73,25 +67,15 @@ const TableManagement: React.FC<TableManagementProps> = ({
               </label>
               <TextInput 
               value={newTable.name} 
+              error={addTableValidationErrors?.name || ""}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 setNewTable({
                   ...newTable,
                   name: e.target.value,
                 });
 
-                if (addTableErrors?.capacity && setAddTableErrors) {
-                  setAddTableErrors({
-                    ...addTableErrors,
-                    capacity: undefined,
-                  });
-                }
               }}              />
-              {addTableErrors?.capacity && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <FiAlertCircle size={14} />
-                  <span>{addTableErrors.capacity}</span>
-                </div>
-              )}
+
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -100,27 +84,15 @@ const TableManagement: React.FC<TableManagementProps> = ({
               <NumInput
                 required
                 min="1"
+                error={addTableValidationErrors?.capacity || ""}
                 value={newTable.capacity}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                   setNewTable({
                     ...newTable,
                     capacity: parseInt(e.target.value),
                   });
-
-                  if (addTableErrors?.capacity && setAddTableErrors) {
-                    setAddTableErrors({
-                      ...addTableErrors,
-                      capacity: undefined,
-                    });
-                  }
                 }}
               />
-              {addTableErrors?.capacity && (
-                <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                  <FiAlertCircle size={14} />
-                  <span>{addTableErrors.capacity}</span>
-                </div>
-              )}
             </div>
             <Button type="submit">Add Table</Button>
           </form>

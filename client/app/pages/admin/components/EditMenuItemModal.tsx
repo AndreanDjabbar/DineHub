@@ -7,6 +7,7 @@ import {
   NumInput,
   ImageInput,
   ConfirmationPopup,
+  SelectInput,
 } from "~/components";
 
 interface EditMenuItemModalProps {
@@ -16,6 +17,7 @@ interface EditMenuItemModalProps {
   onClose: () => void;
   onUpdate: (e: React.FormEvent) => void;
   onDelete: (id: string) => void;
+  updateMenuItemValidationErrors?: Record<string, string>;
   categories: MenuCategory[];
 }
 
@@ -25,6 +27,7 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
   setEditingMenuItem,
   onClose,
   onUpdate,
+  updateMenuItemValidationErrors,
   onDelete,
   categories,
 }) => {
@@ -38,20 +41,7 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
     name: "",
     price: 0,
   });
-  const [errors, setErrors] = useState<{
-    name?: string;
-    price?: string;
-    category?: string;
-    image?: string;
-  }>({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  // Reset errors when modal opens with new item
-  useEffect(() => {
-    if (isOpen) {
-      setErrors({});
-    }
-  }, [isOpen]);
 
   if (!isOpen || !editingMenuItem) return null;
 
@@ -89,27 +79,7 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
 
   const validateAndSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: typeof errors = {};
-
-    if (!editingMenuItem.name.trim()) {
-      newErrors.name = "Item name is required";
-    }
-    if (!editingMenuItem.price || editingMenuItem.price <= 0) {
-      newErrors.price = "Price must be greater than 0";
-    }
-    if (!editingMenuItem.categoryId) {
-      newErrors.category = "Please select a category";
-    }
-    if (!editingMenuItem.image) {
-      newErrors.image = "Image is required";
-    }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      onUpdate(e);
-      setErrors({});
-    }
+    onUpdate(e);
   };
 
   const handleDeleteClick = () => {
@@ -141,11 +111,11 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
         {/* Modal Form */}
         <form onSubmit={validateAndSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Item Name
-            </label>
             <TextInput
               type="text"
+              required
+              label="Item Name"
+              error={updateMenuItemValidationErrors?.name || ""}
               placeholder="e.g. Fried Rice"
               value={editingMenuItem.name}
               onChange={(e) => {
@@ -153,20 +123,16 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
                   ...editingMenuItem,
                   name: e.target.value,
                 });
-                if (errors.name) setErrors({ ...errors, name: undefined });
               }}
             />
-            {errors.name && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{errors.name}</span>
-              </div>
-            )}
           </div>
 
           <div>
             <NumInput
               label="Price"
+              required
+              error={updateMenuItemValidationErrors?.price || ""}
+              placeholder="e.g. 12000"
               min="0"
               value={editingMenuItem.price}
               onChange={(e) => {
@@ -174,67 +140,43 @@ const EditMenuItemModal: React.FC<EditMenuItemModalProps> = ({
                   ...editingMenuItem,
                   price: parseInt(e.target.value),
                 });
-                if (errors.price) setErrors({ ...errors, price: undefined });
               }}
             />
-            {errors.price && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{errors.price}</span>
-              </div>
-            )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category
-            </label>
-            <select
-              className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-white hover:cursor-pointer"
-              value={editingMenuItem.categoryId}
-              onChange={(e) => {
-                setEditingMenuItem({
-                  ...editingMenuItem,
-                  categoryId: e.target.value,
-                });
-                if (errors.category)
-                  setErrors({ ...errors, category: undefined });
-              }}
-            >
-              <option value="">Select Category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            {errors.category && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{errors.category}</span>
-              </div>
-            )}
+            <SelectInput 
+            label="Category"
+            optionLabel={"Select Category"} 
+            value={editingMenuItem.categoryId} 
+            onChange={(e) => {
+              setEditingMenuItem({
+                ...editingMenuItem,
+                categoryId: e.target.value,
+              });
+            }}
+            options={categories.map((cat) => ({
+              id: cat.id,
+              name: cat.name,
+              value: cat.id,
+            }))}
+            error={updateMenuItemValidationErrors?.categoryId || ""}
+            />
           </div>
 
           <div>
             <ImageInput
               label="Item Image"
               required
+              error={updateMenuItemValidationErrors?.image || ""}
               value={editingMenuItem.image || null}
               onChange={(imageUrl) => {
                 setEditingMenuItem({
                   ...editingMenuItem,
                   image: imageUrl || "",
                 });
-                if (errors.image) setErrors({ ...errors, image: undefined });
               }}
             />
-            {errors.image && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{errors.image}</span>
-              </div>
-            )}
           </div>
 
           {/* Add-Ons Section */}

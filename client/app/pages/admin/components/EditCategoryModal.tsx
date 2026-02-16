@@ -6,6 +6,7 @@ import { Button, TextInput, ImageInput } from "~/components";
 interface EditCategoryModalProps {
   isOpen: boolean;
   editingCategory: MenuCategory | null;
+  updateCategoryValidationErrors?: Record<string, string>;
   setEditingCategory: (category: MenuCategory) => void;
   onClose: () => void;
   onUpdate: (e: React.FormEvent) => void;
@@ -13,38 +14,18 @@ interface EditCategoryModalProps {
 
 const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
   isOpen,
+  updateCategoryValidationErrors,
   editingCategory,
   setEditingCategory,
   onClose,
   onUpdate,
 }) => {
-  const [errors, setErrors] = useState<{
-    name?: string;
-    image?: string;
-  }>({});
-
-  // Reset errors when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setErrors({});
-    }
-  }, [isOpen]);
-
   if (!isOpen || !editingCategory) return null;
 
   const validateAndSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newErrors: typeof errors = {};
 
-    if (!editingCategory.name.trim()) {
-      newErrors.name = "Category name is required";
-    }
-    setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length === 0) {
-      onUpdate(e);
-      setErrors({});
-    }
+    onUpdate(e);
   };
 
   return (
@@ -64,11 +45,11 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
         {/* Modal Form */}
         <form onSubmit={validateAndSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Category Name
-            </label>
             <TextInput
               type="text"
+              label="Category Name"
+              required
+              error={updateCategoryValidationErrors?.name || ""}
               placeholder="e.g. Main Course"
               value={editingCategory.name}
               onChange={(e) => {
@@ -76,35 +57,22 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
                   ...editingCategory,
                   name: e.target.value,
                 });
-                if (errors.name) setErrors({ ...errors, name: undefined });
               }}
             />
-            {errors.name && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{errors.name}</span>
-              </div>
-            )}
           </div>
 
           <div>
             <ImageInput
               label="Category Image"
+              error={updateCategoryValidationErrors?.image || ""}
               value={editingCategory.image || null}
               onChange={(imageUrl) => {
                 setEditingCategory({
                   ...editingCategory,
                   image: imageUrl || "",
                 });
-                if (errors.image) setErrors({ ...errors, image: undefined });
               }}
             />
-            {errors.image && (
-              <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                <FiAlertCircle size={14} />
-                <span>{errors.image}</span>
-              </div>
-            )}
           </div>
 
           <div className="pt-4 flex gap-3">
