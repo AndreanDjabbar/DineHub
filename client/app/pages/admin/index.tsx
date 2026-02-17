@@ -111,6 +111,7 @@ const AdminDashboard = () => {
   const { 
     makeRequest: addUserRequest, 
     isSuccess: isAddUserSuccess, 
+    isLoading: isAddUserRequest,
     isError: isAddUserError, 
     error: addUserError, 
     validationErrors: addUserValidationErrors 
@@ -692,6 +693,7 @@ const AdminDashboard = () => {
                 users={users}
                 newUser={newUser}
                 setNewUser={setNewUser}
+                isAddUserLoading={isAddUserRequest}
                 validationErrors={addUserValidationErrors}
                 handleAddUser={handleAddUser}
                 handleUserEditClick={handleUserEditClick}
