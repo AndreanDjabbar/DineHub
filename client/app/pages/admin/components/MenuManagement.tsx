@@ -33,16 +33,20 @@ interface MenuManagementProps {
   handleMenuEditClick: (menu: MenuItem) => void;
   handleCategoryEditClick: (category: MenuCategory) => void;
   addCategoryValidationErrors?: Record<string, string>;
+  isAddCategoryLoading?: boolean;
   addMenuItemValidationErrors?: Record<string, string>;
+  isAddMenuItemLoading?: boolean;
 }
 
 const MenuManagement: React.FC<MenuManagementProps> = ({
   categories,
   newCategory,
   setNewCategory,
+  isAddCategoryLoading,
   handleAddCategory,
   newMenuItem,
   setNewMenuItem,
+  isAddMenuItemLoading,
   handleAddMenuItem,
   newAddOn,
   setNewAddOn,
@@ -107,7 +111,12 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
                 setNewCategory({ ...newCategory, image: imageUrl || "" });
               }}
             />
-            <Button type="submit">Add Category</Button>
+            <Button 
+            type="submit"
+            text="Add Category"
+            isLoading={isAddCategoryLoading}
+            isLoadingText="Adding..."
+            />
           </form>
         </div>
 
@@ -383,7 +392,12 @@ const MenuManagement: React.FC<MenuManagementProps> = ({
               </div>
             </div>
 
-            <Button type="submit">Add Item</Button>
+            <Button 
+            type="submit"
+            isLoading={isAddMenuItemLoading}
+            text="Add Item"
+            isLoadingText="Adding..."
+            />
           </form>
         </div>
       </div>

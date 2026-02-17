@@ -10,6 +10,7 @@ interface EditCategoryModalProps {
   setEditingCategory: (category: MenuCategory) => void;
   onClose: () => void;
   onUpdate: (e: React.FormEvent) => void;
+  isEditCategoryLoading?: boolean;
 }
 
 const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
@@ -18,7 +19,8 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
   editingCategory,
   setEditingCategory,
   onClose,
-  onUpdate,
+  onUpdate, 
+  isEditCategoryLoading,
 }) => {
   if (!isOpen || !editingCategory) return null;
 
@@ -76,7 +78,12 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({
           </div>
 
           <div className="pt-4 flex gap-3">
-            <Button type="submit">Save Changes</Button>
+            <Button 
+            type="submit"
+            text="Save Changes"
+            isLoading={isEditCategoryLoading}
+            isLoadingText="Saving..."
+            />
           </div>
         </form>
       </div>

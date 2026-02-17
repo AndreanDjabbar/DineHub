@@ -8,6 +8,7 @@ interface EditTableModalProps {
   editingTable: Table | null;
   setEditingTable: (table: Table) => void;
   onClose: () => void;
+  isEditTableLoading?: boolean;
   onUpdate: (e: React.FormEvent) => void;
   updateTableValidationErrors?: Record<string, string>;
 }
@@ -16,6 +17,7 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
   isOpen,
   editingTable,
   setEditingTable,
+  isEditTableLoading,
   onClose,
   onUpdate,
   updateTableValidationErrors,
@@ -72,7 +74,11 @@ const EditTableModal: React.FC<EditTableModalProps> = ({
           </div>
 
           <div className="pt-4 flex gap-3">
-            <Button type="submit">Save Changes</Button>
+            <Button 
+            type="submit" 
+            isLoading={isEditTableLoading}
+            text="Save Changes"
+            isLoadingText="Saving..."/>
           </div>
         </form>
       </div>

@@ -21,6 +21,7 @@ interface TableManagementProps {
   activeTable: Table | null;
   onTableSelect: (table: Table) => void;
   addTableValidationErrors?: Record<string, string>;
+  isAddTableLoading?: boolean;
 }
 
 const TableManagement: React.FC<TableManagementProps> = ({
@@ -31,6 +32,7 @@ const TableManagement: React.FC<TableManagementProps> = ({
   handleTableEditClick,
   handleDeleteTable,
   activeTable,
+  isAddTableLoading,
   onTableSelect,
   addTableValidationErrors,
 }) => {
@@ -94,7 +96,12 @@ const TableManagement: React.FC<TableManagementProps> = ({
                 }}
               />
             </div>
-            <Button type="submit">Add Table</Button>
+            <Button 
+            type="submit"
+            text="Add Table"
+            isLoadingText="Creating Table..."
+            isLoading={isAddTableLoading}
+            />
           </form>
         </div>
 
