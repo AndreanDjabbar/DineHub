@@ -14,6 +14,7 @@ interface StaffManagementProps {
   newUser: any;
   setNewUser: (user: any) => void;
   handleAddUser: (e: React.FormEvent) => void;
+  isAddUserLoading?: boolean;
   handleUserEditClick: (user: User) => void;
   handleDeleteUser: (id: string) => void;
   validationErrors?: Record<string, string>;
@@ -27,7 +28,8 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
   handleAddUser,
   handleUserEditClick,
   handleDeleteUser,
-}) => {
+  isAddUserLoading,
+  }) => {
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
@@ -93,7 +95,11 @@ const StaffManagement: React.FC<StaffManagementProps> = ({
               <option value="kitchen">Kitchen</option>
             </select>
           </div>
-          <Button type="submit">Create Account</Button>
+          <Button 
+          text="Create Account"
+          isLoading={isAddUserLoading}
+          isLoadingText="Creating Account..."
+          type="submit"/>
         </form>
       </div>
 
