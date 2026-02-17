@@ -138,12 +138,14 @@ const AdminDashboard = () => {
     isSuccess: isAddTableSuccess, 
     isError: isAddTableError, 
     error: addTableError, 
+    isLoading: isAddTableRequest,
     validationErrors: addTableValidationErrors 
   } = useRequest();
   const { 
     makeRequest: updateTableRequest, 
     isSuccess: isUpdateTableSuccess, 
     isError: isUpdateTableError, 
+    isLoading: isEditTableLoading,
     error: updateTableError, 
     validationErrors: updateTableValidationErrors 
   } = useRequest();
@@ -159,6 +161,7 @@ const AdminDashboard = () => {
     makeRequest: addCategoryRequest, 
     isSuccess: isAddCategorySuccess, 
     isError: isAddCategoryError, 
+    isLoading: isAddCategoryLoading,
     error: addCategoryError, 
     validationErrors: addCategoryValidationErrors 
   } = useRequest();
@@ -167,6 +170,7 @@ const AdminDashboard = () => {
     isSuccess: isUpdateCategorySuccess,
     isError: isUpdateCategoryError,
     error: updateCategoryError,
+    isLoading: isUpdateCategoryLoading,
     validationErrors: updateCategoryValidationErrors,
   } = useRequest();
   const { 
@@ -176,6 +180,7 @@ const AdminDashboard = () => {
     makeRequest: addMenuItemRequest, 
     isSuccess: isAddMenuItemSuccess, 
     isError: isAddMenuItemError, 
+    isLoading: isAddMenuItemLoading,
     error: addMenuItemError, 
     validationErrors: addMenuItemValidationErrors 
   } = useRequest();
@@ -711,6 +716,7 @@ const AdminDashboard = () => {
                 handleTableEditClick={handleTableEditClick}
                 handleDeleteTable={handleDeleteTable}
                 activeTable={activeTable}
+                isAddTableLoading={isAddTableRequest}
                 onTableSelect={setActiveTable}
               />
             )}
@@ -736,6 +742,8 @@ const AdminDashboard = () => {
                 handleCategoryEditClick={handleCategoryEditClick}
                 addCategoryValidationErrors={addCategoryValidationErrors}
                 addMenuItemValidationErrors={addMenuItemValidationErrors}
+                isAddCategoryLoading={isAddCategoryLoading}
+                isAddMenuItemLoading={isAddMenuItemLoading}
               />
             )}
 
@@ -759,6 +767,7 @@ const AdminDashboard = () => {
                 setIsEditModalOpen(false);
                 setEditingTable(null);
               }}
+              isEditTableLoading={isEditTableLoading}
               onUpdate={handleUpdateTable}
               updateTableValidationErrors={updateTableValidationErrors}
             />
@@ -787,6 +796,7 @@ const AdminDashboard = () => {
               }}
               updateCategoryValidationErrors={updateCategoryValidationErrors}
               onUpdate={handleUpdateCategory}
+              isEditCategoryLoading={isUpdateCategoryLoading}
             />
           </div>
         </div>
