@@ -8,11 +8,11 @@ export default function DeveloperLayout() {
   useEffect(() => setIsMounted(true), []);
   if (!isMounted) return null;
 
-  if (userData?.role !== "Developer" && userData === null) {
+  if (userData?.role !== "DEVELOPER" && userData === null) {
     return <Navigate to="/login" replace />;
   }
 
-  if (userData?.role !== "Developer" && userData !== null) {
+  if (userData?.role !== "DEVELOPER" && userData !== null) {
     return <Navigate to="/account" replace />;
   }
 
