@@ -232,7 +232,7 @@ model Subscription_Transaction {
 
 
 enum Role {
-  Developer
+  DEVELOPER
   ADMIN
   CASHIER
   USER
