@@ -12,9 +12,12 @@ const Button: React.FC<ButtonProps> = ({
   className = "",
   ...props
 }) => {
+  const buttonStyles = props.disabled
+    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+    : "bg-red-600 text-white hover:bg-red-700";
   return (
     <button
-    className={`hover:cursor-pointer w-full bg-red-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700 transition ${className}`}
+    className={`hover:cursor-pointer w-full ${buttonStyles} px-6 py-3 rounded-lg font-bold transition ${className}`}
     {...props}
     >
       {props.isLoading ? (
