@@ -23,19 +23,19 @@ const router = express.Router();
 
 router.post(
   "/onboard",
-  userLimiter(10, 5, "onboard"),
+  userLimiter(10, 5000, "onboard"),
   timeout('15s'),
   validateToken,
   validateSchema(createRestaurantSchema),
-  authorizedRoles("Developer"),
+  authorizedRoles("DEVELOPER"),
   catchAsync(RestaurantController.onboardTenantController),
 );
 router.get(
   "/",
-  userLimiter(5, 30, "get_all_restaurant"),
+  userLimiter(5, 30000, "get_all_restaurant"),
   timeout('5s'),
   validateToken,
-  authorizedRoles("Developer"),
+  authorizedRoles("DEVELOPER"),
   catchAsync(RestaurantController.getAllRestaurantController),
 );
 router.get(
@@ -43,16 +43,16 @@ router.get(
   userLimiter(5, 30, "get_restaurant"),
   timeout('3s'),
   validateToken,
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.getRestaurantController),
 );
 router.put(
   "/:id",
-  userLimiter(10, 5, "update_restaurant"),
+  userLimiter(10, 5000, "update_restaurant"),
   timeout('8s'),
   validateToken,
   validateSchema(updateRestaurantSchema),
-  authorizedRoles("Developer"),
+  authorizedRoles("DEVELOPER"),
   catchAsync(RestaurantController.updateRestaurantController),
 );
 router.delete(
@@ -60,7 +60,7 @@ router.delete(
   userLimiter(10, 5, "delete_restaurant"),
   timeout('8s'),
   validateToken,
-  authorizedRoles("Developer"),
+  authorizedRoles("DEVELOPER"),
   catchAsync(RestaurantController.deleteRestaurantController),
 );
 router.get(
@@ -68,7 +68,7 @@ router.get(
   userLimiter(5, 30, "get_table_by_restaurant_id"),
   timeout('3s'),
   validateToken,
-  authorizedRoles("Developer", "ADMIN", "CASHIER"),
+  authorizedRoles("DEVELOPER", "ADMIN", "CASHIER"),
   catchAsync(RestaurantController.getTableByRestaurantIdController),
 );
 router.get(
@@ -83,7 +83,7 @@ router.post(
   timeout('5s'),
   validateToken,
   validateSchema(createTableSchema),
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.createTableController),
 );
 router.delete(
@@ -91,7 +91,7 @@ router.delete(
   userLimiter(10, 5, "delete_table"),
   timeout('5s'),
   validateToken,
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.deleteTableController),
 );
 router.put(
@@ -100,7 +100,7 @@ router.put(
   timeout('5s'),
   validateToken,
   validateSchema(updateTableSchema),
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.updateTableController),
 );
 router.post(
@@ -109,7 +109,7 @@ router.post(
   timeout('5s'),
   validateToken,
   validateSchema(createMenuCategorySchema),
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.createMenuCategoryController),
 );
 router.put(
@@ -118,7 +118,7 @@ router.put(
   timeout('5s'),
   validateToken,
   validateSchema(updateMenuCategorySchema),
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.updateMenuCategoryController),
 );
 router.get(
@@ -132,7 +132,7 @@ router.delete(
   userLimiter(10, 5, "delete_menu_category"),
   timeout('5s'),
   validateToken,
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.deleteCategoryController),
 );
 router.post(
@@ -141,7 +141,7 @@ router.post(
   timeout('8s'),
   validateToken,
   validateSchema(createMenuItemSchema),
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.createMenuItemController),
 );
 router.put(
@@ -150,7 +150,7 @@ router.put(
   timeout('8s'),
   validateToken,
   validateSchema(updateMenuItemSchema),
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.updateMenuItemController),
 );
 router.delete(
@@ -158,7 +158,7 @@ router.delete(
   userLimiter(10, 8, "delete_menu_item"),
   timeout('5s'),
   validateToken,
-  authorizedRoles("Developer", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN"),
   catchAsync(RestaurantController.deleteMenuItemController),
 );
 
