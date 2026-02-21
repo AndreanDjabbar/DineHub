@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router";
+import { Navigate, useNavigate } from "react-router";
 import {
   FiSettings,
   FiLogOut,
@@ -12,6 +12,17 @@ import { useRequest } from "~/hooks";
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const clearUserData = useUserStore(state => state.clearUserData);
+  const userData = useUserStore(state => state.userData);
+
+  const mapRoutes: Record<string, string> = {
+    "DEVELOPER": "/developer",
+    "ADMIN": "/admin",
+  };
+
+  if (userData && mapRoutes[userData.role]) {
+    return <Navigate to={mapRoutes[userData.role]} replace />;
+  }
+
   const {
     makeRequest: logout,
     isError: isLogoutError,
