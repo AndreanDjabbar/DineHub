@@ -17,7 +17,7 @@ class UserRepository {
   }
 
   static async getByRoleRestaurantId(role, restaurantId) {
-    const [users] = await postgreSQL`
+    const users = await postgreSQL`
             SELECT id, name, email, role
             FROM public."User" 
             WHERE restaurant_id = ${restaurantId} AND role = ${role}
