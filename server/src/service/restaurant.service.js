@@ -90,11 +90,12 @@ class RestaurantService {
       throw error;
     }
 
-    const restaurantData = {
-      name: data.name,
-      slug: data.slug,
-      address: data.address,
-    };
+    const existingUser = await UserRepository.getByEmail(data.adminEmail);
+    if (existingUser && existingUser.id !== data.adminId) {
+      const error = new Error("Admin email already exists");
+      error.statusCode = 409;
+      throw error;
+    }
 
     const existingRestaurant = await RestaurantRepository.getByName(data.name);
     if (existingRestaurant && existingRestaurant.id !== id) {
@@ -109,6 +110,12 @@ class RestaurantService {
       error.statusCode = 409;
       throw error;
     }
+
+    const restaurantData = {
+      name: data.name,
+      slug: data.slug,
+      address: data.address,
+    };
 
     const updatedRestaurant = await RestaurantRepository.update(
       id,
