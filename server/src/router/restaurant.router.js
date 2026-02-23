@@ -43,7 +43,7 @@ router.get(
   userLimiter(5, 30, "get_restaurant"),
   timeout('3s'),
   validateToken,
-  authorizedRoles("DEVELOPER", "ADMIN"),
+  authorizedRoles("DEVELOPER", "ADMIN", "CASHIER"),
   catchAsync(RestaurantController.getRestaurantController),
 );
 router.put(
