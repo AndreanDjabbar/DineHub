@@ -60,7 +60,7 @@ class RestaurantService {
     return { restaurant: newRestaurant, admin: newAdmin };
   }
 
-  static async getRestaurant(id, currentUserID) {
+  static async getRestaurant(id, currentUserID, currentRole) {
     const restaurant = await RestaurantRepository.getById(id);
     if (!restaurant) {
       const error = new Error("Restaurant not found");
@@ -79,7 +79,19 @@ class RestaurantService {
       error.statusCode = 403;
       throw error;
     }
-    return restaurant;
+
+    let result;
+    
+    if (currentRole === "CASHIER") {
+      result = {
+        id: restaurant.id,
+        name: restaurant.name,
+        address: restaurant.address,
+      }
+    } else {
+      result = restaurant;
+    }
+    return result;
   }
 
   static async updateRestaurant(id, data) {

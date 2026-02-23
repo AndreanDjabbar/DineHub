@@ -20,8 +20,8 @@ export const getAllRestaurantController = async (req, res) => {
 export const getRestaurantController = async (req, res) => {
   const { id } = req.params;
   const currentUserID = req.user.userID;
-
-  const result = await RestaurantService.getRestaurant(id, currentUserID);
+  const currentRole = req.user.role;
+  const result = await RestaurantService.getRestaurant(id, currentUserID, currentRole);
   return responseSuccess(res, 200, "Restaurant fetched", "data", result);
 };
 
