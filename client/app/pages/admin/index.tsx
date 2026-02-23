@@ -449,7 +449,7 @@ const AdminDashboard = () => {
       const refetchTables = async () => {
         await fetchTablesRequest({
           method: "GET",
-          url: `http://localhost:4000/dinehub/api/restaurant/table/${restaurantId}`,
+          url: `http://localhost:4000/dinehub/api/restaurant/table/restaurant/${restaurantId}`,
         });
       };
       refetchTables();
