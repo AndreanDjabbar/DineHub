@@ -50,11 +50,20 @@ export default function useRequest() {
         }
     }, []);
 
+    const reset = useCallback(async() => {
+        setData(null);
+        setError(null);
+        setIsSuccess(false);
+        setIsError(false);
+        setValidationErrors({});
+    }, []);
+
     return { 
         makeRequest,
         data, 
         error, 
         isSuccess,
+        reset,
         isError,
         validationErrors,
         isLoading 
