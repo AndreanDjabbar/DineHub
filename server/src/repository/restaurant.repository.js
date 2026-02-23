@@ -69,6 +69,7 @@ class RestaurantRepository {
             r.address,
             r.created_at,
             u.name as "adminName",  
+            u.id as "adminId",
             u.email as "adminEmail"
         FROM public."Restaurant" r
         LEFT JOIN public."User" u ON u.restaurant_id = r.id 
