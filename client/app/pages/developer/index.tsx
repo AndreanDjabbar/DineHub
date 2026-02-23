@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { FiAlertCircle, FiEdit, FiEye, FiEyeOff } from "react-icons/fi";
 import {
@@ -10,34 +10,33 @@ import {
   FiMapPin,
   FiX,
 } from "react-icons/fi";
-import api from "~/lib/axios";
 import { Button, TextInput } from "~/components";
 import useUserStore from "~/stores/user.store";
+import { useRequest } from "~/hooks";
 
 interface Restaurant {
   id: string;
   name: string;
   slug: string;
   address: string;
+  adminId: string;
   adminName: string;
   adminEmail: string;
   adminPassword?: string;
 }
 
 const DeveloperDashboard: React.FC = () => {
-  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
-  // Form State
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
     address: "",
     adminName: "",
+    adminId: "",
     adminEmail: "",
     adminPassword: "",
   });
@@ -48,6 +47,7 @@ const DeveloperDashboard: React.FC = () => {
       slug: "",
       address: "",
       adminName: "",
+      adminId: "",
       adminEmail: "",
       adminPassword: "",
     });
@@ -57,23 +57,53 @@ const DeveloperDashboard: React.FC = () => {
 
   // Mock Data
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const {
+    makeRequest: fetchRestaurants,
+    isError: isFetchRestaurantsError,
+    isSuccess: isFetchRestaurantsSuccess,
+    error: fetchRestaurantsError,
+    data: fetchRestaurantsData,
+    isLoading: isFetchRestaurantsLoading,
+  } = useRequest();
 
-  const fetchRestaurants = async () => {
-    try {
-      const response = await api.get(
-        "/restaurant",
-      );
-      const data = response.data;
-      console.log("Fetched Restaurants: ", data);
-      setRestaurants(data.data);
-    } catch (err: any) {
-      console.error("Failed to fetch restaurants:", err);
-    }
+  const loadRestaurants = async () => {
+    fetchRestaurants({
+      method: "GET",
+      url: "/restaurant",
+    });
   };
 
   useEffect(() => {
-    fetchRestaurants();
+    loadRestaurants();
   }, []);
+
+
+  const {
+      makeRequest: createRestaurant,
+      isError: isCreateRestaurantError,
+      isSuccess: isCreateRestaurantSuccess,
+      error: createRestaurantError,
+      reset: createRestaurantReset,
+      validationErrors: createRestaurantValidationErrors,
+      data: createRestaurantData,
+      isLoading: isCreateRestaurantLoading,
+  } = useRequest();
+
+  const {
+      makeRequest: updateRestaurant,
+      isError: isUpdateRestaurantError,
+      isSuccess: isUpdateRestaurantSuccess,
+      error: updateRestaurantError,
+      reset: updateRestaurantReset,
+      validationErrors: updateRestaurantValidationErrors,
+      data: updateRestaurantData,
+      isLoading: isUpdateRestaurantLoading,
+  } = useRequest();
+
+  const {
+    makeRequest: logoutRequest,
+    isSuccess: isLogoutSuccess,
+  } = useRequest();
 
   const openCreateModal = () => {
     resetForm();
@@ -81,21 +111,8 @@ const DeveloperDashboard: React.FC = () => {
   };
 
   const handleEditClick = (restaurant: Restaurant) => {
-    console.log("Editing Restaurant:", restaurant);
     setIsEditing(true);
     setEditId(restaurant.id);
-
-    const dataToLoad = {
-      name: restaurant.name,
-      slug: restaurant.slug,
-      address: restaurant.address,
-      adminName: restaurant.adminName,
-      adminEmail: restaurant.adminEmail,
-      adminPassword: restaurant.adminPassword || "",
-    };
-
-    console.log("Loading Data into Form:", dataToLoad);
-    console.groupEnd();
 
     setFormData({
       name: restaurant.name,
@@ -103,6 +120,7 @@ const DeveloperDashboard: React.FC = () => {
       address: restaurant.address,
       adminName: restaurant.adminName,
       adminEmail: restaurant.adminEmail,
+      adminId: restaurant.adminId,
       adminPassword: restaurant.adminPassword || "",
     });
 
@@ -110,86 +128,90 @@ const DeveloperDashboard: React.FC = () => {
   };
 
   const handleCreate = async () => {
-    try {
-      const response = await api.post(
-        "/restaurant/onboard",
-        formData,
-      );
-      await fetchRestaurants();
-      setShowModal(false);
-      resetForm();
-    } catch (err: any) {
-      console.error("Failed to create tenant:", err);
-      const apiError = err?.data;
-      if (apiError?.validation_errors) {
-        const fieldErrors: Record<string, string> = {};
-        apiError.validation_errors.forEach((msg: string) => {
-          if (msg.toLowerCase().includes("name")) fieldErrors.name = msg;
-          if (msg.toLowerCase().includes("slug")) fieldErrors.slug = msg;
-          if (msg.toLowerCase().includes("address")) fieldErrors.address = msg;
-          if (msg.toLowerCase().includes("admin name")) fieldErrors.adminName = msg;
-          if (msg.toLowerCase().includes("email")) fieldErrors.adminEmail = msg;
-          if (msg.toLowerCase().includes("password")) fieldErrors.adminPassword = msg;
-        });
-        setFormErrors(fieldErrors);
-      }
-    }
-  };
-
-  const handleUpdate = async (id: string) => {
-    try {
-      const updateBody: any = {
+    createRestaurant({
+      method: "POST",
+      url: "/restaurant/onboard",
+      payload: {
         name: formData.name,
         slug: formData.slug,
         address: formData.address,
         adminName: formData.adminName,
         adminEmail: formData.adminEmail,
-      };
+        adminPassword: formData.adminPassword,
+      },
+    });
+  };
 
-      if (formData.adminPassword) {
-        updateBody.adminPassword = formData.adminPassword;
-      }
-      const response = await api.put(`/restaurant/${id}`, updateBody);
-      await fetchRestaurants();
-      setShowModal(false);
-      resetForm();
-    } catch (err: any) {
-      console.error("Failed to update tenant:", err);
+  const handleUpdate = async (id: string) => {
+    const updateBody: any = {
+      name: formData.name,
+      slug: formData.slug,
+      address: formData.address,
+      adminName: formData.adminName,
+      adminId: formData.adminId,
+      adminEmail: formData.adminEmail,
+      adminPassword: formData.adminPassword ? formData.adminPassword : undefined,
+    };
 
-      const apiError = err?.data;
-      if (apiError?.validation_errors) {
-        const fieldErrors: Record<string, string> = {};
-        apiError.validation_errors.forEach((msg: string) => {
-          if (msg.toLowerCase().includes("name")) fieldErrors.name = msg;
-          if (msg.toLowerCase().includes("slug")) fieldErrors.slug = msg;
-          if (msg.toLowerCase().includes("address")) fieldErrors.address = msg;
-          if (msg.toLowerCase().includes("admin name")) fieldErrors.adminName = msg;
-          if (msg.toLowerCase().includes("email")) fieldErrors.adminEmail = msg;
-          if (msg.toLowerCase().includes("password")) fieldErrors.adminPassword = msg;
-        });
-        setFormErrors(fieldErrors);
-      }
-    }
+    updateRestaurant({
+      method: "PUT",
+      url: `/restaurant/${id}`, 
+      payload: updateBody,
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isEditing && editId) {
-      console.log("Editing Tenant:", formData);
       await handleUpdate(editId);
     } else {
       await handleCreate();
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await api.post("/auth/logout");
+  useEffect(() => {
+    if (isFetchRestaurantsSuccess && fetchRestaurantsData) {
+      setRestaurants(fetchRestaurantsData.data);
+    }
+  }, [isFetchRestaurantsSuccess, fetchRestaurantsData]);
+
+  useEffect(() => {
+    if (( isCreateRestaurantSuccess && createRestaurantData) || (isUpdateRestaurantSuccess && updateRestaurantData)) {
+      loadRestaurants();
+      setShowModal(false);
+      resetForm();
+    }
+  }, [isCreateRestaurantSuccess, createRestaurantData, isUpdateRestaurantSuccess, updateRestaurantData])
+
+  useEffect(() => {
+    if (isFetchRestaurantsError) {
+      console.error("Failed to fetch restaurants:", fetchRestaurantsError);
+    }
+  }, [isFetchRestaurantsError, fetchRestaurantsError]);
+
+  useEffect(() => {
+    if (isLogoutSuccess) {
       useUserStore.getState().clearUserData();
       navigate("/login");
-    } catch (error) {
-      console.error("Failed to logout:", error);
     }
+  }, [isLogoutSuccess, navigate]);
+
+  useEffect(() => {
+    if (isCreateRestaurantError && createRestaurantError) {
+      console.error("Failed to create restaurant:", createRestaurantError);
+      alert(createRestaurantError?.data?.message || "Failed to create restaurant. Please try again.");
+    }
+    if (isUpdateRestaurantError && updateRestaurantError) {
+      console.error("Failed to update restaurant:", updateRestaurantError);
+      alert(updateRestaurantError?.data?.message || "Failed to update restaurant. Please try again.");
+    }
+  }, [isCreateRestaurantError, createRestaurantError, isUpdateRestaurantError, updateRestaurantError]);
+
+  const handleLogout = async () => {
+    await logoutRequest({
+      method: "POST",
+      url: "/auth/logout",
+    });
   };
 
   return (
@@ -231,9 +253,8 @@ const DeveloperDashboard: React.FC = () => {
           >
             <Button
               onClick={openCreateModal}
-            >
-              Onboard Restaurant
-            </Button>
+              text="Onboard New Tenant"
+            />
           </div>
         </div>
 
@@ -298,7 +319,12 @@ const DeveloperDashboard: React.FC = () => {
                 </p>
               </div>
               <button
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+                  setShowModal(false);
+                  resetForm();
+                  createRestaurantReset();
+                  updateRestaurantReset();
+                }}
                 className="p-2 bg-gray-50 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-600 transition hover:cursor-pointer"
               >
                 <FiX className="w-5 h-5" />
@@ -320,16 +346,11 @@ const DeveloperDashboard: React.FC = () => {
                         label="Brand Name"
                         value={formData.name}
                         required
+                        error={isEditing ? (updateRestaurantValidationErrors.name) : (createRestaurantValidationErrors.name)}
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
                         }
                       />
-                      {formErrors?.name && (
-                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                          <FiAlertCircle size={14} />
-                          <span>{formErrors.name}</span>
-                        </div>
-                      )}
                     </div>
                     <div className="space-y-2">
                       <TextInput
@@ -337,37 +358,26 @@ const DeveloperDashboard: React.FC = () => {
                         placeholder="e.g. burger-king-jkt"
                         value={formData.slug}
                         required
+                        error={isEditing ? (updateRestaurantValidationErrors.slug) : (createRestaurantValidationErrors.slug)}
                         onChange={(e) =>
                           setFormData({ ...formData, slug: e.target.value })
                         }
                       />
-                       {formErrors?.slug && (
-                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                          <FiAlertCircle size={14} />
-                          <span>{formErrors.slug}</span>
-                        </div>
-                      )}
                     </div>
                     <div className="space-y-2">
                       <TextInput
                         label="Address"
                         placeholder="Full Address..."
                         value={formData.address}
+                        error={isEditing ? (updateRestaurantValidationErrors.address) : (createRestaurantValidationErrors.address)}
                         required
                         onChange={(e) =>
                           setFormData({ ...formData, address: e.target.value })
                         }
                       />
-                       {formErrors?.address && (
-                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                          <FiAlertCircle size={14} />
-                          <span>{formErrors.address}</span>
-                        </div>
-                      )}
                     </div>
                   </div>
 
-                  {/* Right: Initial Admin Info */}
                   <div className="space-y-4">
                     <h4 className="text-xs font-bold text-red-600 uppercase tracking-wider mb-4">
                       Admin Account
@@ -378,43 +388,36 @@ const DeveloperDashboard: React.FC = () => {
                         label="Admin Name"
                         placeholder="Full Name"
                         value={formData.adminName}
+                        error={isEditing ? (updateRestaurantValidationErrors.adminName) : (createRestaurantValidationErrors.adminName)}
                         required
                         onChange={(e) =>
                           setFormData({ ...formData, adminName: e.target.value })
                         }
                       />
-                       {formErrors?.adminName && (
-                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                          <FiAlertCircle size={14} />
-                          <span>{formErrors.adminName}</span>
-                        </div>
-                      )}
                     </div>
+
                     <div className="space-y-2">
                       <TextInput
                         label="Admin Email"
                         placeholder="admin@brand.com"
                         value={formData.adminEmail}
+                        error={isEditing ? (updateRestaurantValidationErrors.adminEmail) : (createRestaurantValidationErrors.adminEmail)}
                         type="email"
                         required
                         onChange={(e) =>
                           setFormData({ ...formData, adminEmail: e.target.value })
                         }
                       />
-                       {formErrors?.adminEmail && (
-                        <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                          <FiAlertCircle size={14} />
-                          <span>{formErrors.adminEmail}</span>
-                        </div>
-                      )}
+
                     </div>
                     <div className="space-y-2">
                       <div className="relative">
                         <TextInput
                           label="Admin Password"
                           placeholder="••••••••"
+                          error={isEditing ? (updateRestaurantValidationErrors.adminPassword) : (createRestaurantValidationErrors.adminPassword)}
                           value={formData.adminPassword}
-                          type={showPassword ? "text" : "password"}
+                          type={"password"}
                           required={!isEditing}
                           onChange={(e) =>
                             setFormData({
@@ -423,12 +426,6 @@ const DeveloperDashboard: React.FC = () => {
                             })
                           }
                         />
-                         {formErrors?.adminPassword && (
-                            <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
-                              <FiAlertCircle size={14} />
-                              <span>{formErrors.adminPassword}</span>
-                            </div>
-                          )}
                       </div>
                     </div>
                   </div>
@@ -437,9 +434,11 @@ const DeveloperDashboard: React.FC = () => {
                 <div className="pt-6 border-t border-gray-50 flex justify-end gap-3">
                   <Button
                     type="submit"
-                   >
-                    {isEditing ? "Update Tenant" : "Create Tenant"}
-                  </Button>
+                    disabled={isEditing ? isUpdateRestaurantLoading : isCreateRestaurantLoading}
+                    isLoading={isEditing ? isUpdateRestaurantLoading : isCreateRestaurantLoading}
+                    text={isEditing ? "Update Tenant" : "Create Tenant"}
+                    isLoadingText={isEditing ? "Updating..." : "Creating..."}
+                  />
                 </div>
               </div>
             </form>
