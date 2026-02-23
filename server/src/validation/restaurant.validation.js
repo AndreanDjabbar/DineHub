@@ -96,6 +96,11 @@ export const updateRestaurantSchema = Joi.object({
     'string.min': 'Admin Password should have a minimum length of {#limit}',
     'string.max': 'Admin Password should have a maximum length of {#limit}',
   }),
+  adminId: Joi.string().uuid().optional()
+  .messages({
+    'string.base': 'Admin ID must be a string',
+    'string.guid': 'Admin ID must be a valid UUID',
+  }),
 });
 
 export const createTableSchema = Joi.object({
