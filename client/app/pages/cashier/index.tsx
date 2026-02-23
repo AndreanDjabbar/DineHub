@@ -1,38 +1,49 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import React, { use, useEffect, useState } from "react";
 import { FiGrid, FiLogOut, FiCreditCard, FiPrinter } from "react-icons/fi";
 import { UserHeader } from "~/components";
-import api from "~/lib/axios";
-import useUserStore from "~/stores/user.store";
+import { useUserStore } from "~/stores";
+import { useRequest } from "~/hooks";
 
 interface Table {
-  id: number;
-  name: string;
-  status: 'available' | 'occupied' | 'unpaid';
-  capacity: number;
+    id: number;
+    name: string;
+    status: 'available' | 'occupied' | 'unpaid';
+    capacity: number;
 }
 
 const CashierDashboard: React.FC = () => {
-  const userData = useUserStore(state => state.userData);
-  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const restaurantId = userData?.restaurantId;
-  const [tables, setTables] = useState<Table[]>([])
+    const userData = useUserStore(state => state.userData);
+    const [selectedTable, setSelectedTable] = useState<Table | null>(null);
+    const restaurantId = userData?.restaurantId;
+    const [tables, setTables] = useState<Table[]>([])
+    
+    const { 
+        makeRequest: fetchTablesRequest,
+        data: tablesData,
+        error: tablesError,
+        isLoading: isTablesLoading,
+        isSuccess: isTablesSuccess,
+        isError: isTablesError,
+    } = useRequest();
 
-  useEffect(() => {
-    fetchTables();
-  }, []);
+    useEffect(() => {
+        fetchTables();
+    }, []);
 
     const fetchTables = async () => {
-        try{
-            const response = await api.get(`/restaurant/tables/${restaurantId}`);
-            const data = response.data;
-            const tables = data?.data?.tables || [];
-            console.log("All Tables: ", tables); 
-            setTables(tables);
-        } catch(error) {
-            console.error("Error fetching tables:", error);
-        }
+        fetchTablesRequest({
+            method: "GET",
+            url: `/restaurant/table/restaurant/${restaurantId}`,
+        });
     };
+
+    useEffect(() => {
+        if (isTablesSuccess && tablesData) {
+            const tables = tablesData?.data?.tables || [];
+            console.log("Fetched Tables: ", tables); 
+            setTables(tables);
+        }
+    }, [isTablesSuccess, tablesData]);
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
