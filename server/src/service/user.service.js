@@ -3,22 +3,6 @@ import RestaurantRepository from "../repository/restaurant.repository.js";
 import bcrypt from "bcrypt";
 
 class UserService {
-    static async getProfile(userID) {
-        const user = await UserRepository.getById(userID);
-        if (!user) {
-            const error = new Error("User not found");
-            error.statusCode = 404;
-            throw error;
-        }
-        return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            restaurantId: user.restaurant_id,
-        };
-    }
-
     static async getMyUserData(userID) {
         const user = await UserRepository.getById(userID);
         if (!user) {
@@ -130,7 +114,7 @@ class UserService {
         await UserRepository.delete(id);
     }
 
-    static async getCashierStaffByRestaurantId(restaurantId, userID) {
+    static async getStaffByRestaurantId(restaurantId, staffRole=["CASHIER", "KITCHEN"], userID) {
         const currentUser = await UserRepository.getById(userID);
         if (!currentUser) {
             const error = new Error("Current user not found");
@@ -143,23 +127,14 @@ class UserService {
             throw error;
         }
 
-        return await UserRepository.getByRoleRestaurantId("CASHIER", restaurantId);
-    }
+        let staffResults = [];
 
-    static async getKitchenStaffByRestaurantId(restaurantId, userID) {
-        const currentUser = await UserRepository.getById(userID);
-        if (!currentUser) {
-            const error = new Error("Current user not found");
-            error.statusCode = 404;
-            throw error;
+        if (Array.isArray(staffRole) && staffRole.length > 0) {
+            staffResults = await UserRepository.getByRolesAndRestaurantId(staffRole, restaurantId);
+        } else {
+            staffResults = await UserRepository.getByRoleAndRestaurantId(staffRole, restaurantId);
         }
-        if (currentUser.restaurant_id !== restaurantId) {
-            const error = new Error("Unauthorized access");
-            error.statusCode = 403;
-            throw error;
-        }
-
-        return await UserRepository.getByRoleRestaurantId("KITCHEN", restaurantId);
+        return staffResults;
     }
 }
 
