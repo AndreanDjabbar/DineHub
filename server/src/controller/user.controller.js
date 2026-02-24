@@ -1,23 +1,6 @@
 import UserService from "../service/user.service.js";
 import { responseSuccess } from "../util/response.util.js"; 
 
-export const getProfileController = async (req, res) => {  
-    const userID = req.user.userID; 
-    if(!userID) {
-        const error = new Error("User ID not found in token");
-        error.statusCode = 400;
-        throw error;
-    }
-    const result = await AuthService.getProfile(userID);
-    return responseSuccess(
-        res,
-        200,
-        "Profile retrieved successfully",
-        "data",
-        result
-    );
-};
-
 export const getMyUserDataController = async (req, res) => {  
     const userID = req.user.userID; 
     if(!userID) {
@@ -66,20 +49,12 @@ export const deleteStaffController = async (req, res) => {
     return responseSuccess(res, 200, "User deleted successfully", "data", result);
 }
 
-export const getCashierStaffByRestaurantIdController = async (req, res) => {
+export const getStaffByRestaurantIdController = async (req, res) => {
     const { restaurantId } = req.params;
+    const staffRole = req.query.role;
     const currentUserID = req.user.userID;
-    const result = await UserService.getCashierStaffByRestaurantId(restaurantId, currentUserID);
-    return responseSuccess(res, 200, "Cashier fetched", "data", {
-        cashier: result
-    });
-}
-
-export const getKitchenStaffByRestaurantIdController = async (req, res) => {
-    const { restaurantId } = req.params;
-    const { userID } = req.user;
-    const result = await UserService.getKitchenStaffByRestaurantId(restaurantId, userID);
-    return responseSuccess(res, 200, "Kitchen fetched", "data", {
-        kitchen: result
+    const result = await UserService.getStaffByRestaurantId(restaurantId, staffRole, currentUserID);
+    return responseSuccess(res, 200, "Staff fetched", "data", {
+        staff: result
     });
 }
