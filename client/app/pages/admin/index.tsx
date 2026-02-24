@@ -99,14 +99,9 @@ const AdminDashboard = () => {
 
   // Staff operations
   const { 
-    makeRequest: fetchCashierRequest, 
-    data: cashierData, 
-    isSuccess: isCashierSuccess 
-  } = useRequest();
-  const { 
-    makeRequest: fetchKitchenRequest, 
-    data: kitchenData, 
-    isSuccess: isKitchenSuccess 
+    makeRequest: fetchStaffRequest, 
+    data: staffData, 
+    isSuccess: isStaffSuccess 
   } = useRequest();
   const { 
     makeRequest: addUserRequest, 
@@ -215,32 +210,28 @@ const AdminDashboard = () => {
     capacity?: string;
   }>({});
 
+  const fetchStaff = async () => {
+    if (!restaurantId) {
+      console.error("No restaurant ID found for user");
+      return;
+    }
+    await fetchStaffRequest({
+      method: "GET",
+      url: `http://localhost:4000/dinehub/api/user/restaurant/${restaurantId}/staff`,
+    });
+  };
+
   useEffect(() => {
-    const fetchStaff = async () => {
-      if (!restaurantId) {
-        console.error("No restaurant ID found for user");
-        return;
-      }
-      await fetchCashierRequest({
-        method: "GET",
-        url: `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
-      });
-      await fetchKitchenRequest({
-        method: "GET",
-        url: `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
-      });
-    };
     fetchStaff();
   }, [restaurantId]);
 
   useEffect(() => {
-    if (isCashierSuccess && isKitchenSuccess && cashierData && kitchenData) {
-      const cashiers = cashierData?.data?.cashier || [];
-      const kitchenStaff = kitchenData?.data?.kitchen || [];
-      const allStaff = [...cashiers, ...kitchenStaff];
+    if (isStaffSuccess && staffData) {
+      const allStaff = staffData?.data?.staff || [];
       setUsers(allStaff);
     }
-  }, [isCashierSuccess, isKitchenSuccess, cashierData, kitchenData]);
+  }, [isStaffSuccess, staffData]);
+
 
   useEffect(() => {
     const fetchTables = async () => {
@@ -320,16 +311,6 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (isAddUserSuccess) {
-      const fetchStaff = async () => {
-        await fetchCashierRequest({
-          method: "GET",
-          url: `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
-        });
-        await fetchKitchenRequest({
-          method: "GET",
-          url: `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
-        });
-      };
       fetchStaff();
       setNewUser({ name: "", email: "", password: "", role: "cashier" });
       alert("Staff created successfully");
@@ -373,7 +354,7 @@ const AdminDashboard = () => {
 
     await updateUserRequest({
       method: "PUT",
-      url: `http://localhost:4000/dinehub/api/user/update-staff/${editingUser.id}`,
+      url: `http://localhost:4000/dinehub/api/user/staff/${editingUser.id}`,
       payload: {
         name: editingUser.name,
         email: editingUser.email,
@@ -384,16 +365,6 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (isUpdateUserSuccess) {
-      const fetchStaff = async () => {
-        await fetchCashierRequest({
-          method: "GET",
-          url: `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
-        });
-        await fetchKitchenRequest({
-          method: "GET",
-          url: `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
-        });
-      };
       fetchStaff();
       setEditingUser(null);
       setIsEditModalOpen(false);
@@ -418,17 +389,10 @@ const AdminDashboard = () => {
       return;
     }
     await deleteUserRequest({
-      method: "POST",
-      url: `http://localhost:4000/dinehub/api/user/delete-staff/${id}`,
+      method: "DELETE",
+      url: `http://localhost:4000/dinehub/api/user/staff/${id}`,
     });
-    await fetchCashierRequest({
-      method: "GET",
-      url: `http://localhost:4000/dinehub/api/user/cashier/${restaurantId}`,
-    });
-    await fetchKitchenRequest({
-      method: "GET",
-      url: `http://localhost:4000/dinehub/api/user/kitchen/${restaurantId}`,
-    });
+    await fetchStaff();
   };
 
   const handleAddTable = async (e: React.FormEvent) => {
