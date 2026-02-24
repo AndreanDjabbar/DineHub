@@ -16,13 +16,6 @@ import { userLimiter } from "../middleware/limiter.middleware.js";
 const router = express.Router();
 
 router.get(
-  "/profile", 
-  userLimiter(5, 50, "get_profile"),
-  timeout('3s'),
-  validateToken, 
-  catchAsync(UserController.getProfileController)
-);
-router.get(
   "/me", 
   userLimiter(5, 50, "me"),
   timeout('3s'),
@@ -37,7 +30,8 @@ router.post(
   authorizedRoles("Developer"),
   catchAsync(UserController.createTenantController)
 );
-router.post("/create-staff", 
+router.post(
+  "/staff", 
   validateToken,
   userLimiter(10, 15, "create_staff"),
   timeout('8s'),
@@ -45,14 +39,16 @@ router.post("/create-staff",
   authorizedRoles("ADMIN", "Developer"), 
   catchAsync(UserController.createStaffController)
 );
-router.post("/delete-staff/:id",
+router.delete(
+  "/staff/:id",
   userLimiter(10, 10, "delete_staff"),
   timeout('5s'),
   validateToken,
   authorizedRoles("ADMIN", "Developer"), 
   catchAsync(UserController.deleteStaffController)
 );
-router.put("/update-staff/:id",
+router.put(
+  "/staff/:id",
   userLimiter(10, 10, "update_staff"),
   timeout('5s'),
   validateToken, 
@@ -60,17 +56,12 @@ router.put("/update-staff/:id",
   authorizedRoles("ADMIN", "Developer"), 
   catchAsync(UserController.updateStaffController)
 );
-router.get("/cashier/:restaurantId", 
-  userLimiter(5, 35, "get_cashier_staff_by_restaurant_id"),
+router.get(
+  "/restaurant/:restaurantId/staff", 
+  userLimiter(5, 35, "get_cstaff_by_restaurant_id"),
   timeout('3s'),
   validateToken, 
-  catchAsync(UserController.getCashierStaffByRestaurantIdController)
-);
-router.get("/kitchen/:restaurantId", 
-  userLimiter(5, 35, "get_kitchen_staff_by_restaurant_id"),
-  timeout('3s'),
-  validateToken, 
-  catchAsync(UserController.getKitchenStaffByRestaurantIdController)
-);
+  catchAsync(UserController.getStaffByRestaurantIdController)
+)
 
 export default router;
