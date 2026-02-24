@@ -16,11 +16,20 @@ class UserRepository {
     return user;
   }
 
-  static async getByRoleRestaurantId(role, restaurantId) {
+  static async getByRoleAndRestaurantId(role, restaurantId) {
     const users = await postgreSQL`
             SELECT id, name, email, role
             FROM public."User" 
             WHERE restaurant_id = ${restaurantId} AND role = ${role}
+        `;
+    return users;
+  }
+
+  static async getByRolesAndRestaurantId(roles, restaurantId) {
+    const users = await postgreSQL`
+            SELECT id, name, email, role
+            FROM public."User" 
+            WHERE restaurant_id = ${restaurantId} AND role IN ${postgreSQL(roles)}
         `;
     return users;
   }
