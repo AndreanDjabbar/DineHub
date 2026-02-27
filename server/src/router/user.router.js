@@ -23,7 +23,7 @@ router.get(
   catchAsync(UserController.getMyUserDataController)
 );
 router.post(
-  "/create-tenant",
+  "/tenant",
   timeout('10s'),
   validateToken,
   validateSchema(createTenantAdminSchema),
