@@ -132,9 +132,9 @@ const DeveloperDashboard: React.FC = () => {
       method: "POST",
       url: "/restaurant/onboard",
       payload: {
-        name: formData.name,
-        slug: formData.slug,
-        address: formData.address,
+        restaurantName: formData.name,
+        restaurantSlug: formData.slug,
+        restaurantAddress: formData.address,
         adminName: formData.adminName,
         adminEmail: formData.adminEmail,
         adminPassword: formData.adminPassword,

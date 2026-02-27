@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 export const createRestaurantSchema = Joi.object({
-  name: Joi.string().min(3).max(100).required()
+  restaurantName: Joi.string().min(3).max(100).required()
   .messages({
     'string.base': 'Name must be a string',
     'string.empty': 'Name is required',
@@ -9,7 +9,7 @@ export const createRestaurantSchema = Joi.object({
     'string.max': 'Name should have a maximum length of {#limit}',
     'any.required': 'Name is required',
   }),
-  address: Joi.string().min(5).max(255).required()
+  restaurantAddress: Joi.string().min(5).max(255).required()
   .messages({
     'string.base': 'Address must be a string',
     'string.empty': 'Address is required',
@@ -17,7 +17,7 @@ export const createRestaurantSchema = Joi.object({
     'string.max': 'Address should have a maximum length of {#limit}',
     'any.required': 'Address is required',
   }),
-  slug: Joi.string()
+  restaurantSlug: Joi.string()
     .min(3)
     .max(100)
     .pattern(/^[a-z0-9-]+$/)
