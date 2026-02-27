@@ -304,7 +304,7 @@ const AdminDashboard = () => {
     
     await addUserRequest({
       method: "POST",
-      url: "http://localhost:4000/dinehub/api/user/create-staff",
+      url: "http://localhost:4000/dinehub/api/user/staff",
       payload: payload,
     });
   };
