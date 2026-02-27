@@ -1,5 +1,1 @@
-import useUserStore from "./user.store";
-
-export { 
-    useUserStore 
-};
+export { default as useUserStore, type UserStore } from "./user.store";

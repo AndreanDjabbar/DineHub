@@ -6,13 +6,13 @@ import {
   FiChevronRight,
 } from "react-icons/fi";
 import { BottomNavigation, ProfileBadge } from "~/components";
-import useUserStore from "~/stores/user.store";
+import { useUserStore, type UserStore } from "~/stores";
 import { useRequest } from "~/hooks";
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const clearUserData = useUserStore(state => state.clearUserData);
-  const userData = useUserStore(state => state.userData);
+  const clearUserData = useUserStore((state: UserStore) => state.clearUserData);
+  const userData = useUserStore((state: UserStore) => state.userData);
 
   const mapRoutes: Record<string, string> = {
     "DEVELOPER": "/developer",
