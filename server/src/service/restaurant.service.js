@@ -1,31 +1,25 @@
 import RestaurantRepository from "../repository/restaurant.repository.js";
-import UserRepository from "../repository/user.repository.js";
 import bcrypt from "bcrypt";
+import UserRepository from "../repository/user.repository.js";
+import UserService from "./user.service.js";
 
 class RestaurantService {
   static async onboardTenant({
-    name,
-    slug,
-    address,
+    restaurantName,
+    restaurantSlug,
+    restaurantAddress,
     adminName,
     adminEmail,
     adminPassword,
   }) {
-    const existingUser = await UserRepository.getByEmail(adminEmail);
-    if (existingUser) {
-      const error = new Error("Admin email already exists");
-      error.statusCode = 409;
-      throw error;
-    }
-
-    const existingRestaurant = await RestaurantRepository.getByName(name);
+    const existingRestaurant = await RestaurantRepository.getByName(restaurantName);
     if (existingRestaurant) {
       const error = new Error("Restaurant name already exists");
       error.statusCode = 409;
       throw error;
     }
 
-    const existingSlug = await RestaurantRepository.getBySlug(slug);
+    const existingSlug = await RestaurantRepository.getBySlug(restaurantSlug);
     if (existingSlug) {
       const error = new Error("Restaurant slug already exists");
       error.statusCode = 409;
@@ -33,31 +27,24 @@ class RestaurantService {
     }
 
     const newRestaurant = await RestaurantRepository.create({
-      name,
-      slug,
-      address,
+      name: restaurantName,
+      slug: restaurantSlug,
+      address: restaurantAddress,
     });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(adminPassword, salt);
-
-    const existingAdmin = await UserRepository.getByEmail(adminEmail);
-    if (existingAdmin) {
-      const error = new Error("Admin email already exists");
-      error.statusCode = 409;
+    if (!newRestaurant || !newRestaurant.id) {
+      const error = new Error("Failed to create restaurant");
+      error.statusCode = 500;
       throw error;
     }
 
-    const newAdmin = await UserRepository.create({
-      name: adminName,
-      email: adminEmail,
-      password: hashedPassword,
-      role: "ADMIN",
-      is_verified: true,
+    const newAdmin = await UserService.createTenant({
       restaurantId: newRestaurant.id,
+      adminName,
+      adminEmail,
+      adminPassword,
     });
-
-    return { restaurant: newRestaurant, admin: newAdmin };
+    return { restaurant: newRestaurant, admin: newAdmin.admin };
   }
 
   static async getRestaurant(id, currentUserID, currentRole) {
