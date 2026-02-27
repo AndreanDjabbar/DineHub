@@ -19,15 +19,18 @@ class UserService {
         };
     }
     
-    static async createTenant({ name, slug, address, adminName, adminEmail, adminPassword }) {
+    static async createTenant({  
+        restaurantId, 
+        adminName, 
+        adminEmail, 
+        adminPassword 
+    }) {
         const existingUser = await UserRepository.getByEmail(adminEmail);
         if (existingUser) {
             const error = new Error("Admin email already exists");
             error.statusCode = 409;
             throw error;
         }
-
-        const newRestaurant = await RestaurantRepository.create({ name, slug, address });
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(adminPassword, salt);
@@ -38,10 +41,10 @@ class UserService {
             password: hashedPassword,
             role: "ADMIN",
             is_verified: true,
-            restaurantId: newRestaurant.id
+            restaurantId: restaurantId
         });
 
-        return { restaurant: newRestaurant, admin: newAdmin };
+        return { admin: newAdmin };
     }
 
     static async createStaff({ name, email, password, role, restaurantId, userID }) {
