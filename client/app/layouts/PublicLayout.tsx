@@ -1,9 +1,9 @@
 import { Outlet, Navigate } from "react-router";
 import { useEffect, useState } from "react";
-import { useUserStore } from "~/stores";
+import { useUserStore, type UserStore } from "~/stores";
 
 export default function PublicLayout() {
-  const userData = useUserStore((state) => state.userData);
+  const userData = useUserStore((state: UserStore) => state.userData);
   const route = window.location.pathname;
   const prohibitedRoutes = [
     "/login", 

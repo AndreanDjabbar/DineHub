@@ -1,9 +1,9 @@
 import { Outlet, Navigate } from "react-router";
 import { useEffect, useState } from "react";
-import { useUserStore } from "~/stores";
+import { useUserStore, type UserStore } from "~/stores";
 
 export default function AdminLayout() {
-  const role = useUserStore((state) => state.role);
+  const role = useUserStore((state: UserStore) => state.role);
   
   if (!role) {
     return <Navigate to="/login" replace />;

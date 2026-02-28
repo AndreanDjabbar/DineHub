@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import api from "~/lib/axios";
 
-interface UserStore {
+export interface UserStore {
     userID: string | null;
     setUserID: (id: string | null) => void;
     name: string | null;

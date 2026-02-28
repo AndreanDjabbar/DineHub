@@ -1,10 +1,10 @@
 import { VscLoading } from "react-icons/vsc";
 import { Outlet, Navigate } from "react-router";
-import { useUserStore } from "~/stores";
+import { useUserStore, type UserStore } from "~/stores";
 
 export default function ProtectedLayout() {
-  const userData = useUserStore((state) => state.userData);
-  const isAuthLoading = useUserStore((state) => state.isAuthLoading);
+  const userData = useUserStore((state: UserStore) => state.userData);
+  const isAuthLoading = useUserStore((state: UserStore) => state.isAuthLoading);
 
   if (isAuthLoading) {
     return (
