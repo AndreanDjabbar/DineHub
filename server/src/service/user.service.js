@@ -1,5 +1,4 @@
 import UserRepository from "../repository/user.repository.js";
-import RestaurantRepository from "../repository/restaurant.repository.js"; 
 import bcrypt from "bcrypt";
 
 class UserService {
@@ -17,6 +16,53 @@ class UserService {
             email: user.email,
             restaurantId: user.restaurant_id,
         };
+    }
+
+    static async verifiedUser(userID) {
+        const verifiedUser = await UserRepository.updateUser(userID, { is_verified: true });
+        if (!verifiedUser) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
+        }
+        return {
+            id: verifiedUser.id,
+            name: verifiedUser.name,
+            email: verifiedUser.email,
+            is_verified: verifiedUser.is_verified
+        };
+    }
+
+    static async getVerifiedUserByEmail(email) {
+        const user = await UserRepository.getByEmail(email);
+        if (!user) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
+        }
+        if (!user.is_verified) {
+            const error = new Error("User email not verified");
+            error.statusCode = 403;
+            throw error;
+        }
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            restaurantId: user.restaurant_id
+        }
+    }
+
+    static async updatePassword(userID, newPassword) {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const updatedUser = await UserRepository.updateUser(userID, { password: hashedPassword });
+        if (!updatedUser) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
+        }
+        return updatedUser;
     }
     
     static async createTenant({  
@@ -45,6 +91,30 @@ class UserService {
         });
 
         return { admin: newAdmin };
+    }
+
+    static async createUser({
+        name,
+        email,
+        password,
+        role,
+        restaurantId,
+    }) {
+        const existingUser = await UserRepository.getByEmail(email);
+        if (existingUser) {
+            const error = new Error("Email already in use");
+            error.statusCode = 409;
+            throw error;
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await UserRepository.create({
+            name,
+            email,
+            password: hashedPassword,
+            role,
+            restaurant_id: restaurantId
+        });
+        return newUser;
     }
 
     static async createStaff({ name, email, password, role, restaurantId, userID }) {
