@@ -54,6 +54,22 @@ class UserService {
         }
     }
 
+    static async getUserByEmail(email) {
+        const user = await UserRepository.getByEmail(email);
+        if (!user) {
+            const error = new Error("User not found");
+            error.statusCode = 404;
+            throw error;
+        }
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            restaurantId: user.restaurant_id
+        };
+    }
+
     static async updatePassword(userID, newPassword) {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         const updatedUser = await UserRepository.updateUser(userID, { password: hashedPassword });
