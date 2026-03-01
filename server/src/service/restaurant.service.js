@@ -1,7 +1,6 @@
 import RestaurantRepository from "../repository/restaurant.repository.js";
 import bcrypt from "bcrypt";
 import UserRepository from "../repository/user.repository.js";
-import UserService from "./user.service.js";
 
 class RestaurantService {
   static async onboardTenant({
@@ -38,13 +37,31 @@ class RestaurantService {
       throw error;
     }
 
-    const newAdmin = await UserService.createTenant({
-      restaurantId: newRestaurant.id,
-      adminName,
-      adminEmail,
-      adminPassword,
+    const existingUser = await UserRepository.getByEmail(adminEmail);
+    if (existingUser) {
+        const error = new Error("Admin email already exists");
+        error.statusCode = 409;
+        throw error;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(adminPassword, salt);
+
+    const newAdmin = await UserRepository.create({
+        name: adminName,
+        email: adminEmail,
+        password: hashedPassword,
+        role: "ADMIN",
+        is_verified: true,
+        restaurantId: newRestaurant.id
     });
-    return { restaurant: newRestaurant, admin: newAdmin.admin };
+    if (!newAdmin || !newAdmin.id) {
+        const error = new Error("Failed to create admin user");
+        error.statusCode = 500;
+        throw error;
+    }
+
+    return { restaurant: newRestaurant, admin: newAdmin };
   }
 
   static async getRestaurant(id, currentUserID, currentRole) {
@@ -61,7 +78,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurant_id !== id) {
+    if (currentUser.restaurantId !== id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -90,8 +107,14 @@ class RestaurantService {
     }
 
     const existingUser = await UserRepository.getByEmail(data.adminEmail);
-    if (existingUser && existingUser.id !== data.adminId) {
-      const error = new Error("Admin email already exists");
+    if (data.adminEmail && existingUser && existingUser.restaurantId !== id) {
+      const error = new Error("Admin email already in use");
+      error.statusCode = 409;
+      throw error;
+    }
+
+    if (existingUser && existingUser.restaurantId !== id) {
+      const error = new Error("Admin email already in use");
       error.statusCode = 409;
       throw error;
     }
@@ -170,7 +193,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurant_id !== restaurantId) {
+    if (currentUser.restaurantId !== restaurantId) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -205,7 +228,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurant_id !== restaurant.id) {
+    if (currentUser.restaurantId !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -229,7 +252,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurant_id !== restaurantId) {
+    if (currentUser.restaurantId !== restaurantId) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -252,13 +275,14 @@ class RestaurantService {
       throw error;
     }
     const currentUser = await UserRepository.getById(currentUserID);
+
     if (!currentUser) {
       const error = new Error("Current user not found");
       error.statusCode = 404;
       throw error;
     }
 
-    if (currentUser.restaurant_id !== restaurant.id) {
+    if (currentUser.restaurantId !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -287,15 +311,10 @@ class RestaurantService {
     }
 
     const currentUser = await UserRepository.getById(currentUserID);
+
     if (!currentUser) {
       const error = new Error("Current user not found");
       error.statusCode = 404;
-      throw error;
-    }
-
-    if (currentUser.restaurant_id !== restaurant.id) {
-      const error = new Error("Unauthorized access");
-      error.statusCode = 403;
       throw error;
     }
 
@@ -320,15 +339,10 @@ class RestaurantService {
     }
 
     const currentUser = await UserRepository.getById(currentUserID);
+
     if (!currentUser) {
       const error = new Error("Current user not found");
       error.statusCode = 404;
-      throw error;
-    }
-
-    if (currentUser.restaurant_id !== restaurant.id) {
-      const error = new Error("Unauthorized access");
-      error.statusCode = 403;
       throw error;
     }
 
@@ -366,13 +380,14 @@ class RestaurantService {
     }
 
     const currentUser = await UserRepository.getById(currentUserID);
+
     if (!currentUser) {
       const error = new Error("Current user not found");
       error.statusCode = 404;
       throw error;
     }
 
-    if (currentUser.restaurant_id !== restaurant.id) {
+    if (currentUser.restaurantId !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -401,17 +416,18 @@ class RestaurantService {
     }
 
     const currentUser = await UserRepository.getById(currentUserID);
+
     if (!currentUser) {
       const error = new Error("Current user not found");
       error.statusCode = 404;
       throw error;
     }
 
-    if (currentUser.restaurant_id !== restaurant.id) {
-      const error = new Error("Unauthorized access");
-      error.statusCode = 403;
-      throw error;
-    }
+      if (currentUser.restaurantId !== restaurant.id) {
+        const error = new Error("Unauthorized access");
+        error.statusCode = 403;
+        throw error;
+      }
 
     const newMenuItem = await RestaurantRepository.createMenuItem(data);
 
@@ -465,13 +481,14 @@ class RestaurantService {
     }
 
     const currentUser = await UserRepository.getById(currentUserID);
+
     if (!currentUser) {
       const error = new Error("Current user not found");
       error.statusCode = 404;
       throw error;
     }
 
-    if (currentUser.restaurant_id !== restaurant.id) {
+    if (currentUser.restaurantId !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -516,7 +533,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurant_id !== restaurant.id) {
+    if (currentUser.restaurantId !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
