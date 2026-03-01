@@ -2,8 +2,8 @@ import UserRepository from "../repository/user.repository.js";
 import bcrypt from "bcrypt";
 
 class UserService {
-    static async getMyUserData(userID) {
-        const user = await UserRepository.getById(userID);
+    static async getMyUserData(currentUserID) {
+        const user = await UserRepository.getById(currentUserID);
         if (!user) {
             const error = new Error("User not found");
             error.statusCode = 404;
@@ -46,7 +46,7 @@ class UserService {
         return { admin: newAdmin };
     }
 
-    static async createStaff({ name, email, password, role, restaurantId, userID }) {
+    static async createStaff({ name, email, password, role, restaurantId, currentUserID }) {
         const existingUser = await UserRepository.getByEmail(email);
         if (existingUser) {
             const error = new Error("Email already in use");
@@ -54,7 +54,7 @@ class UserService {
             throw error;
         }
         
-        const currentUser = await UserRepository.getById(userID);
+        const currentUser = await UserRepository.getById(currentUserID);
         if (!currentUser) {
             const error = new Error("Current user not found");
             error.statusCode = 404;
@@ -116,8 +116,8 @@ class UserService {
         await UserRepository.delete(id);
     }
 
-    static async getStaffByRestaurantId(restaurantId, staffRole=["CASHIER", "KITCHEN"], userID) {
-        const currentUser = await UserRepository.getById(userID);
+    static async getStaffByRestaurantId(restaurantId, staffRole=["CASHIER", "KITCHEN"], currentUserID) {
+        const currentUser = await UserRepository.getById(currentUserID);
         if (!currentUser) {
             const error = new Error("Current user not found");
             error.statusCode = 404;
