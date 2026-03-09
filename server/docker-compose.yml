@@ -12,7 +12,7 @@ services:
     networks:
       - dinehub_network
 
-  pingspot-postgres:
+  dinehub-postgres:
     image: postgres:latest
     container_name: dinehub_postgres
     restart: always
