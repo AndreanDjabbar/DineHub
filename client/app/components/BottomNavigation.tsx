@@ -43,7 +43,7 @@ const BottomNavigation = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-6 py-3 pb-safe z-50">
       <div className="flex justify-evenly gap-20 items-center max-w-lg mx-auto">
-        {bottomNavigationItems.filter((item) => !item.protected).map((item) => (
+        {bottomNavigationItems.filter((item) => !item.protected || isLoggedIn).map((item) => (
           <NavItem
             key={item.to}
             to={item.to}
