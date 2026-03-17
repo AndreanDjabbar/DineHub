@@ -14,11 +14,16 @@ interface MenuItem {
 }
 
 interface CartItem {
-  id: string;
+  id: string; // The specific menu item id
+  cartKey: string; // The composite key (itemId_userId)
   name: string;
   price: number;
   quantity: number;
   image: string | null;
+  user: {
+    id: string | null;
+    name: string;
+  };
 }
 
 const formatRupiah = (price: number) => {
@@ -39,11 +44,36 @@ const CartPage: React.FC = () => {
   useEffect(() => {
     const loadCartData = () => {
       try {
-        // Get cart quantities
+        // Get cart data
         const savedCart = localStorage.getItem("dinehub-cart");
-        const cartData: { [itemId: string]: number } = savedCart
-          ? JSON.parse(savedCart)
-          : {};
+        let cartData: {
+          [cartKey: string]: {
+            itemId: string;
+            quantity: number;
+            user: { id: string | null; name: string };
+          };
+        } = {};
+
+        if (savedCart) {
+          const parsed = JSON.parse(savedCart);
+          // Migration check
+          const isOldFormat = Object.values(parsed).some(
+            (v) => typeof v === "number",
+          );
+          if (isOldFormat) {
+            Object.entries(parsed).forEach(([itemId, qty]) => {
+              if (typeof qty === "number") {
+                cartData[`${itemId}_guest`] = {
+                  itemId,
+                  quantity: qty,
+                  user: { id: null, name: "Guest" },
+                };
+              }
+            });
+          } else {
+            cartData = parsed;
+          }
+        }
 
         // Get menu categories to get full item details
         const savedCategories = localStorage.getItem("dinehub-menu-categories");
@@ -57,18 +87,22 @@ const CartPage: React.FC = () => {
 
         // Build cart items array
         const allMenuItems: MenuItem[] = categories.flatMap(
-          (cat: any) => cat.items
+          (cat: any) => cat.items,
         );
         const cartItems: CartItem[] = Object.entries(cartData)
-          .map(([itemId, quantity]) => {
-            const menuItem = allMenuItems.find((item) => item.id === itemId);
+          .map(([cartKey, cartEntry]) => {
+            const menuItem = allMenuItems.find(
+              (item) => item.id === cartEntry.itemId,
+            );
             if (menuItem) {
               return {
                 id: menuItem.id,
+                cartKey: cartKey,
                 name: menuItem.name,
                 price: menuItem.price,
-                quantity: quantity,
+                quantity: cartEntry.quantity,
                 image: menuItem.image,
+                user: cartEntry.user,
               };
             }
             return null;
@@ -84,11 +118,11 @@ const CartPage: React.FC = () => {
     loadCartData();
   }, []);
 
-  const updateQuantity = (id: string, change: number) => {
+  const updateQuantity = (cartKey: string, change: number) => {
     setItems((prevItems) => {
       const updatedItems = prevItems
         .map((item) => {
-          if (item.id === id) {
+          if (item.cartKey === cartKey) {
             const newQuantity = Math.max(0, item.quantity + change);
             return { ...item, quantity: newQuantity };
           }
@@ -97,9 +131,13 @@ const CartPage: React.FC = () => {
         .filter((item) => item.quantity > 0);
 
       // Update localStorage
-      const cartData: { [itemId: string]: number } = {};
+      const cartData: { [cartKey: string]: any } = {};
       updatedItems.forEach((item) => {
-        cartData[item.id] = item.quantity;
+        cartData[item.cartKey] = {
+          itemId: item.id,
+          quantity: item.quantity,
+          user: item.user,
+        };
       });
       localStorage.setItem("dinehub-cart", JSON.stringify(cartData));
 
@@ -109,7 +147,7 @@ const CartPage: React.FC = () => {
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
-    0
+    0,
   );
   const tax = subtotal * 0.11;
   const total = subtotal + tax;
@@ -137,7 +175,7 @@ const CartPage: React.FC = () => {
           </div>
         ) : (
           items.map((item) => (
-            <div key={item.id} className="flex gap-4 items-center">
+            <div key={item.cartKey} className="flex gap-4 items-center">
               {/* Image */}
               <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden shrink-0">
                 {item.image ? (
@@ -158,6 +196,12 @@ const CartPage: React.FC = () => {
               {/* Details */}
               <div className="grow">
                 <h3 className="font-bold text-sm text-gray-900">{item.name}</h3>
+                <p className="text-xs text-gray-500">
+                  Added by:{" "}
+                  <span className="font-semibold text-gray-700">
+                    {item.user?.name || "Guest"}
+                  </span>
+                </p>
                 <p className=" font-bold text-sm mt-1">
                   {formatRupiah(item.price)}
                 </p>
@@ -166,8 +210,8 @@ const CartPage: React.FC = () => {
               {/* Quantity Stepper */}
               <QuantityPicker
                 quantity={item.quantity}
-                onIncrement={() => updateQuantity(item.id, 1)}
-                onDecrement={() => updateQuantity(item.id, -1)}
+                onIncrement={() => updateQuantity(item.cartKey, 1)}
+                onDecrement={() => updateQuantity(item.cartKey, -1)}
               />
             </div>
           ))

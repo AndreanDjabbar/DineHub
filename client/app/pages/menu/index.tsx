@@ -11,6 +11,7 @@ import { BottomNavigation, QuantityPicker } from "~/components";
 import { useNavigate, useSearchParams } from "react-router";
 import api from "~/lib/axios";
 import defaultCategoryImage from "~/assets/image/default-category.png";
+import useUserStore from "~/stores/user.store";
 
 interface MenuItem {
   id: string;
@@ -49,7 +50,7 @@ const formatRupiah = (price: number) => {
 const Menu: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  
+
   // Try to get table from URL, fallback to localStorage
   let tableId = searchParams.get("table");
   if (!tableId && typeof window !== "undefined") {
@@ -74,15 +75,48 @@ const Menu: React.FC = () => {
   }, [tableId, searchParams, setSearchParams]);
 
   // State
+  // User info for cart tracing
+  const { userID, name: userName } = useUserStore();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tableInfo, setTableInfo] = useState<TableInfo | null>(null);
   const [categories, setCategories] = useState<MenuCategory[]>([]);
-  const [cart, setCart] = useState<{ [itemId: string]: number }>(() => {
-    // Load cart from localStorage on mount (only in browser)
+
+  type CartState = {
+    [cartKey: string]: {
+      itemId: string;
+      quantity: number;
+      user: { id: string | null; name: string };
+    };
+  };
+
+  const [cart, setCart] = useState<CartState>(() => {
+    // Load cart from localStorage on mount
     if (typeof window !== "undefined") {
       const savedCart = localStorage.getItem("dinehub-cart");
-      return savedCart ? JSON.parse(savedCart) : {};
+      if (savedCart) {
+        const parsed = JSON.parse(savedCart);
+        // Migration from old basic format {[itemId]: quant} testing:
+        const isOldFormat = Object.values(parsed).some(
+          (v) => typeof v === "number",
+        );
+        if (isOldFormat) {
+          const migrated: CartState = {};
+          Object.entries(parsed).forEach(([itemId, qty]) => {
+            if (typeof qty === "number") {
+              const guestKey = `${itemId}_guest`;
+              migrated[guestKey] = {
+                itemId,
+                quantity: qty,
+                user: { id: null, name: "Guest" },
+              };
+            }
+          });
+          return migrated;
+        }
+        return parsed as CartState;
+      }
     }
     return {};
   });
@@ -105,9 +139,7 @@ const Menu: React.FC = () => {
         const data = response.data;
         setTableInfo(data.data);
       } catch (err: any) {
-        setError(
-          err.data?.message || "Failed to load table information",
-        );
+        setError(err.data?.message || "Failed to load table information");
       } finally {
         setLoading(false);
       }
@@ -146,22 +178,33 @@ const Menu: React.FC = () => {
   }, [cart, tableInfo]);
 
   const handleAddToCart = (itemId: string) => {
+    const userIdentifier = userID || "guest";
+    const cartKey = `${itemId}_${userIdentifier}`;
+    const displayName = userName || "Guest";
+
     setCart((prevCart) => {
-      const newCart = {
+      const existing = prevCart[cartKey];
+      return {
         ...prevCart,
-        [itemId]: (prevCart[itemId] || 0) + 1,
+        [cartKey]: {
+          itemId,
+          quantity: (existing?.quantity || 0) + 1,
+          user: { id: userID, name: displayName },
+        },
       };
-      return newCart;
     });
   };
 
   const handleRemoveFromCart = (itemId: string) => {
+    const userIdentifier = userID || "guest";
+    const cartKey = `${itemId}_${userIdentifier}`;
+
     setCart((prevCart) => {
       const newCart = { ...prevCart };
-      if (newCart[itemId] > 1) {
-        newCart[itemId] -= 1;
+      if (newCart[cartKey] && newCart[cartKey].quantity > 1) {
+        newCart[cartKey].quantity -= 1;
       } else {
-        delete newCart[itemId];
+        delete newCart[cartKey];
       }
       return newCart;
     });
@@ -178,11 +221,21 @@ const Menu: React.FC = () => {
 
   // Calculate cart totals
   const allMenuItems = categories.flatMap((cat) => cat.items);
-  const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-  const totalAmount = Object.entries(cart).reduce((sum, [itemId, qty]) => {
-    const item = allMenuItems.find((i) => i.id === itemId);
-    return sum + (item?.price || 0) * qty;
+  const totalItems = Object.values(cart).reduce(
+    (sum, item) => sum + item.quantity,
+    0,
+  );
+  const totalAmount = Object.values(cart).reduce((sum, cartItem) => {
+    const item = allMenuItems.find((i) => i.id === cartItem.itemId);
+    return sum + (item?.price || 0) * cartItem.quantity;
   }, 0);
+
+  // Helper to get quantity for the CURRENT user
+  const getUserItemQty = (itemId: string) => {
+    const userIdentifier = userID || "guest";
+    const cartKey = `${itemId}_${userIdentifier}`;
+    return cart[cartKey]?.quantity || 0;
+  };
 
   // Filter categories and items based on search query and selected category
   console.log("CATEGORIES:", categories);
@@ -206,7 +259,10 @@ const Menu: React.FC = () => {
       };
     })
     .filter((category) => category.items.length > 0);
-  console.log(`Filtered categoried with categoryId=${selectedCategoryId} and search="${searchQuery}":`, filteredCategories);
+  console.log(
+    `Filtered categoried with categoryId=${selectedCategoryId} and search="${searchQuery}":`,
+    filteredCategories,
+  );
 
   if (loading) {
     return (
@@ -344,10 +400,10 @@ const Menu: React.FC = () => {
 
                         {/* Add Button / Counter Overlay */}
                         {item.isAvailable ? (
-                          cart[item.id] ? (
+                          getUserItemQty(item.id) > 0 ? (
                             <div className="absolute bottom-2 right-2">
                               <QuantityPicker
-                                quantity={cart[item.id]}
+                                quantity={getUserItemQty(item.id)}
                                 onIncrement={() => handleAddToCart(item.id)}
                                 onDecrement={() =>
                                   handleRemoveFromCart(item.id)
