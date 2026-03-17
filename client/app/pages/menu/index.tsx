@@ -48,8 +48,30 @@ const formatRupiah = (price: number) => {
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const tableId = searchParams.get("table");
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // Try to get table from URL, fallback to localStorage
+  let tableId = searchParams.get("table");
+  if (!tableId && typeof window !== "undefined") {
+    try {
+      const savedTableInfo = localStorage.getItem("dinehub-table-info");
+      if (savedTableInfo) {
+        const parsed = JSON.parse(savedTableInfo);
+        if (parsed && parsed.id) {
+          tableId = parsed.id;
+        }
+      }
+    } catch (e) {
+      console.error("Failed to parse saved table info", e);
+    }
+  }
+
+  // Update URL if we used the fallback tableId
+  useEffect(() => {
+    if (tableId && !searchParams.get("table")) {
+      setSearchParams({ table: tableId }, { replace: true });
+    }
+  }, [tableId, searchParams, setSearchParams]);
 
   // State
   const [loading, setLoading] = useState(true);

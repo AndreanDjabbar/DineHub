@@ -78,7 +78,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurantId !== id) {
+    if (currentUser.restaurant_id !== id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -107,13 +107,13 @@ class RestaurantService {
     }
 
     const existingUser = await UserRepository.getByEmail(data.adminEmail);
-    if (data.adminEmail && existingUser && existingUser.restaurantId !== id) {
+    if (data.adminEmail && existingUser && existingUser.restaurant_id !== id) {
       const error = new Error("Admin email already in use");
       error.statusCode = 409;
       throw error;
     }
 
-    if (existingUser && existingUser.restaurantId !== id) {
+    if (existingUser && existingUser.restaurant_id !== id) {
       const error = new Error("Admin email already in use");
       error.statusCode = 409;
       throw error;
@@ -193,7 +193,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurantId !== restaurantId) {
+    if (currentUser.restaurant_id !== restaurantId) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -228,7 +228,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurantId !== restaurant.id) {
+    if (currentUser.restaurant_id !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -252,7 +252,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurantId !== restaurantId) {
+    if (currentUser.restaurant_id !== restaurantId) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -282,7 +282,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurantId !== restaurant.id) {
+    if (currentUser.restaurant_id !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -387,7 +387,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurantId !== restaurant.id) {
+    if (currentUser.restaurant_id !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -423,7 +423,7 @@ class RestaurantService {
       throw error;
     }
 
-      if (currentUser.restaurantId !== restaurant.id) {
+      if (currentUser.restaurant_id !== restaurant.id) {
         const error = new Error("Unauthorized access");
         error.statusCode = 403;
         throw error;
@@ -488,7 +488,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurantId !== restaurant.id) {
+    if (currentUser.restaurant_id !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;
@@ -533,7 +533,7 @@ class RestaurantService {
       throw error;
     }
 
-    if (currentUser.restaurantId !== restaurant.id) {
+    if (currentUser.restaurant_id !== restaurant.id) {
       const error = new Error("Unauthorized access");
       error.statusCode = 403;
       throw error;

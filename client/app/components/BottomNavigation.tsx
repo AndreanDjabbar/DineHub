@@ -9,14 +9,29 @@ import { useUserStore, type UserStore } from "~/stores";
 const BottomNavigation = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const tableId = searchParams.get("table");
+  let tableId = searchParams.get("table");
+  
+  if (!tableId && typeof window !== "undefined") {
+    try {
+      const savedTableInfo = localStorage.getItem("dinehub-table-info");
+      if (savedTableInfo) {
+        const parsed = JSON.parse(savedTableInfo);
+        if (parsed && parsed.id) {
+          tableId = parsed.id;
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
   const userData = useUserStore((state: UserStore) => state.userData);
   const isLoggedIn = userData !== null;
 
   const handleAccountClick = (e: React.MouseEvent) => {
     if (!userData) {
       e.preventDefault();
-      navigate("/dinehub");
+      navigate(tableId ? `/dinehub?table=${tableId}` : "/dinehub");
     }
   };
 
