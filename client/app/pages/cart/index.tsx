@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { FiX, FiMapPin } from "react-icons/fi";
 import { BackButton, Button, QuantityPicker } from "~/components";
 import PaymentModal from "./components/PaymentModal";
+import useUserStore from "~/stores/user.store";
 
 interface MenuItem {
   id: string;
@@ -36,6 +37,7 @@ const formatRupiah = (price: number) => {
 
 const CartPage: React.FC = () => {
   const navigate = useNavigate();
+  const { userData } = useUserStore();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [items, setItems] = useState<CartItem[]>([]);
   const [tableInfo, setTableInfo] = useState<any>(null);
@@ -248,7 +250,13 @@ const CartPage: React.FC = () => {
           <span className="text-gray-500 font-medium">Total</span>
           <span className="text-xl font-bold">{formatRupiah(total)}</span>
         </div>
-        <Button onClick={() => setIsPaymentModalOpen(true)}>Checkout</Button>
+        <Button onClick={() => {
+          if (!userData) {
+            navigate("/login");
+            return;
+          }
+          setIsPaymentModalOpen(true);
+        }}>Checkout</Button>
       </div>
 
       {/* Payment Modal */}
